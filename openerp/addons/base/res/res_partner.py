@@ -166,8 +166,6 @@ ADDRESS_FIELDS = POSTAL_ADDRESS_FIELDS + ('email', 'phone', 'fax', 'mobile', 'we
 
 
 class contact_mixin(osv.AbstractModel):
-    """Mixin class for objects using the need action feature"""
-
     _name = 'res.contact.mixin'
 
     def create(self, cr, uid, vals, context=None):
@@ -179,9 +177,13 @@ class contact_mixin(osv.AbstractModel):
         res = super(contact_mixin, self).read(cr, user, ids, fields, context,
                                               load)
         if fields and 'contact_id' in fields:
-            for rec in res:
-                if not rec.get('contact_id') and rec.get('partner_id'):
-                    rec['contact_id'] = rec['partner_id']
+            if isinstance(res, list):
+                for rec in res:
+                    if not rec.get('contact_id') and rec.get('partner_id'):
+                        rec['contact_id'] = rec['partner_id']
+            else:
+                if not res.get('contact_id') and res.get('partner_id'):
+                    res['contact_id'] = res['partner_id']
         return res
 
     def write(self, cr, uid, ids, vals, context=None):
@@ -202,7 +204,7 @@ class contact_mixin(osv.AbstractModel):
                                                   )[0]['commercial_entity_id'][0]
         return vals
 
-    def onchange_unfck_contact(self, cr, uid, ids, contact_id, partner_id,
+    def onchange_contact_mixin(self, cr, uid, ids, contact_id, partner_id,
                                context=None):
         res = {}
         if contact_id:
@@ -234,9 +236,9 @@ class contact_mixin(osv.AbstractModel):
                 }
                 if view_type in ('form', 'tree'):
                     kw['on_change'] = \
-                    "onchange_unfck_contact(contact_id, partner_id, context)"
-                    kw['groups'] = "akretion_b2b_unfck.group_contact_advanced"
-                    if not self.user_has_groups(cr, uid, "akretion_b2b_unfck.group_contact_advanced", context):
+                    "onchange_contact_mixin(contact_id, partner_id, context)"
+                    kw['groups'] = "base.group_contact_advanced"
+                    if not self.user_has_groups(cr, uid, "base.group_contact_advanced", context):
                         partner.set('invisible', '1')
                         setup_modifiers(partner, partner_descr, context, view_type == 'tree')
                         kw['string'] = partner.attrib.get('string', partner_descr['partner_id']['string'])
