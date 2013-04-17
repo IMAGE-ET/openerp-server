@@ -168,6 +168,10 @@ ADDRESS_FIELDS = POSTAL_ADDRESS_FIELDS + ('email', 'phone', 'fax', 'mobile', 'we
 class contact_mixin(osv.AbstractModel):
     _name = 'res.contact.mixin'
 
+    _columns = {
+        'contact_id': fields.many2one('res.partner', 'Contact'),
+    }
+
     def create(self, cr, uid, vals, context=None):
         vals = self.write_contact(cr, uid, [], vals, context)
         return super(contact_mixin, self).create(cr, uid, vals, context)
