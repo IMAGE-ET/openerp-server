@@ -246,7 +246,19 @@ class contact_mixin(osv.AbstractModel):
                 p_index = partner.getparent().index(partner)
                 partner.getparent().insert(p_index, contact)
                 res['fields'].update(contact_descr)
-                res['arch'] = etree.tostring(eview, encoding="utf-8")
+            if view_type == 'search':
+                group_by_fields = eview.xpath("//filter[@context=\"{'group_by':'partner_id'}\"]")
+                for group_by_field in group_by_fields:
+                    kw = {
+                        'string': 'Contact',
+                        'icon': "terp-partner",
+                        'context': "{'group_by':'contact_id'}",
+                        'domain': "[]",
+                    }
+                    g_contact = etree.Element('filter', **kw)
+                    g_index = group_by_field.getparent().index(group_by_field)
+                    group_by_field.getparent().insert(g_index, g_contact)
+            res['arch'] = etree.tostring(eview, encoding="utf-8")
         return res
 
 class res_partner(osv.osv, format_address):
