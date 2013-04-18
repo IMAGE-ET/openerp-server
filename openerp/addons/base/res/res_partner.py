@@ -167,7 +167,7 @@ ADDRESS_FIELDS = POSTAL_ADDRESS_FIELDS + ('email', 'phone', 'fax', 'mobile', 'we
 
 class contact_mixin(osv.AbstractModel):
     _name = 'res.contact.mixin'
-
+    _contact_mixin = True
     _columns = {
         'contact_id': fields.many2one('res.partner', 'Contact'),
     }
@@ -268,6 +268,28 @@ class contact_mixin(osv.AbstractModel):
 class res_partner(osv.osv, format_address):
     _description = 'Partner'
     _name = "res.partner"
+
+    def unlink(self, cr, uid, ids, context=None):
+        errors = {}
+        for model_name, model_obj in self.pool.models.iteritems():
+            if hasattr(model_obj, '_contact_mixin') and model_name != 'res.contact.mixin':
+                domain = [
+                    '|',
+                    ['contact_id', 'in', ids],
+                    ['partner_id', 'in', ids],
+                ]       
+                res_ids = model_obj.search(cr, uid, domain, context=context)
+                if res_ids:
+                    res = model_obj.browse(cr, uid, res_ids, context=context)
+                    errors[_(model_obj._description)] = res.pop(0)[model_obj._rec_name] or ""
+                    for obj in res:
+                        errors[_(model_obj._description)] += "; %s"%(obj[model_obj._rec_name] or "")
+        if errors:
+            raise osv.except_osv(_('User Error'),
+                _("Cannot delete contact TODO id because it's used in the following records:\n"
+                    "%s")%(%ids, "\n".join(["%s : %s"%(key, errors[key]) for key in errors])))
+        return super(res_partner, self).unlink(cr, uid, ids, context=context)
+
 
     def _address_display(self, cr, uid, ids, name, args, context=None):
         res = {}
