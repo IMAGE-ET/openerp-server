@@ -286,8 +286,8 @@ class res_partner(osv.osv, format_address):
                         errors[_(model_obj._description)] += "; %s"%(obj[model_obj._rec_name] or "")
         if errors:
             raise osv.except_osv(_('User Error'),
-                _("Cannot delete contact TODO id because it's used in the following records:\n"
-                    "%s")%(%ids, "\n".join(["%s : %s"%(key, errors[key]) for key in errors])))
+                _("Cannot delete contact %s because they are used in the following records:\n"
+                    "%s") % (ids, "\n".join(["%s : %s"%(key, errors[key]) for key in errors])))
         return super(res_partner, self).unlink(cr, uid, ids, context=context)
 
 
