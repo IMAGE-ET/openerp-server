@@ -165,20 +165,16 @@ POSTAL_ADDRESS_FIELDS = ('street', 'street2', 'zip', 'city', 'state_id', 'countr
 ADDRESS_FIELDS = POSTAL_ADDRESS_FIELDS + ('email', 'phone', 'fax', 'mobile', 'website', 'ref', 'lang')
 
 
-class contact_mixin(osv.AbstractModel):
-    _name = 'res.contact.mixin'
-    _contact_mixin = True
-    _columns = {
-        'contact_id': fields.many2one('res.partner', 'Contact'),
-    }
+class contact_mixin_methods(osv.AbstractModel):
+    _name = 'res.contact.mixin.methods'
 
     def create(self, cr, uid, vals, context=None):
         vals = self.write_contact(cr, uid, [], vals, context)
-        return super(contact_mixin, self).create(cr, uid, vals, context)
+        return super(contact_mixin_methods, self).create(cr, uid, vals, context)
 
     def read(self, cr, user, ids, fields=None, context=None,
                            load='_classic_read'):
-        res = super(contact_mixin, self).read(cr, user, ids, fields, context,
+        res = super(contact_mixin_methods, self).read(cr, user, ids, fields, context,
                                               load)
         if fields and 'contact_id' in fields:
             if isinstance(res, list):
@@ -192,7 +188,7 @@ class contact_mixin(osv.AbstractModel):
 
     def write(self, cr, uid, ids, vals, context=None):
         vals = self.write_contact(cr, uid, ids, vals, context)
-        return super(contact_mixin, self).write(cr, uid, ids, vals, context)
+        return super(contact_mixin_methods, self).write(cr, uid, ids, vals, context)
 
     def write_contact(self, cr, uid, ids, vals, context=None):
         partner_obj = self.pool.get('res.partner')
@@ -220,7 +216,7 @@ class contact_mixin(osv.AbstractModel):
     def fields_view_get(self, cr, uid, view_id=None, view_type='form',
                                       context=None, toolbar=False,
                                       submenu=False):
-        res = super(contact_mixin, self).fields_view_get(cr, uid, view_id,
+        res = super(contact_mixin_methods, self).fields_view_get(cr, uid, view_id,
                                                          view_type,
                                                          context,
                                                          toolbar,
@@ -264,6 +260,13 @@ class contact_mixin(osv.AbstractModel):
                     group_by_field.getparent().insert(g_index, g_contact)
             res['arch'] = etree.tostring(eview, encoding="utf-8")
         return res
+
+class contact_mixin(osv.AbstractModel):
+    _name = 'res.contact.mixin'
+    _inherit = 'res.contact.mixin.methods'
+    _columns = {
+        'contact_id': fields.many2one('res.partner', 'Contact'),
+    }
 
 class res_partner(osv.osv, format_address):
     _description = 'Partner'
