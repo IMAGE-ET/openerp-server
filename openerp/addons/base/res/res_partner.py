@@ -690,6 +690,7 @@ class res_partner(osv.osv, format_address):
         adr_pref = set(adr_pref or [])
         if 'default' not in adr_pref:
             adr_pref.add('default')
+        result = {}
         visited = set()
         for partner in self.browse(cr, uid, filter(None, ids), context=context):
             current_partner = partner
