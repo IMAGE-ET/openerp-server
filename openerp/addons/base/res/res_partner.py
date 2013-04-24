@@ -161,9 +161,9 @@ def _lang_get(self, cr, uid, context=None):
     res = lang_pool.read(cr, uid, ids, ['code', 'name'], context)
     return [(r['code'], r['name']) for r in res]
 
-POSTAL_ADDRESS_FIELDS = ('street', 'street2', 'zip', 'city', 'state_id', 'country_id')
-ADDRESS_FIELDS = POSTAL_ADDRESS_FIELDS + ('email', 'phone', 'fax', 'mobile', 'website', 'ref', 'lang')
-
+# fields copy if 'use_parent_address' is checked
+ADDRESS_FIELDS = ('street', 'street2', 'zip', 'city', 'state_id', 'country_id')
+POSTAL_ADDRESS_FIELDS = ADDRESS_FIELDS # deprecated, to remove after 7.0
 
 class contact_mixin_methods(osv.AbstractModel):
     _name = 'res.contact.mixin.methods'
@@ -448,7 +448,7 @@ class res_partner(osv.osv, format_address):
         'company_id': lambda self, cr, uid, ctx: self.pool.get('res.company')._company_default_get(cr, uid, 'res.partner', context=ctx),
         'color': 0,
         'is_company': False,
-        'type': 'default',
+        'type': 'contact', # type 'default' is wildcard and thus inappropriate
         'use_parent_address': True,
         'image': False,
     }
@@ -468,7 +468,6 @@ class res_partner(osv.osv, format_address):
         value = {}
         value['title'] = False
         if is_company:
-            value['parent_id'] = False
             domain = {'title': [('domain', '=', 'partner')]}
         else:
             domain = {'title': [('domain', '=', 'contact')]}
@@ -553,10 +552,26 @@ class res_partner(osv.osv, format_address):
 
         return super(res_partner, self).create(cr, uid, vals, context=context)
 
+    def _address_fields(self, cr, uid, context=None):
+        """ Returns the list of address fields that are synced from the parent
+        when the `use_parent_address` flag is set. """
+        return list(ADDRESS_FIELDS)
+
     def update_address(self, cr, uid, ids, vals, context=None):
-        addr_vals = dict((key, vals[key]) for key in POSTAL_ADDRESS_FIELDS if key in vals)
+        address_fields = self._address_fields(cr, uid, context=context)
+        addr_vals = dict((key, vals[key]) for key in address_fields if key in vals)
         if addr_vals:
             return super(res_partner, self).write(cr, uid, ids, addr_vals, context)
+
+    def open_parent(self, cr, uid, ids, context=None):
+        """ Utility method used to add an "Open Parent" button in partner views """
+        partner = self.browse(cr, uid, ids[0], context=context)
+        return {'type': 'ir.actions.act_window',
+                'res_model': 'res.partner',
+                'view_mode': 'form',
+                'res_id': partner.parent_id.id,
+                'target': 'new',
+                'flags': {'form': {'action_buttons': True}}}
 
     def name_get(self, cr, uid, ids, context=None):
         if context is None:
@@ -566,8 +581,8 @@ class res_partner(osv.osv, format_address):
         res = []
         for record in self.browse(cr, uid, ids, context=context):
             name = record.name
-            if record.parent_id:
-                name =  "%s (%s)" % (name, record.parent_id.name)
+            if record.parent_id and not record.is_company:
+                name =  "%s, %s" % (record.parent_id.name, name)
             if context.get('show_address'):
                 name = name + "\n" + self._display_address(cr, uid, record, without_company=True, context=context)
                 name = name.replace('\n\n','\n')
@@ -666,26 +681,42 @@ class res_partner(osv.osv, format_address):
             ids = ids[16:]
         return True
 
-    def address_get(self, cr, uid, ids, adr_pref=None):
-        if adr_pref is None:
-            adr_pref = ['default']
-        result = {}
-        # retrieve addresses from the partner itself and its children
-        res = []
-        # need to fix the ids ,It get False value in list like ids[False]
-        if ids and ids[0]!=False:
-            for p in self.browse(cr, uid, ids):
-                res.append((p.type, p.id))
-                res.extend((c.type, c.id) for c in p.child_ids)
-        address_dict = dict(reversed(res))
-        # get the id of the (first) default address if there is one,
-        # otherwise get the id of the first address in the list
-        default_address = False
-        if res:
-            default_address = address_dict.get('default', res[0][1])
-        for adr in adr_pref:
-            result[adr] = address_dict.get(adr, default_address)
-        return result
+    def address_get(self, cr, uid, ids, adr_pref=None, context=None):
+        """ Find contacts/addresses of the right type(s) by doing a depth-first-search
+        through descendants within company boundaries (stop at entities flagged ``is_company``)
+        then continuing the search at the ancestors that are within the same company boundaries.
+        Defaults to partners of type ``'default'`` when the exact type is not found, or to the
+        provided partner itself if no type ``'default'`` is found either. """
+        adr_pref = set(adr_pref or [])
+        if 'default' not in adr_pref:
+            adr_pref.add('default')
+        visited = set()
+        for partner in self.browse(cr, uid, filter(None, ids), context=context):
+            current_partner = partner
+            while current_partner:
+                to_scan = [current_partner]
+                # Scan descendants, DFS
+                while to_scan:
+                    record = to_scan.pop(0)
+                    visited.add(record)
+                    if record.type in adr_pref and not result.get(record.type):
+                        result[record.type] = record.id
+                    if len(result) == len(adr_pref):
+                        return result
+                    to_scan = [c for c in record.child_ids
+                                 if c not in visited
+                                 if not c.is_company] + to_scan
+
+                # Continue scanning at ancestor if current_partner is not a commercial entity
+                if current_partner.is_company or not current_partner.parent_id:
+                    break
+                current_partner = current_partner.parent_id
+
+        # default to type 'default' or the partner itself
+        default = result.get('default', partner.id)
+        for adr_type in adr_pref:
+            result[adr_type] = result.get(adr_type) or default 
+         return result
 
     def view_header_get(self, cr, uid, view_id, view_type, context):
         res = super(res_partner, self).view_header_get(cr, uid, view_id, view_type, context)
@@ -726,8 +757,7 @@ class res_partner(osv.osv, format_address):
             'country_name': address.country_id and address.country_id.name or '',
             'company_name': address.parent_id and address.parent_id.name or '',
         }
-        address_field = ['title', 'street', 'street2', 'zip', 'city']
-        for field in address_field :
+        for field in self._address_fields(cr, uid, context=context):
             args[field] = getattr(address, field) or ''
         if without_company:
             args['company_name'] = ''
