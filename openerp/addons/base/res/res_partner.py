@@ -200,17 +200,17 @@ class contact_mixin_methods(osv.AbstractModel):
             if not vals.get('contact_id'):
                 vals['contact_id'] = partner_id
             vals['partner_id'] = partner_obj.read(cr, uid, [partner_id],
-                                                  ['commercial_entity_id']
-                                                  )[0]['commercial_entity_id'][0]
+                                                  ['commercial_partner_id']
+                                                  )[0]['commercial_partner_id'][0]
         return vals
 
     def onchange_contact_mixin(self, cr, uid, ids, contact_id, partner_id,
                                context=None):
         res = {}
         if contact_id:
-            commercial_entity_id = self.pool.get('res.partner').read(cr, uid,
-            [contact_id], ['commercial_entity_id'])[0]['commercial_entity_id']
-            res = {'value': {'partner_id': commercial_entity_id}}
+            commercial_partner_id = self.pool.get('res.partner').read(cr, uid,
+            [contact_id], ['commercial_partner_id'])[0]['commercial_partner_id']
+            res = {'value': {'partner_id': commercial_partner_id}}
         return res
 
     def fields_view_get(self, cr, uid, view_id=None, view_type='form',
@@ -321,25 +321,23 @@ class res_partner(osv.osv, format_address):
             result[obj.id] = obj.image != False
         return result
 
-    def _commercial_entity_id(self, cr, uid, ids, field_names, arg,
-                              context=None):
-        res = {}
-        for partner in self.browse(cr, uid, ids, context=context):
-            if partner.is_company:
-                res[partner.id] = partner.id
-            elif partner.parent_id:
-                commercial_entity_id = self.read(cr, uid,
-                                                 [partner.parent_id.id],
-                                                 ['commercial_entity_id']
-                                                 )[0]['commercial_entity_id']
-                res[partner.id] = commercial_entity_id
-            else:
-                res[partner.id] = partner.id
-        return res
+    def _commercial_partner_compute(self, cr, uid, ids, name, args, context=None):
+        """ Returns the partner that is considered the commercial
+        entity of this partner. The commercial entity holds the master data
+        for all commercial fields (see :py:meth:`~_commercial_fields`) """
+        result = dict.fromkeys(ids, False)
+        for partner in self.browse(cr, uid, ids, context=context):
+            current_partner = partner 
+            while not current_partner.is_company and current_partner.parent_id:
+                current_partner = current_partner.parent_id
+            result[partner.id] = current_partner.id
+        return result
+ 
+    # indirection to avoid passing a copy of the overridable method when declaring the function field
+    _commercial_partner_id = lambda self, *args, **kwargs: self._commercial_partner_compute(*args, **kwargs)
 
     _order = "name"
     _columns = {
-        'commercial_entity_id': fields.function(_commercial_entity_id,
         string='Commercial Entity', type='many2one', relation='res.partner'),
         'name': fields.char('Name', size=128, required=True, select=True),
         'date': fields.date('Date', select=1),
@@ -410,6 +408,9 @@ class res_partner(osv.osv, format_address):
         'color': fields.integer('Color Index'),
         'user_ids': fields.one2many('res.users', 'partner_id', 'Users'),
         'contact_address': fields.function(_address_display,  type='char', string='Complete Address'),
+
+        # technical field used for managing commercial fields
+        'commercial_partner_id': fields.function(_commercial_partner_id, type='many2one', relation='res.partner', string='Commercial Entity')
     }
 
     def _default_category(self, cr, uid, context=None):
