@@ -449,7 +449,7 @@ class res_partner(osv.osv, format_address):
         'color': 0,
         'is_company': False,
         'type': 'contact', # type 'default' is wildcard and thus inappropriate
-        'use_parent_address': True,
+        'use_parent_address': False,
         'image': False,
     }
 
