@@ -264,6 +264,7 @@ class contact_mixin_methods(osv.AbstractModel):
 class contact_mixin(osv.AbstractModel):
     _name = 'res.contact.mixin'
     _inherit = 'res.contact.mixin.methods'
+    _contact_mixin = True
     _columns = {
         'contact_id': fields.many2one('res.partner', 'Contact'),
     }
