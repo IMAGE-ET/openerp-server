@@ -565,6 +565,16 @@ class res_partner(osv.osv, format_address):
         if addr_vals:
             return super(res_partner, self).write(cr, uid, ids, addr_vals, context)
 
+    def open_commercial_entity(self, cr, uid, ids, context=None):
+        """ Utility method used to add an "Open Company" button in partner views """
+        partner = self.browse(cr, uid, ids[0], context=context)
+        return {'type': 'ir.actions.act_window',
+                'res_model': 'res.partner',
+                'view_mode': 'form',
+                'res_id': partner.commercial_partner_id.id,
+                'target': 'new',
+                'flags': {'form': {'action_buttons': True}}}
+
     def open_parent(self, cr, uid, ids, context=None):
         """ Utility method used to add an "Open Parent" button in partner views """
         partner = self.browse(cr, uid, ids[0], context=context)
