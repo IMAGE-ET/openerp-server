@@ -30,6 +30,7 @@ from openerp import SUPERUSER_ID
 from openerp import pooler, tools
 from openerp.osv import osv, fields
 from openerp.tools.translate import _
+from openerp.tools.yaml_import import is_comment
 from openerp.osv.orm import setup_modifiers
 from lxml import etree
 
@@ -329,13 +330,13 @@ class res_partner(osv.osv, format_address):
         for all commercial fields (see :py:meth:`~_commercial_fields`) """
         result = dict.fromkeys(ids, False)
         for partner in self.browse(cr, uid, ids, context=context):
-            current_partner = partner
+            current_partner = partner 
             while not current_partner.is_company and current_partner.parent_id:
                 current_partner = current_partner.parent_id
             result[partner.id] = current_partner.id
         return result
 
-    # indirection to avoid passing a copy of the overridable method when declaring the function field
+    # indirection to avoid passing a copy of the overridable method when declaring the function field
     _commercial_partner_id = lambda self, *args, **kwargs: self._commercial_partner_compute(*args, **kwargs)
 
     _order = "name"
@@ -344,7 +345,7 @@ class res_partner(osv.osv, format_address):
         'date': fields.date('Date', select=1),
         'title': fields.many2one('res.partner.title', 'Title'),
         'parent_id': fields.many2one('res.partner', 'Related Company'),
-        'child_ids': fields.one2many('res.partner', 'parent_id', 'Contacts'),
+        'child_ids': fields.one2many('res.partner', 'parent_id', 'Contacts', domain=[('active','=',True)]), # force "active_test" domain to bypass _search() override
         'ref': fields.char('Reference', size=64, select=1),
         'lang': fields.selection(_lang_get, 'Language',
             help="If the selected language is loaded in the system, all documents related to this contact will be printed in this language. If not, it will be English."),
@@ -410,8 +411,8 @@ class res_partner(osv.osv, format_address):
         'user_ids': fields.one2many('res.users', 'partner_id', 'Users'),
         'contact_address': fields.function(_address_display,  type='char', string='Complete Address'),
 
-        # technical field used for managing commercial fields
-        'commercial_partner_id': fields.function(_commercial_partner_id, type='many2one', relation='res.partner', string='Commercial Entity')
+        # technical field used for managing commercial fields
+        'commercial_partner_id': fields.function(_commercial_partner_id, type='many2one', relation='res.partner', string='Commercial Entity')
     }
 
     def _default_category(self, cr, uid, context=None):
