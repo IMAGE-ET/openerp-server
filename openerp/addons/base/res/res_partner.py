@@ -521,51 +521,20 @@ class res_partner(osv.osv, format_address):
 
 #   _constraints = [(_check_ean_key, 'Error: Invalid ean code', ['ean13'])]
 
-    def write(self, cr, uid, ids, vals, context=None):
-        # Update parent and siblings or children records
-        if isinstance(ids, (int, long)):
-            ids = [ids]
-        if vals.get('is_company')==False:
-            vals.update({'child_ids' : [(5,)]})
-        for partner in self.browse(cr, uid, ids, context=context):
-            update_ids = []
-            if partner.is_company:
-                domain_children = [('parent_id', '=', partner.id), ('use_parent_address', '=', True)]
-                update_ids = self.search(cr, uid, domain_children, context=context)
-            elif partner.parent_id:
-                 if vals.get('use_parent_address')==True:
-                     domain_siblings = [('parent_id', '=', partner.parent_id.id), ('use_parent_address', '=', True)]
-                     update_ids = [partner.parent_id.id] + self.search(cr, uid, domain_siblings, context=context)
-                 if 'use_parent_address' not in vals and  partner.use_parent_address:
-                    domain_siblings = [('parent_id', '=', partner.parent_id.id), ('use_parent_address', '=', True)]
-                    update_ids = [partner.parent_id.id] + self.search(cr, uid, domain_siblings, context=context)
-            self.update_address(cr, uid, update_ids, vals, context)
-        return super(res_partner,self).write(cr, uid, ids, vals, context=context)
-
-    def create(self, cr, uid, vals, context=None):
-        if context is None:
-            context = {}
-        # Update parent and siblings records
-        if vals.get('parent_id'):
-            if 'use_parent_address' in vals:
-                use_parent_address = vals['use_parent_address']
+    def _update_fields_values(self, cr, uid, partner, fields, context=None):
+        """ Returns dict of write() values for synchronizing ``fields`` """
+        values = {}
+        for field in fields:
+            column = self._all_columns[field].column
+            if column._type == 'one2many':
+                raise AssertionError('One2Many fields cannot be synchronized as part of `commercial_fields` or `address fields`')
+            if column._type == 'many2one':
+                values[field] = partner[field].id if partner[field] else False
+            elif column._type == 'many2many':
+                values[field] = [(6,0,[r.id for r in partner[field] or []])]
             else:
-                use_parent_address = self.default_get(cr, uid, ['use_parent_address'], context=context)['use_parent_address']
-
-            if use_parent_address:
-                domain_siblings = [('parent_id', '=', vals['parent_id']), ('use_parent_address', '=', True)]
-                update_ids = [vals['parent_id']] + self.search(cr, uid, domain_siblings, context=context)
-                self.update_address(cr, uid, update_ids, vals, context)
-
-                # add missing address keys
-                onchange_values = self.onchange_address(cr, uid, [], use_parent_address,
-                                                        vals['parent_id'], context=context).get('value') or {}
-                address_fields = self._address_fields(cr, uid, context=context)
-                vals.update(dict((key, value)
-                            for key, value in onchange_values.iteritems()
-                            if key in address_fields and key not in vals))
-
-        return super(res_partner, self).create(cr, uid, vals, context=context)
+                values[field] = partner[field]
+        return values
 
     def _address_fields(self, cr, uid, context=None):
         """ Returns the list of address fields that are synced from the parent
