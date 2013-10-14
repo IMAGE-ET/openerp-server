@@ -383,7 +383,7 @@ class ir_model_fields(osv.osv):
 
         # static table of properties
         model_props = [ # (our-name, fields.prop, set_fn)
-            ('field_description', 'string', str),
+            ('field_description', 'string', unicode),
             ('required', 'required', bool),
             ('readonly', 'readonly', bool),
             ('domain', '_domain', eval),
