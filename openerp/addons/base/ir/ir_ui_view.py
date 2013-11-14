@@ -21,6 +21,7 @@
 
 import logging
 from lxml import etree
+from operator import itemgetter
 import os
 
 from openerp import tools
@@ -122,11 +123,13 @@ class view(osv.osv):
            @return: the rendered definition (arch) of the view, always utf-8 bytestring (legacy convention)
                if no error occurred, else False.  
         """
+        if view.model not in self.pool:
+            return False
         try:
-            fvg = self.pool.get(view.model).fields_view_get(cr, uid, view_id=view.id, view_type=view.type, context=context)
+            fvg = self.pool[view.model].fields_view_get(cr, uid, view_id=view.id, view_type=view.type, context=context)
             return fvg['arch']
         except Exception:
-            _logger.exception("Can't render view %s for model: %s", view.xml_id, view.model)
+            _logger.exception('cannot render view %s', view.xml_id)
             return False
 
     def _check_xml(self, cr, uid, ids, context=None):
@@ -156,8 +159,15 @@ class view(osv.osv):
                     return False
         return True
 
+    def _check_model(self, cr, uid, ids, context=None):
+        for view in self.browse(cr, uid, ids, context):
+            if view.model not in self.pool:
+                return False
+        return True
+
     _constraints = [
-        (_check_xml, 'Invalid XML for View Architecture!', ['arch'])
+        (_check_model, 'The model name does not exist.', ['model']),
+        (_check_xml, 'The model name does not exist or the view architecture cannot be rendered.', ['arch', 'model']),
     ]
 
     def _auto_init(self, cr, context=None):
@@ -223,9 +233,9 @@ class view(osv.osv):
         no_ancester=[]
         blank_nodes = []
 
-        _Model_Obj=self.pool.get(model)
-        _Node_Obj=self.pool.get(node_obj)
-        _Arrow_Obj=self.pool.get(conn_obj)
+        _Model_Obj = self.pool[model]
+        _Node_Obj = self.pool[node_obj]
+        _Arrow_Obj = self.pool[conn_obj]
 
         for model_key,model_value in _Model_Obj._columns.items():
                 if model_value._type=='one2many':
@@ -280,6 +290,22 @@ class view(osv.osv):
                 'blank_nodes': blank_nodes,
                 'node_parent_field': _Model_Field,}
 
+    def _validate_custom_views(self, cr, uid, model):
+        """Validate architecture of custom views (= without xml id) for a given model.
+            This method is called at the end of registry update.
+        """
+        cr.execute("""SELECT max(v.id)
+                        FROM ir_ui_view v
+                   LEFT JOIN ir_model_data md ON (md.model = 'ir.ui.view' AND md.res_id = v.id)
+                       WHERE md.module IS NULL
+                         AND v.model = %s
+                    GROUP BY coalesce(v.inherit_id, v.id)
+                   """, (model,))
+
+        ids = map(itemgetter(0), cr.fetchall())
+        return self._check_xml(cr, uid, ids)
+
+
 class view_sc(osv.osv):
     _name = 'ir.ui.view_sc'
     _columns = {
@@ -299,7 +325,7 @@ class view_sc(osv.osv):
     def get_sc(self, cr, uid, user_id, model='ir.ui.menu', context=None):
         ids = self.search(cr, uid, [('user_id','=',user_id),('resource','=',model)], context=context)
         results = self.read(cr, uid, ids, ['res_id'], context=context)
-        name_map = dict(self.pool.get(model).name_get(cr, uid, [x['res_id'] for x in results], context=context))
+        name_map = dict(self.pool[model].name_get(cr, uid, [x['res_id'] for x in results], context=context))
         # Make sure to return only shortcuts pointing to exisintg menu items.
         filtered_results = filter(lambda result: result['res_id'] in name_map, results)
         for result in filtered_results:

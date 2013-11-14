@@ -119,6 +119,8 @@ setuptools.setup(
           'docutils',
           'feedparser',
           'gdata',
+          'gevent',
+          'gevent-psycopg2',
           'Jinja2',
           'lxml', # windows binary http://www.lfd.uci.edu/~gohlke/pythonlibs/
           'mako',
@@ -127,6 +129,7 @@ setuptools.setup(
           'psutil', # windows binary code.google.com/p/psutil/downloads/list
           'psycopg2 >= 2.2',
           'pydot',
+          'pyparsing < 2',
           'python-dateutil < 2',
           'python-ldap', # optional
           'python-openid',

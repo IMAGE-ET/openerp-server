@@ -14,6 +14,8 @@ import signal
 import socket
 import sys
 import time
+import subprocess
+import os.path
 
 import werkzeug.serving
 try:
@@ -23,6 +25,7 @@ except ImportError:
 
 import openerp
 import openerp.tools.config as config
+from openerp.tools.misc import stripped_sys_argv
 
 _logger = logging.getLogger(__name__)
 
@@ -48,6 +51,7 @@ class Multicorn(object):
         self.workers = {}
         self.generation = 0
         self.queue = []
+        self.long_polling_pid = None
 
     def pipe_new(self):
         pipe = os.pipe()
@@ -86,6 +90,14 @@ class Multicorn(object):
         else:
             worker.run()
             sys.exit(0)
+
+    def long_polling_spawn(self):
+        nargs = stripped_sys_argv('--pidfile')
+        cmd = nargs[0]
+        cmd = os.path.join(os.path.dirname(cmd), "openerp-long-polling")
+        nargs[0] = cmd
+        popen = subprocess.Popen(nargs)
+        self.long_polling_pid = popen.pid
 
     def worker_pop(self, pid):
         if pid in self.workers:
@@ -131,7 +143,8 @@ class Multicorn(object):
     def process_timeout(self):
         now = time.time()
         for (pid, worker) in self.workers.items():
-            if now - worker.watchdog_time >= worker.watchdog_timeout:
+            if (worker.watchdog_timeout is not None) and \
+                (now - worker.watchdog_time >= worker.watchdog_timeout):
                 _logger.error("Worker (%s) timeout", pid)
                 self.worker_kill(pid, signal.SIGKILL)
 
@@ -140,6 +153,8 @@ class Multicorn(object):
             self.worker_spawn(WorkerHTTP, self.workers_http)
         while len(self.workers_cron) < config['max_cron_threads']:
             self.worker_spawn(WorkerCron, self.workers_cron)
+        if not self.long_polling_pid:
+            self.long_polling_spawn()
 
     def sleep(self):
         try:
@@ -180,6 +195,9 @@ class Multicorn(object):
         self.socket.listen(8*self.population)
 
     def stop(self, graceful=True):
+        if self.long_polling_pid is not None:
+            self.worker_kill(self.long_polling_pid, signal.SIGKILL)     # FIXME make longpolling process handle SIGTERM correctly
+            self.long_polling_pid = None
         if graceful:
             _logger.info("Stopping gracefully")
             limit = time.time() + self.timeout
@@ -221,6 +239,7 @@ class Worker(object):
         self.multi = multi
         self.watchdog_time = time.time()
         self.watchdog_pipe = multi.pipe_new()
+        # Can be set to None if no watchdog is desired.
         self.watchdog_timeout = multi.timeout
         self.ppid = os.getpid()
         self.pid = None
@@ -377,7 +396,7 @@ class WorkerCron(Worker):
         if config['db_name']:
             db_names = config['db_name'].split(',')
         else:
-            db_names = openerp.netsvc.ExportService._services['db'].exp_list(True)
+            db_names = openerp.service.db.exp_list(True)
         return db_names
 
     def process_work(self):
@@ -392,14 +411,11 @@ class WorkerCron(Worker):
             if rpc_request_flag:
                 start_time = time.time()
                 start_rss, start_vms = psutil.Process(os.getpid()).get_memory_info()
-            while True:
-                # acquired = openerp.addons.base.ir.ir_cron.ir_cron._acquire_job(db_name)
-                # TODO why isnt openerp.addons.base defined ?
-                import base
-                acquired = base.ir.ir_cron.ir_cron._acquire_job(db_name)
-                if not acquired:
-                    openerp.modules.registry.RegistryManager.delete(db_name)
-                    break
+            
+            import openerp.addons.base as base
+            base.ir.ir_cron.ir_cron._acquire_job(db_name)
+            openerp.modules.registry.RegistryManager.delete(db_name)
+
             # dont keep cursors in multi database mode
             if len(db_names) > 1:
                 openerp.sql_db.close_db(db_name)
@@ -420,6 +436,7 @@ class WorkerCron(Worker):
     def start(self):
         os.nice(10)     # mommy always told me to be nice with others...
         Worker.start(self)
+        self.multi.socket.close()
         openerp.service.start_internal()
 
         # chorus effect: make cron workers do not all start at first database

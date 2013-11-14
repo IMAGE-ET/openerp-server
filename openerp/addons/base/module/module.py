@@ -24,6 +24,7 @@ from docutils.transforms import Transform, writer_aux
 from docutils.writers.html4css1 import Writer
 import imp
 import logging
+from operator import attrgetter
 import os
 import re
 import shutil
@@ -32,6 +33,7 @@ import urllib
 import urllib2
 import zipfile
 import zipimport
+import lxml.html
 
 try:
     from cStringIO import StringIO
@@ -39,7 +41,7 @@ except ImportError:
     from StringIO import StringIO   # NOQA
 
 import openerp
-from openerp import modules, pooler, tools, addons
+from openerp import modules, tools, addons
 from openerp.modules.db import create_categories
 from openerp.tools.parse_version import parse_version
 from openerp.tools.translate import _
@@ -152,9 +154,19 @@ class module(osv.osv):
     def _get_desc(self, cr, uid, ids, field_name=None, arg=None, context=None):
         res = dict.fromkeys(ids, '')
         for module in self.browse(cr, uid, ids, context=context):
-            overrides = dict(embed_stylesheet=False, doctitle_xform=False, output_encoding='unicode')
-            output = publish_string(source=module.description, settings_overrides=overrides, writer=MyWriter())
-            res[module.id] = output
+            path = addons.get_module_resource(module.name, 'static/description/index.html')
+            if path:
+                with tools.file_open(path, 'rb') as desc_file:
+                    doc = desc_file.read()
+                    html = lxml.html.document_fromstring(doc)
+                    for element, attribute, link, pos in html.iterlinks():
+                        if element.get('src') and not '//' in element.get('src') and not 'static/' in element.get('src'):
+                            element.set('src', "/%s/static/description/%s" % (module.name, element.get('src')))
+                    res[module.id] = lxml.html.tostring(html)
+            else:
+                overrides = dict(embed_stylesheet=False, doctitle_xform=False, output_encoding='unicode')
+                output = publish_string(source=module.description, settings_overrides=overrides, writer=MyWriter())
+                res[module.id] = output
         return res
 
     def _get_latest_version(self, cr, uid, ids, field_name=None, arg=None, context=None):
@@ -167,9 +179,6 @@ class module(osv.osv):
     def _get_views(self, cr, uid, ids, field_name=None, arg=None, context=None):
         res = {}
         model_data_obj = self.pool.get('ir.model.data')
-        view_obj = self.pool.get('ir.ui.view')
-        report_obj = self.pool.get('ir.actions.report.xml')
-        menu_obj = self.pool.get('ir.ui.menu')
 
         dmodels = []
         if field_name is None or 'views_by_module' in field_name:
@@ -181,7 +190,7 @@ class module(osv.osv):
         assert dmodels, "no models for %s" % field_name
 
         for module_rec in self.browse(cr, uid, ids, context=context):
-            res[module_rec.id] = {
+            res_mod_dic = res[module_rec.id] = {
                 'menus_by_module': [],
                 'reports_by_module': [],
                 'views_by_module': []
@@ -201,28 +210,20 @@ class module(osv.osv):
             for imd_res in model_data_obj.read(cr, uid, imd_ids, ['model', 'res_id'], context=context):
                 imd_models[imd_res['model']].append(imd_res['res_id'])
 
-            # For each one of the models, get the names of these ids.
-            # We use try except, because views or menus may not exist.
-            try:
-                res_mod_dic = res[module_rec.id]
-                view_ids = imd_models.get('ir.ui.view', [])
-                for v in view_obj.browse(cr, uid, view_ids, context=context):
-                    aa = v.inherit_id and '* INHERIT ' or ''
-                    res_mod_dic['views_by_module'].append('%s%s (%s)' % (aa, v.name, v.type))
+            def browse(model):
+                M = self.pool[model]
+                # as this method is called before the module update, some xmlid may be invalid at this stage
+                # explictly filter records before reading them
+                ids = M.exists(cr, uid, imd_models.get(model, []), context)
+                return M.browse(cr, uid, ids, context)
 
-                report_ids = imd_models.get('ir.actions.report.xml', [])
-                for rx in report_obj.browse(cr, uid, report_ids, context=context):
-                    res_mod_dic['reports_by_module'].append(rx.name)
+            def format_view(v):
+                aa = v.inherit_id and '* INHERIT ' or ''
+                return '%s%s (%s)' % (aa, v.name, v.type)
 
-                menu_ids = imd_models.get('ir.ui.menu', [])
-                for um in menu_obj.browse(cr, uid, menu_ids, context=context):
-                    res_mod_dic['menus_by_module'].append(um.complete_name)
-            except KeyError, e:
-                _logger.warning('Data not found for items of %s', module_rec.name)
-            except AttributeError, e:
-                _logger.warning('Data not found for items of %s %s', module_rec.name, str(e))
-            except Exception, e:
-                _logger.warning('Unknown error while fetching data of %s', module_rec.name, exc_info=True)
+            res_mod_dic['views_by_module'] = map(format_view, browse('ir.ui.view'))
+            res_mod_dic['reports_by_module'] = map(attrgetter('name'), browse('ir.actions.report.xml'))
+            res_mod_dic['menus_by_module'] = map(attrgetter('complete_name'), browse('ir.ui.menu'))
 
         for key in res.iterkeys():
             for k, v in res[key].iteritems():
@@ -232,7 +233,7 @@ class module(osv.osv):
     def _get_icon_image(self, cr, uid, ids, field_name=None, arg=None, context=None):
         res = dict.fromkeys(ids, '')
         for module in self.browse(cr, uid, ids, context=context):
-            path = addons.get_module_resource(module.name, 'static', 'src', 'img', 'icon.png')
+            path = addons.get_module_resource(module.name, 'static', 'description', 'icon.png')
             if path:
                 image_file = tools.file_open(path, 'rb')
                 try:
@@ -472,14 +473,14 @@ class module(osv.osv):
         function(cr, uid, ids, context=context)
 
         cr.commit()
-        _, pool = pooler.restart_pool(cr.dbname, update_module=True)
+        registry = openerp.modules.registry.RegistryManager.new(cr.dbname, update_module=True)
 
-        config = pool.get('res.config').next(cr, uid, [], context=context) or {}
+        config = registry['res.config'].next(cr, uid, [], context=context) or {}
         if config.get('type') not in ('ir.actions.act_window_close',):
             return config
 
         # reload the client; open the first available root menu
-        menu_obj = self.pool.get('ir.ui.menu')
+        menu_obj = registry['ir.ui.menu']
         menu_ids = menu_obj.search(cr, uid, [('parent_id', '=', False)], context=context)
         return {
             'type': 'ir.actions.client',
@@ -613,7 +614,7 @@ class module(osv.osv):
         # wsgi handlers, so they can react accordingly
         if tuple(res) != (0, 0):
             for handler in openerp.service.wsgi_server.module_handlers:
-                if hasattr(handler,'load_addons'):
+                if hasattr(handler, 'load_addons'):
                     handler.load_addons()
 
         return res

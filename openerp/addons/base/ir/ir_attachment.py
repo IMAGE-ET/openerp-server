@@ -51,7 +51,7 @@ class ir_attachment(osv.osv):
             model_object = attachment.res_model
             res_id = attachment.res_id
             if model_object and res_id:
-                model_pool = self.pool.get(model_object)
+                model_pool = self.pool[model_object]
                 res = model_pool.name_get(cr,uid,[res_id],context)
                 res_name = res and res[0][1] or False
                 if res_name:
@@ -205,9 +205,9 @@ class ir_attachment(osv.osv):
         for model, mids in res_ids.items():
             # ignore attachments that are not attached to a resource anymore when checking access rights
             # (resource was deleted but attachment was not)
-            mids = self.pool.get(model).exists(cr, uid, mids)
+            mids = self.pool[model].exists(cr, uid, mids)
             ima.check(cr, uid, model, mode)
-            self.pool.get(model).check_access_rule(cr, uid, mids, mode, context=context)
+            self.pool[model].check_access_rule(cr, uid, mids, mode, context=context)
 
     def _search(self, cr, uid, args, offset=0, limit=None, order=None, context=None, count=False, access_rights_uid=None):
         ids = super(ir_attachment, self)._search(cr, uid, args, offset=offset,
@@ -233,10 +233,10 @@ class ir_attachment(osv.osv):
         targets = cr.dictfetchall()
         model_attachments = {}
         for target_dict in targets:
-            if not (target_dict['res_id'] and target_dict['res_model']):
+            if not target_dict['res_model']:
                 continue
             # model_attachments = { 'model': { 'res_id': [id1,id2] } }
-            model_attachments.setdefault(target_dict['res_model'],{}).setdefault(target_dict['res_id'],set()).add(target_dict['id'])
+            model_attachments.setdefault(target_dict['res_model'],{}).setdefault(target_dict['res_id'] or 0, set()).add(target_dict['id'])
 
         # To avoid multiple queries for each attachment found, checks are
         # performed in batch as much as possible.
@@ -250,7 +250,7 @@ class ir_attachment(osv.osv):
 
             # filter ids according to what access rules permit
             target_ids = targets.keys()
-            allowed_ids = self.pool.get(model).search(cr, uid, [('id', 'in', target_ids)], context=context)
+            allowed_ids = [0] + self.pool[model].search(cr, uid, [('id', 'in', target_ids)], context=context)
             disallowed_ids = set(target_ids).difference(allowed_ids)
             for res_id in disallowed_ids:
                 for attach_id in targets[res_id]:

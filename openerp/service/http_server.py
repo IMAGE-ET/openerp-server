@@ -26,7 +26,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ###############################################################################
 
-#.apidoc title: HTTP and XML-RPC Server
 
 """ This module offers the family of HTTP-based servers. These are not a single
     class/functionality, but a set of network stack layers, implementing

@@ -1,3 +1,4 @@
+from collections import defaultdict
 from openerp.tools import mute_logger
 import common
 
@@ -75,6 +76,81 @@ class TestORM(common.TransactionCase):
         # delete mixed records: some deleted and some filtered
         with self.assertRaises(Exception):
             self.partner.unlink(cr, uid2, [p1,p2])
+
+    @mute_logger('openerp.osv.orm')
+    def test_search_read(self):
+        # simple search_read
+        self.partner.create(self.cr, UID, {'name': 'MyPartner1'})
+        found = self.partner.search_read(self.cr, UID, [['name', '=', 'MyPartner1']], ['name'])
+        self.assertEqual(len(found), 1)
+        self.assertEqual(found[0]['name'], 'MyPartner1')
+        self.assertTrue('id' in found[0])
+
+        # search_read correct order
+        self.partner.create(self.cr, UID, {'name': 'MyPartner2'})
+        found = self.partner.search_read(self.cr, UID, [['name', 'like', 'MyPartner']], ['name'], order="name")
+        self.assertEqual(len(found), 2)
+        self.assertEqual(found[0]['name'], 'MyPartner1')
+        self.assertEqual(found[1]['name'], 'MyPartner2')
+        found = self.partner.search_read(self.cr, UID, [['name', 'like', 'MyPartner']], ['name'], order="name desc")
+        self.assertEqual(len(found), 2)
+        self.assertEqual(found[0]['name'], 'MyPartner2')
+        self.assertEqual(found[1]['name'], 'MyPartner1')
+
+        # search_read that finds nothing
+        found = self.partner.search_read(self.cr, UID, [['name', '=', 'Does not exists']], ['name'])
+        self.assertEqual(len(found), 0)
+
+    def test_groupby_date(self):
+        partners = dict(
+            A='2012-11-19',
+            B='2012-12-17',
+            C='2012-12-31',
+            D='2013-01-07',
+            E='2013-01-14',
+            F='2013-01-28',
+            G='2013-02-11',
+        )
+
+        all_partners = []
+        partners_by_day = defaultdict(set)
+        partners_by_month = defaultdict(set)
+        partners_by_year = defaultdict(set)
+
+        for name, date in partners.items():
+            p = self.partner.create(self.cr, UID, dict(name=name, date=date))
+            all_partners.append(p)
+            partners_by_day[date].add(p)
+            partners_by_month[date.rsplit('-', 1)[0]].add(p)
+            partners_by_year[date.split('-', 1)[0]].add(p)
+
+        def read_group(interval, domain=None):
+            main_domain = [('id', 'in', all_partners)]
+            if domain:
+                domain = ['&'] + main_domain + domain
+            else:
+                domain = main_domain
+
+            display_format, groupby_format = {
+                'year': ('YYYY', 'yyyy'),
+                'month': ('YYYY-MM', 'yyyy-mm'),
+                'day': ('yyyy-MM-dd', 'yyyy-mm-dd'),
+            }[interval]
+
+            datetime_format = {
+                'date': dict(interval=interval, display_format=display_format, groupby_format=groupby_format)
+            }
+            context = dict(datetime_format=datetime_format)
+
+            rg = self.partner.read_group(self.cr, self.uid, domain, ['date'], 'date', context=context)
+            result = {}
+            for r in rg:
+                result[r['date']] = set(self.partner.search(self.cr, self.uid, r['__domain']))
+            return result
+
+        self.assertDictEqual(read_group('day'), partners_by_day)
+        self.assertDictEqual(read_group('month'), partners_by_month)
+        self.assertDictEqual(read_group('year'), partners_by_year)
 
 
 class TestInherits(common.TransactionCase):

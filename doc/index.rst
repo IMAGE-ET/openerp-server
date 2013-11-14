@@ -14,9 +14,23 @@ OpenERP Server
    02_architecture
    03_module_dev
    04_security
+   workflows
    05_test_framework
    06_misc
-   09_deployment
+   deployment-gunicorn
+   deployment-mod-wsgi
+   form-view-guidelines
+   ir_actions
+
+OpenERP Command
+'''''''''''''''
+
+.. toctree::
+   :maxdepth: 1
+
+   openerp-command.rst
+   commands.rst
+   adding-command.rst
 
 OpenERP Server API
 ''''''''''''''''''
@@ -24,8 +38,17 @@ OpenERP Server API
 .. toctree::
    :maxdepth: 1
 
-   api_core.rst
+   orm-methods.rst
    api_models.rst
+   routing.rst
+
+Changelog
+'''''''''
+
+.. toctree::
+   :maxdepth: 1
+
+   changelog.rst
 
 Concepts
 ''''''''

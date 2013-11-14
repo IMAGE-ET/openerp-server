@@ -27,14 +27,14 @@ import re
 
 import openerp
 from openerp import SUPERUSER_ID
-from openerp import pooler, tools
+from openerp import tools
 from openerp.osv import osv, fields
 from openerp.tools.translate import _
 from openerp.tools.yaml_import import is_comment
 
 class format_address(object):
     def fields_view_get_address(self, cr, uid, arch, context={}):
-        user_obj = self.pool.get('res.users')
+        user_obj = self.pool['res.users']
         fmt = user_obj.browse(cr, SUPERUSER_ID, uid, context).company_id.country_id
         fmt = fmt and fmt.address_format
         layouts = {
@@ -121,7 +121,7 @@ class res_partner_category(osv.osv):
         res = self.name_get(cr, uid, ids, context=context)
         return dict(res)
 
-    _description = 'Partner Categories'
+    _description = 'Partner Tags'
     _name = 'res.partner.category'
     _columns = {
         'name': fields.char('Category Name', required=True, size=64, translate=True),
@@ -156,14 +156,13 @@ class res_partner_title(osv.osv):
     }
 
 def _lang_get(self, cr, uid, context=None):
-    lang_pool = self.pool.get('res.lang')
+    lang_pool = self.pool['res.lang']
     ids = lang_pool.search(cr, uid, [], context=context)
     res = lang_pool.read(cr, uid, ids, ['code', 'name'], context)
     return [(r['code'], r['name']) for r in res]
 
 # fields copy if 'use_parent_address' is checked
 ADDRESS_FIELDS = ('street', 'street2', 'zip', 'city', 'state_id', 'country_id')
-POSTAL_ADDRESS_FIELDS = ADDRESS_FIELDS # deprecated, to remove after 7.0
 
 class res_partner(osv.osv, format_address):
     _description = 'Partner'
@@ -208,12 +207,28 @@ class res_partner(osv.osv, format_address):
             result[partner.id] = current_partner.id
         return result
 
-    # indirection to avoid passing a copy of the overridable method when declaring the function field
-    _commercial_partner_id = lambda self, *args, **kwargs: self._commercial_partner_compute(*args, **kwargs)
+    def _display_name_compute(self, cr, uid, ids, name, args, context=None):
+        context = dict(context or {})
+        context.pop('show_address', None)
+        return dict(self.name_get(cr, uid, ids, context=context))
 
-    _order = "name"
+    # indirections to avoid passing a copy of the overridable method when declaring the function field
+    _commercial_partner_id = lambda self, *args, **kwargs: self._commercial_partner_compute(*args, **kwargs)
+    _display_name = lambda self, *args, **kwargs: self._display_name_compute(*args, **kwargs)
+
+    _commercial_partner_store_triggers = {
+        'res.partner': (lambda self,cr,uid,ids,context=None: self.search(cr, uid, [('id','child_of',ids)]),
+                        ['parent_id', 'is_company'], 10) 
+    }
+    _display_name_store_triggers = {
+        'res.partner': (lambda self,cr,uid,ids,context=None: self.search(cr, uid, [('id','child_of',ids)]),
+                        ['parent_id', 'is_company', 'name'], 10) 
+    }
+
+    _order = "display_name"
     _columns = {
         'name': fields.char('Name', size=128, required=True, select=True),
+        'display_name': fields.function(_display_name, type='char', string='Name', store=_display_name_store_triggers),
         'date': fields.date('Date', select=1),
         'title': fields.many2one('res.partner.title', 'Title'),
         'parent_id': fields.many2one('res.partner', 'Related Company'),
@@ -247,8 +262,8 @@ class res_partner(osv.osv, format_address):
         'street2': fields.char('Street2', size=128),
         'zip': fields.char('Zip', change_default=True, size=24),
         'city': fields.char('City', size=128),
-        'state_id': fields.many2one("res.country.state", 'State'),
-        'country_id': fields.many2one('res.country', 'Country'),
+        'state_id': fields.many2one("res.country.state", 'State', ondelete='restrict'),
+        'country_id': fields.many2one('res.country', 'Country', ondelete='restrict'),
         'country': fields.related('country_id', type='many2one', relation='res.country', string='Country',
                                   deprecated="This field will be removed as of OpenERP 7.1, use country_id instead"),
         'email': fields.char('Email', size=240),
@@ -284,7 +299,7 @@ class res_partner(osv.osv, format_address):
         'contact_address': fields.function(_address_display,  type='char', string='Complete Address'),
 
         # technical field used for managing commercial fields
-        'commercial_partner_id': fields.function(_commercial_partner_id, type='many2one', relation='res.partner', string='Commercial Entity')
+        'commercial_partner_id': fields.function(_commercial_partner_id, type='many2one', relation='res.partner', string='Commercial Entity', store=_commercial_partner_store_triggers)
     }
 
     def _default_category(self, cr, uid, context=None):
@@ -308,7 +323,7 @@ class res_partner(osv.osv, format_address):
 
     def fields_view_get(self, cr, user, view_id=None, view_type='form', context=None, toolbar=False, submenu=False):
         if (not view_id) and (view_type=='form') and context and context.get('force_email', False):
-            view_id = self.pool.get('ir.model.data').get_object_reference(cr, user, 'base', 'view_partner_simple_form')[1]
+            view_id = self.pool['ir.model.data'].get_object_reference(cr, user, 'base', 'view_partner_simple_form')[1]
         res = super(res_partner,self).fields_view_get(cr, user, view_id, view_type, context, toolbar=toolbar, submenu=submenu)
         if view_type == 'form':
             res['arch'] = self.fields_view_get_address(cr, user, res['arch'], context=context)
@@ -320,7 +335,7 @@ class res_partner(osv.osv, format_address):
         'tz': lambda self, cr, uid, ctx: ctx.get('tz', False),
         'customer': True,
         'category_id': _default_category,
-        'company_id': lambda self, cr, uid, ctx: self.pool.get('res.company')._company_default_get(cr, uid, 'res.partner', context=ctx),
+        'company_id': lambda self, cr, uid, ctx: self.pool['res.company']._company_default_get(cr, uid, 'res.partner', context=ctx),
         'color': 0,
         'is_company': False,
         'type': 'contact', # type 'default' is wildcard and thus inappropriate
@@ -371,12 +386,12 @@ class res_partner(osv.osv, format_address):
 
     def onchange_state(self, cr, uid, ids, state_id, context=None):
         if state_id:
-            country_id = self.pool.get('res.country.state').browse(cr, uid, state_id, context).country_id.id
+            country_id = self.pool['res.country.state'].browse(cr, uid, state_id, context).country_id.id
             return {'value':{'country_id':country_id}}
         return {}
 
     def _check_ean_key(self, cr, uid, ids, context=None):
-        for partner_o in pooler.get_pool(cr.dbname).get('res.partner').read(cr, uid, ids, ['ean13',]):
+        for partner_o in self.pool['res.partner'].read(cr, uid, ids, ['ean13',]):
             thisean=partner_o['ean13']
             if thisean and thisean!='':
                 if len(thisean)!=13:
@@ -603,27 +618,11 @@ class res_partner(osv.osv, format_address):
             if operator in ('=ilike', '=like'):
                 operator = operator[1:]
             query_args = {'name': search_name}
-            # TODO: simplify this in trunk with `display_name`, once it is stored
-            # Perf note: a CTE expression (WITH ...) seems to have an even higher cost
-            #            than this query with duplicated CASE expressions. The bulk of
-            #            the cost is the ORDER BY, and it is inevitable if we want
-            #            relevant results for the next step, otherwise we'd return
-            #            a random selection of `limit` results.
-            query = ('''SELECT partner.id FROM res_partner partner
-                                          LEFT JOIN res_partner company
-                                               ON partner.parent_id = company.id
-                        WHERE partner.email ''' + operator + ''' %(name)s OR
-                              CASE
-                                   WHEN company.id IS NULL OR partner.is_company
-                                       THEN partner.name
-                                   ELSE company.name || ', ' || partner.name
-                              END ''' + operator + ''' %(name)s
-                        ORDER BY
-                              CASE
-                                   WHEN company.id IS NULL OR partner.is_company
-                                       THEN partner.name
-                                   ELSE company.name || ', ' || partner.name
-                              END''')
+            query = ('''SELECT id FROM res_partner
+                         WHERE email ''' + operator + ''' %(name)s
+                            OR display_name ''' + operator + ''' %(name)s
+                      ORDER BY display_name
+                     ''')
             if limit:
                 query += ' limit %(limit)s'
                 query_args['limit'] = limit
@@ -658,7 +657,7 @@ class res_partner(osv.osv, format_address):
 
     def email_send(self, cr, uid, ids, email_from, subject, body, on_error=''):
         while len(ids):
-            self.pool.get('ir.cron').create(cr, uid, {
+            self.pool['ir.cron'].create(cr, uid, {
                 'name': 'Send Partner Emails',
                 'user_id': uid,
                 'model': 'res.partner',
@@ -711,12 +710,12 @@ class res_partner(osv.osv, format_address):
         if res: return res
         if not context.get('category_id', False):
             return False
-        return _('Partners: ')+self.pool.get('res.partner.category').browse(cr, uid, context['category_id'], context).name
+        return _('Partners: ')+self.pool['res.partner.category'].browse(cr, uid, context['category_id'], context).name
 
     def main_partner(self, cr, uid):
         ''' Return the id of the main partner
         '''
-        model_data = self.pool.get('ir.model.data')
+        model_data = self.pool['ir.model.data']
         return model_data.browse(cr, uid,
                             model_data.search(cr, uid, [('module','=','base'),
                                                 ('name','=','main_partner')])[0],

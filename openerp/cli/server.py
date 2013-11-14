@@ -94,16 +94,18 @@ def preload_registry(dbname):
     """ Preload a registry, and start the cron."""
     try:
         update_module = True if openerp.tools.config['init'] or openerp.tools.config['update'] else False
-        db, registry = openerp.pooler.get_db_and_pool(dbname,update_module=update_module)
+        openerp.modules.registry.RegistryManager.new(dbname, update_module=update_module)
     except Exception:
         _logger.exception('Failed to initialize database `%s`.', dbname)
+        return False
+    return True
 
 def run_test_file(dbname, test_file):
     """ Preload a registry, possibly run a test file, and start the cron."""
     try:
         config = openerp.tools.config
-        db, registry = openerp.pooler.get_db_and_pool(dbname, update_module=config['init'] or config['update'])
-        cr = db.cursor()
+        registry = openerp.modules.registry.RegistryManager.new(dbname, update_module=config['init'] or config['update'])
+        cr = registry.db.cursor()
         _logger.info('loading test file %s', test_file)
         openerp.tools.convert_yaml_import(cr, 'base', file(test_file), 'test', {}, 'test', True)
         cr.rollback()
@@ -124,7 +126,8 @@ def export_translation():
 
     fileformat = os.path.splitext(config["translate_out"])[-1][1:].lower()
     buf = file(config["translate_out"], "w")
-    cr = openerp.pooler.get_db(dbname).cursor()
+    registry = openerp.modules.registry.RegistryManager.new(dbname)
+    cr = registry.db.cursor()
     openerp.tools.trans_export(config["language"],
         config["translate_modules"] or ["all"], buf, fileformat, cr)
     cr.close()
@@ -137,7 +140,8 @@ def import_translation():
     context = {'overwrite': config["overwrite_existing_translations"]}
     dbname = config['db_name']
 
-    cr = openerp.pooler.get_db(dbname).cursor()
+    registry = openerp.modules.registry.RegistryManager.new(dbname)
+    cr = registry.db.cursor()
     openerp.tools.trans_load( cr, config["translate_in"], config["language"],
         context=context)
     cr.commit()
@@ -162,27 +166,43 @@ def signal_handler(sig, frame):
 
 def dumpstacks(sig, frame):
     """ Signal handler: dump a stack trace for each existing thread."""
+    code = []
+
+    def extract_stack(stack):
+        for filename, lineno, name, line in traceback.extract_stack(stack):
+            yield 'File: "%s", line %d, in %s' % (filename, lineno, name)
+            if line:
+                yield "  %s" % (line.strip(),)
+
     # code from http://stackoverflow.com/questions/132058/getting-stack-trace-from-a-running-python-application#answer-2569696
     # modified for python 2.5 compatibility
-    threads_info = dict([(th.ident, {'name': th.name,
-                                    'uid': getattr(th,'uid','n/a')})
-                                for th in threading.enumerate()])
-    code = []
+    threads_info = dict([(th.ident, {'name': th.name, 'uid': getattr(th, 'uid', 'n/a')})
+                        for th in threading.enumerate()])
     for threadId, stack in sys._current_frames().items():
         thread_info = threads_info.get(threadId)
-        code.append("\n# Thread: %s (id:%s) (uid:%s)" % \
+        code.append("\n# Thread: %s (id:%s) (uid:%s)" %
                     (thread_info and thread_info['name'] or 'n/a',
                      threadId,
                      thread_info and thread_info['uid'] or 'n/a'))
-        for filename, lineno, name, line in traceback.extract_stack(stack):
-            code.append('File: "%s", line %d, in %s' % (filename, lineno, name))
-            if line:
-                code.append("  %s" % (line.strip()))
+        for line in extract_stack(stack):
+            code.append(line)
+
+    if openerp.evented:
+        # code from http://stackoverflow.com/questions/12510648/in-gevent-how-can-i-dump-stack-traces-of-all-running-greenlets
+        import gc
+        from greenlet import greenlet
+        for ob in gc.get_objects():
+            if not isinstance(ob, greenlet) or not ob:
+                continue
+            code.append("\n# Greenlet: %r" % (ob,))
+            for line in extract_stack(ob.gr_frame):
+                code.append(line)
+
     _logger.info("\n".join(code))
 
-def setup_signal_handlers():
-    """ Register the signal handler defined above. """
-    SIGNALS = map(lambda x: getattr(signal, "SIG%s" % x), "INT TERM".split())
+def setup_signal_handlers(signal_handler):
+    """ Register the given signal handler. """
+    SIGNALS = (signal.SIGINT, signal.SIGTERM)
     if os.name == 'posix':
         map(lambda sig: signal.signal(sig, signal_handler), SIGNALS)
         signal.signal(signal.SIGQUIT, dumpstacks)
@@ -217,9 +237,29 @@ def quit_on_signals():
         os.unlink(config['pidfile'])
     sys.exit(0)
 
+def watch_parent(beat=4):
+    import gevent
+    ppid = os.getppid()
+    while True:
+        if ppid != os.getppid():
+            pid = os.getpid()
+            _logger.info("LongPolling (%s) Parent changed", pid)
+            # suicide !!
+            os.kill(pid, signal.SIGTERM)
+            return
+        gevent.sleep(beat)
+
 def main(args):
     check_root_user()
     openerp.tools.config.parse_config(args)
+
+    if openerp.tools.config.options["gevent"]:
+        openerp.evented = True
+        _logger.info('Using gevent mode')
+        import gevent.monkey
+        gevent.monkey.patch_all()
+        import gevent_psycopg2
+        gevent_psycopg2.monkey_patch()
 
     check_postgres_user()
     openerp.netsvc.init_logger()
@@ -227,7 +267,7 @@ def main(args):
 
     config = openerp.tools.config
 
-    setup_signal_handlers()
+    setup_signal_handlers(signal_handler)
 
     if config["test_file"]:
         run_test_file(config['db_name'], config['test_file'])
@@ -245,17 +285,25 @@ def main(args):
         setup_pid_file()
         # Some module register themselves when they are loaded so we need the
         # services to be running before loading any registry.
-        if config['workers']:
-            openerp.service.start_services_workers()
+        if not openerp.evented:
+            if config['workers']:
+                openerp.service.start_services_workers()
+            else:
+                openerp.service.start_services()
         else:
+            config['xmlrpc_port'] = config['longpolling_port']
+            import gevent
+            gevent.spawn(watch_parent)
             openerp.service.start_services()
 
+    rc = 0
     if config['db_name']:
         for dbname in config['db_name'].split(','):
-            preload_registry(dbname)
+            if not preload_registry(dbname):
+                rc += 1
 
     if config["stop_after_init"]:
-        sys.exit(0)
+        sys.exit(rc)
 
     _logger.info('OpenERP server is running, waiting for connections...')
     quit_on_signals()
