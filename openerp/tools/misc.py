@@ -20,7 +20,6 @@
 #
 ##############################################################################
 
-#.apidoc title: Utilities: tools.misc
 
 """
 Miscellaneous tools used by OpenERP.
@@ -273,18 +272,6 @@ def reverse_enumerate(l):
     """
     return izip(xrange(len(l)-1, -1, -1), reversed(l))
 
-#----------------------------------------------------------
-# SMS
-#----------------------------------------------------------
-# text must be latin-1 encoded
-def sms_send(user, password, api_id, text, to):
-    import urllib
-    url = "http://api.urlsms.com/SendSMS.aspx"
-    #url = "http://196.7.150.220/http/sendmsg"
-    params = urllib.urlencode({'UserID': user, 'Password': password, 'SenderID': api_id, 'MsgText': text, 'RecipientMobileNo':to})
-    urllib.urlopen(url+"?"+params)
-    # FIXME: Use the logger if there is an error
-    return True
 
 class UpdateableStr(local):
     """ Class that stores an updateable string (used in wizards)
@@ -644,21 +631,6 @@ __icons_list = ['STOCK_ABOUT', 'STOCK_ADD', 'STOCK_APPLY', 'STOCK_BOLD',
 def icons(*a, **kw):
     global __icons_list
     return [(x, x) for x in __icons_list ]
-
-def extract_zip_file(zip_file, outdirectory):
-    zf = zipfile.ZipFile(zip_file, 'r')
-    out = outdirectory
-    for path in zf.namelist():
-        tgt = os.path.join(out, path)
-        tgtdir = os.path.dirname(tgt)
-        if not os.path.exists(tgtdir):
-            os.makedirs(tgtdir)
-
-        if not tgt.endswith(os.sep):
-            fp = open(tgt, 'wb')
-            fp.write(zf.read(path))
-            fp.close()
-    zf.close()
 
 def detect_ip_addr():
     """Try a very crude method to figure out a valid external

@@ -169,12 +169,10 @@ class ir_translation(osv.osv):
                 model_name, field = record.name.split(',')
                 model = self.pool.get(model_name)
                 if model and model.exists(cr, uid, record.res_id, context=context):
-                    #We need to take the context without the language information, because we want to read the
-                    #value store in db and not on the one associate with current language.
-                    context_wo_lang = context.copy()
-                    context_wo_lang.pop('lang', None)
-                    result = model.read(cr, uid, record.res_id, [field], context=context_wo_lang)
-                    res[record.id] = result and result[field] or False
+                    # Pass context without lang, need to read real stored field, not translation
+                    context_no_lang = dict(context, lang=None)
+                    result = model.read(cr, uid, record.res_id, [field], context=context_no_lang)
+                    res[record.id] = result[field] if result else False
         return res
 
     def _set_src(self, cr, uid, id, name, value, args, context=None):
@@ -375,7 +373,7 @@ class ir_translation(osv.osv):
         return result
 
     def translate_fields(self, cr, uid, model, id, field=None, context=None):
-        trans_model = self.pool.get(model)
+        trans_model = self.pool[model]
         domain = ['&', ('res_id', '=', id), ('name', '=like', model + ',%')]
         langs_ids = self.pool.get('res.lang').search(cr, uid, [('code', '!=', 'en_US')], context=context)
         if not langs_ids:
