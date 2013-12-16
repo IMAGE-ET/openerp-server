@@ -786,8 +786,13 @@ class _rml_flowable(object):
             keep_empty_lines = (len(textuals) > 1) and len(node.text.strip())
             for i in textuals:
                 if keep_empty_lines and len(i.strip()) == 0:
-                    i = '<font color="white"> </font>'
-                result.append(platypus.Paragraph(i, style, **(utils.attr_get(node, [], {'bulletText':'str'}))))
+                    i = '<font color="white">&nbsp;</font>'
+                result.append(
+                    platypus.Paragraph(
+                        i, style, **(
+                            utils.attr_get(node, [], {'bulletText':'str'}))
+                    )
+                )
             return result
         elif node.tag=='barCode':
             try:
