@@ -195,7 +195,7 @@ class view(osv.osv):
                        ORDER BY priority"""
             query_params = (view_id, model)
         cr.execute(query, query_params)
-        view_ids = [v[0] for v in cr.fetchall()]
+        view_ids = [v[0] for v in cr.fetchall() if v[0] not in self.pool.skipped_views]
         # filter views based on user groups
         return [(view.arch, view.id)
                 for view in self.browse(cr, 1, view_ids, context)

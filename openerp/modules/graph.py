@@ -103,6 +103,16 @@ class Graph(dict):
             if info and info['installable']:
                 packages.append((module, info)) # TODO directly a dict, like in get_modules_with_version
             else:
+                pool = pooler.get_pool(cr.dbname)
+                pool.skipped_modules.append(module)
+                cr.execute("SELECT res_id FROM ir_model_data WHERE model='ir.ui.view' AND module=%s", (module,))
+                skipped_views = cr.dictfetchall()
+                for view_id in skipped_views:
+                    pool.skipped_views.append(view_id['res_id'])
+                cr.execute("SELECT res_id FROM ir_model_data WHERE model='ir.ui.menu' AND module=%s", (module,))
+                skipped_menus = cr.dictfetchall()
+                for menu_id in skipped_menus:
+                    pool.skipped_menus.append(menu_id['res_id'])
                 _logger.warning('module %s: not installable, skipped', module)
 
         dependencies = dict([(p, info['depends']) for p, info in packages])

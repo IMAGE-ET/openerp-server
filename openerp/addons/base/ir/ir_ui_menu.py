@@ -120,6 +120,8 @@ class ir_ui_menu(osv.osv):
                 return 0
             return []
 
+        ids = [i for i in ids if i not in self.pool.skipped_menus]
+
         # menu filtering is done only on main menu tree, not other menu lists
         if context.get('ir.ui.menu.full_list'):
             result = ids

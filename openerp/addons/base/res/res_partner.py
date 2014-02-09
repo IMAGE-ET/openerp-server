@@ -879,6 +879,13 @@ class res_partner(osv.osv, format_address):
             args['company_name'] = ''
         elif address.parent_id:
             address_format = '%(company_name)s\n' + address_format
-        return address_format % args
+        try:
+            res = address_format % args
+        except KeyError:
+            address_format = "%(street)s\n%(street2)s\n%(city)s %(state_code)s %(zip)s\n%(country_name)s"
+            if address.parent_id:
+                address_format = '%(company_name)s\n' + address_format
+            res = address_format % args
+        return res
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

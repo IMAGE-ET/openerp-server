@@ -803,7 +803,8 @@ class expression(object):
                 push_result(leaf)
 
             elif not field:
-                raise ValueError("Invalid field %r in leaf %r" % (left, str(leaf)))
+#                raise ValueError("Invalid field %r in leaf %r" % (left, str(leaf)))
+                push_result(create_substitution_leaf(leaf, (1, "=", 1), relational_model)) # TODO, only if trying to use a skipped_field (from module not in path)
 
             # ----------------------------------------
             # PATH SPOTTED

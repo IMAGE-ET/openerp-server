@@ -45,6 +45,10 @@ class Registry(object):
 
     def __init__(self, db_name):
         self.models = {}    # model name/model instance mapping
+        self.skipped_modules = []
+        self.skipped_views = []
+        self.skipped_menus = []
+        self.skipped_actions = []
         self._sql_error = {}
         self._store_function = {}
         self._init = True
