@@ -139,6 +139,31 @@ class module(osv.osv):
     _rec_name = "shortdesc"
     _description = "Module"
 
+    def is_module_enabled(self, cr, uid, module_name, context):
+        path = addons.get_module_path(module_name)
+        hidden_modules = [] # TODO hidden modules
+        if module_name in hidden_modules:
+           return False
+        elif path.split('/')[-2] == 'addons': # check whitelist
+            if 'edi' in path:
+                return True
+        elif 'custom_' in path: # customer specific module
+            return True
+        else:
+            return True
+
+    def search(self, cr, uid, args, offset=0, limit=None, order=None, context=None, count=False):
+        ids = super(module, self).search(cr, uid, args, offset, limit, order, context, count)
+        if False: # TODO context and context.get('restrict'):
+            filtered_ids = []
+            recs = super(module, self).read(cr, uid, ids, ['name'], context=context)
+            for rec in recs:
+                if self.is_module_enabled(cr, uid, rec['name'], context):
+                    filtered_ids.append(rec['id'])
+            return filtered_ids
+        else:
+            return ids
+
     @classmethod
     def get_module_info(cls, name):
         info = {}
@@ -233,6 +258,7 @@ class module(osv.osv):
         res = dict.fromkeys(ids, '')
         for module in self.browse(cr, uid, ids, context=context):
             path = addons.get_module_resource(module.name, 'static', 'src', 'img', 'icon.png')
+            print "***************", path
             if path:
                 image_file = tools.file_open(path, 'rb')
                 try:
