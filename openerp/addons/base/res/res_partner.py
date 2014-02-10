@@ -169,6 +169,8 @@ POSTAL_ADDRESS_FIELDS = ADDRESS_FIELDS # deprecated, to remove after 7.0
 
 class contact_mixin_methods(osv.AbstractModel):
     _name = 'res.contact.mixin.methods'
+    _force_visible_partner = False
+    _contact_field = False
 
     def create(self, cr, uid, vals, context=None):
         vals = self.write_contact(cr, uid, [], vals, context)
@@ -240,7 +242,12 @@ class contact_mixin_methods(osv.AbstractModel):
                     kw['on_change'] = \
                     "onchange_contact_mixin(contact_id, partner_id, context)"
                     kw['groups'] = "base.group_contact_advanced"
-                    if not self.user_has_groups(cr, uid, "base.group_contact_advanced", context):
+                    if (self._force_visible_partner or
+                        self.user_has_groups(cr, uid, "base.group_contact_advanced", context)
+                        and not self._contact_field):
+                        kw['modifiers'] = kw['modifiers'].replace('"required": true', '"required": false')
+                        kw['context'] = kw['context'].replace("'show_address': 1", "'show_address': 0")
+                    else:
                         partner.set('invisible', '1')
                         setup_modifiers(partner, partner_descr, context, view_type == 'tree')
                         kw['string'] = partner.attrib.get('string', partner_descr['partner_id']['string'])
@@ -841,6 +848,8 @@ class res_partner(osv.osv, format_address):
 
         # default to type 'default' or the partner itself
         default = result.get('default', partner.id)
+        if 'invoice' in adr_pref and not result.get('invoice'):
+            result['invoice'] = current_partner.commercial_partner_id.id
         for adr_type in adr_pref:
             result[adr_type] = result.get(adr_type) or default 
         return result
