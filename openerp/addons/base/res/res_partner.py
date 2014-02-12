@@ -285,12 +285,12 @@ class res_partner(osv.osv, format_address):
     def unlink(self, cr, uid, ids, context=None):
         errors = {}
         for model_name, model_obj in self.pool.models.iteritems():
-            if hasattr(model_obj, '_contact_mixin') and model_name != 'res.contact.mixin':
+            if hasattr(model_obj, '_contact_mixin') and model_name != 'res.contact.mixin' and model_obj._auto:
                 domain = [
                     '|',
                     ['contact_id', 'in', ids],
                     ['partner_id', 'in', ids],
-                ]       
+                ]
                 res_ids = model_obj.search(cr, uid, domain, context=context)
                 if res_ids:
                     res = model_obj.browse(cr, uid, res_ids, context=context)
