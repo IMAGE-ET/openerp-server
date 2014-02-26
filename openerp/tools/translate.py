@@ -656,6 +656,11 @@ def trans_generate(lang, modules, cr):
             return s.encode('utf8')
         return s
 
+    for module in modules:
+        obj = pool.get(module.replace('_', '.'))
+        if obj:
+            push_translation(module, 'code', '_description', 0, obj._description)
+
     for (xml_name,model,res_id,module) in cr.fetchall():
         module = encode(module)
         model = encode(model)
