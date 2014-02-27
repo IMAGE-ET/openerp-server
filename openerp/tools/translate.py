@@ -781,7 +781,7 @@ def trans_generate(lang, modules, cr):
         elif model == 'ir.model':
             model_pool = pool.get(obj.model)
             if model_pool:
-                push_translation(module, 'model', '_description', 0, model_pool._description)
+                push_translation(module, 'code', '_description', 0, model_pool._description)
 
         for field_name,field_def in obj._table._columns.items():
             if field_def.translate:
