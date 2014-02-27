@@ -656,11 +656,6 @@ def trans_generate(lang, modules, cr):
             return s.encode('utf8')
         return s
 
-    for module in modules:
-        obj = pool.get(module.replace('_', '.'))
-        if obj:
-            push_translation(module, 'code', '_description', 0, obj._description)
-
     for (xml_name,model,res_id,module) in cr.fetchall():
         module = encode(module)
         model = encode(model)
@@ -782,6 +777,11 @@ def trans_generate(lang, modules, cr):
                         report_file.close()
                 except (IOError, etree.XMLSyntaxError):
                     _logger.exception("couldn't export translation for report %s %s %s", name, report_type, fname)
+
+        elif model == 'ir.model':
+            model_pool = pool.get(obj.model)
+            if model_pool:
+                push_translation(module, 'model', '_description', 0, model_pool._description)
 
         for field_name,field_def in obj._table._columns.items():
             if field_def.translate:
