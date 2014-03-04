@@ -195,10 +195,8 @@ class YamlInterpreter(object):
         return node
 
     def _log_assert_failure(self, msg, *args):
-        from openerp import tools  # does not work in module prelude (loop?)
-        pyinit = tools.file_open('/'.join((self.module, '__init__.py')))
-        basepath = os.path.dirname(pyinit.name)
-        pyinit.close()
+        from openerp.modules import module  # cannot be made before (loop)
+        basepath = module.get_module_path(self.module)
         self.assertion_report.record_failure(
             details=dict(module=self.module,
                          testfile=os.path.relpath(self.filename, basepath),
