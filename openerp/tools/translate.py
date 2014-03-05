@@ -1055,7 +1055,7 @@ def trans_load_data(cr, fileobj, fileformat, lang, lang_name=None, verbose=True,
             process_row(row)
 
         irt_cursor.finish()
-
+        trans_obj.clear_caches()
         if verbose:
             _logger.info("translation file loaded succesfully")
     except IOError:
