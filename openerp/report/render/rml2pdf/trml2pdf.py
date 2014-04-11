@@ -49,6 +49,19 @@ _logger = logging.getLogger(__name__)
 
 encoding = 'utf-8'
 
+def select_fontname(fontname, default_fontname):
+    if fontname not in pdfmetrics.getRegisteredFontNames()\
+         or fontname not in pdfmetrics.standardFonts:
+        # let reportlab attempt to find it
+        try:
+            pdfmetrics.getFont(fontname)
+        except Exception:
+            _logger.warning('Could not locate font %s, substituting default: %s',
+                fontname, default_fontname)
+            fontname = default_fontname
+    return fontname
+
+
 def _open_image(filename, path=None):
     """Attempt to open a binary file and return the descriptor
     """
@@ -72,50 +85,30 @@ def _open_image(filename, path=None):
 class NumberedCanvas(canvas.Canvas):
     def __init__(self, *args, **kwargs):
         canvas.Canvas.__init__(self, *args, **kwargs)
-        self._codes = []
-        self._flag=False
-        self._pageCount=0
-        self._currentPage =0
-        self._pageCounter=0
-        self.pages={}
+        self._saved_page_states = []
 
     def showPage(self):
-        self._currentPage +=1
-        if not self._flag:
-            self._pageCount += 1
-        else:
-            self.pages.update({self._currentPage:self._pageCount})
-        self._codes.append({'code': self._code, 'stack': self._codeStack})
+        self._saved_page_states.append(dict(self.__dict__))
         self._startPage()
-        self._flag=False
 
-    def pageCount(self):
-        if self.pages.get(self._pageCounter,False):
-            self._pageNumber=0
-        self._pageCounter +=1
-        key=self._pageCounter
-        if not self.pages.get(key,False):
-            while not self.pages.get(key,False):
-                key += 1
+    def save(self):
+        """add page info to each page (page x of y)"""
+        for state in self._saved_page_states:
+            self.__dict__.update(state)
+            self.draw_page_number()
+            canvas.Canvas.showPage(self)
+        canvas.Canvas.save(self)
+
+    def draw_page_number(self):
+        page_count = len(self._saved_page_states)
         self.setFont("Helvetica", 8)
         self.drawRightString((self._pagesize[0]-30), (self._pagesize[1]-40),
             " %(this)i / %(total)i" % {
                'this': self._pageNumber+1,
-               'total': self.pages.get(key,False),
+               'total': page_count,
             }
         )
 
-    def save(self):
-        """add page info to each page (page x of y)"""
-        # reset page counter
-        self._pageNumber = 0
-        for code in self._codes:
-            self._code = code['code']
-            self._codeStack = code['stack']
-            self.pageCount()
-            canvas.Canvas.showPage(self)
-#        self.restoreState()
-        self._doc.SaveToFile(self._filename, self)
 
 class PageCount(platypus.Flowable):
     def __init__(self, story_count=0):
@@ -147,9 +140,11 @@ class _rml_styles(object,):
             for style in node.findall('paraStyle'):
                 sname = style.get('name')
                 self.styles[sname] = self._para_style_update(style)
-
-                self.styles_obj[sname] = reportlab.lib.styles.ParagraphStyle(sname, self.default_style["Normal"], **self.styles[sname])
-
+                if self.default_style.has_key(sname):
+                    for key, value in self.styles[sname].items():                    
+                        setattr(self.default_style[sname], key, value)
+                else:
+                    self.styles_obj[sname] = reportlab.lib.styles.ParagraphStyle(sname, self.default_style["Normal"], **self.styles[sname])
             for variable in node.findall('initialize'):
                 for name in variable.findall('name'):
                     self.names[ name.get('id')] = name.get('value')
@@ -159,7 +154,12 @@ class _rml_styles(object,):
         for attr in ['textColor', 'backColor', 'bulletColor', 'borderColor']:
             if node.get(attr):
                 data[attr] = color.get(node.get(attr))
-        for attr in ['fontName', 'bulletFontName', 'bulletText']:
+        for attr in ['bulletFontName', 'fontName']:
+            if node.get(attr):
+                fontname= select_fontname(node.get(attr), None)
+                if fontname is not None:
+                    data['fontName'] = fontname
+        for attr in ['bulletText']:
             if node.get(attr):
                 data[attr] = node.get(attr)
         for attr in ['fontSize', 'leftIndent', 'rightIndent', 'spaceBefore', 'spaceAfter',
@@ -222,7 +222,7 @@ class _rml_styles(object,):
             if sname in self.styles_obj:
                 style = self.styles_obj[sname]
             else:
-                _logger.warning('Warning: style not found, %s - setting default!\n' % (node.get('style'),) )
+                _logger.debug('Warning: style not found, %s - setting default!', node.get('style'))
         if not style:
             style = self.default_style['Normal']
         para_update = self._para_style_update(node)
@@ -251,15 +251,29 @@ class _rml_doc(object):
         from reportlab.pdfbase.ttfonts import TTFont
 
         for node in els:
+
             for font in node.findall('registerFont'):
                 name = font.get('fontName').encode('ascii')
                 fname = font.get('fontFile').encode('ascii')
                 if name not in pdfmetrics._fonts:
                     pdfmetrics.registerFont(TTFont(name, fname))
+                #by default, we map the fontName to each style (bold, italic, bold and italic), so that 
+                #if there isn't any font defined for one of these style (via a font family), the system
+                #will fallback on the normal font.
                 addMapping(name, 0, 0, name)    #normal
                 addMapping(name, 0, 1, name)    #italic
                 addMapping(name, 1, 0, name)    #bold
                 addMapping(name, 1, 1, name)    #italic and bold
+
+            #if registerFontFamily is defined, we register the mapping of the fontName to use for each style.
+            for font_family in node.findall('registerFontFamily'):
+                family_name = font_family.get('normal').encode('ascii')
+                if font_family.get('italic'):
+                    addMapping(family_name, 0, 1, font_family.get('italic').encode('ascii'))
+                if font_family.get('bold'):
+                    addMapping(family_name, 1, 0, font_family.get('bold').encode('ascii'))
+                if font_family.get('boldItalic'):
+                    addMapping(family_name, 1, 1, font_family.get('boldItalic').encode('ascii'))
 
     def setTTFontMapping(self,face, fontname, filename, mode='all'):
         from reportlab.lib.fonts import addMapping
@@ -417,7 +431,7 @@ class _rml_canvas(object):
         self.canvas.circle(x_cen=utils.unit_get(node.get('x')), y_cen=utils.unit_get(node.get('y')), r=utils.unit_get(node.get('radius')), **utils.attr_get(node, [], {'fill':'bool','stroke':'bool'}))
 
     def _place(self, node):
-        flows = _rml_flowable(self.doc, self.localcontext, images=self.images, path=self.path, title=self.title).render(node)
+        flows = _rml_flowable(self.doc, self.localcontext, images=self.images, path=self.path, title=self.title, canvas=self.canvas).render(node)
         infos = utils.attr_get(node, ['x','y','width','height'])
 
         infos['y']+=infos['height']
@@ -537,17 +551,7 @@ class _rml_canvas(object):
         self.canvas.drawPath(self.path, **utils.attr_get(node, [], {'fill':'bool','stroke':'bool'}))
 
     def setFont(self, node):
-        fontname = node.get('name')
-        if fontname not in pdfmetrics.getRegisteredFontNames()\
-             or fontname not in pdfmetrics.standardFonts:
-                # let reportlab attempt to find it
-                try:
-                    pdfmetrics.getFont(fontname)
-                except Exception:
-                    _logger.debug('Could not locate font %s, substituting default: %s',
-                                 fontname,
-                                 self.canvas._fontname)
-                    fontname = self.canvas._fontname
+        fontname = select_fontname(node.get('name'), self.canvas._fontname)
         return self.canvas.setFont(fontname, utils.unit_get(node.get('size')))
 
     def render(self, node):
@@ -607,8 +611,20 @@ class _rml_Illustration(platypus.flowables.Flowable):
         drw = _rml_draw(self.localcontext ,self.node,self.styles, images=self.self2.images, path=self.self2.path, title=self.self2.title)
         drw.render(self.canv, None)
 
+# Workaround for issue #15: https://bitbucket.org/rptlab/reportlab/issue/15/infinite-pages-produced-when-splitting 
+original_pto_split = platypus.flowables.PTOContainer.split
+def split(self, availWidth, availHeight):
+    res = original_pto_split(self, availWidth, availHeight)
+    if len(res) > 2 and len(self._content) > 0:
+        header = self._content[0]._ptoinfo.header
+        trailer = self._content[0]._ptoinfo.trailer
+        if isinstance(res[-2], platypus.flowables.UseUpSpace) and len(header + trailer) == len(res[:-2]):
+            return []
+    return res
+platypus.flowables.PTOContainer.split = split
+
 class _rml_flowable(object):
-    def __init__(self, doc, localcontext, images=None, path='.', title=None):
+    def __init__(self, doc, localcontext, images=None, path='.', title=None, canvas=None):
         if images is None:
             images = {}
         self.localcontext = localcontext
@@ -617,6 +633,7 @@ class _rml_flowable(object):
         self.images = images
         self.path = path
         self.title = title
+        self.canvas = canvas
 
     def _textual(self, node):
         rc1 = utils._process_text(self, node.text or '')
@@ -626,7 +643,10 @@ class _rml_flowable(object):
                 if key in ('rml_except', 'rml_loop', 'rml_tag'):
                     del txt_n.attrib[key]
             if not n.tag == 'bullet':
-                txt_n.text = utils.xml2str(self._textual(n))
+                if n.tag == 'pageNumber': 
+                    txt_n.text = self.canvas and str(self.canvas.getPageNumber()) or ''
+                else:
+                    txt_n.text = utils.xml2str(self._textual(n))
             txt_n.tail = n.tail and utils.xml2str(utils._process_text(self, n.tail.replace('\n',''))) or ''
             rc1 += etree.tostring(txt_n)
         return rc1
@@ -742,8 +762,17 @@ class _rml_flowable(object):
             if extra_style:
                 style.__dict__.update(extra_style)
             result = []
-            for i in self._textual(node).split('\n'):
-                result.append(platypus.Paragraph(i, style, **(utils.attr_get(node, [], {'bulletText':'str'}))))
+            textuals = self._textual(node).split('\n')
+            keep_empty_lines = (len(textuals) > 1) and len(node.text.strip())
+            for i in textuals:
+                if keep_empty_lines and len(i.strip()) == 0:
+                    i = '<font color="white">&nbsp;</font>'
+                result.append(
+                    platypus.Paragraph(
+                        i, style, **(
+                            utils.attr_get(node, [], {'bulletText':'str'}))
+                    )
+                )
             return result
         elif node.tag=='barCode':
             try:
@@ -975,7 +1004,7 @@ class _rml_template(object):
         if self.localcontext and not self.localcontext.get('internal_header',False):
             del self.localcontext['internal_header']
         fis = []
-        r = _rml_flowable(self.doc,self.localcontext, images=self.images, path=self.path, title=self.title)
+        r = _rml_flowable(self.doc,self.localcontext, images=self.images, path=self.path, title=self.title, canvas=None)
         story_cnt = 0
         for node_story in node_stories:
             if story_cnt > 0:
@@ -984,11 +1013,16 @@ class _rml_template(object):
             # Reset Page Number with new story tag
             fis.append(PageReset())
             story_cnt += 1
-        if self.localcontext and self.localcontext.get('internal_header',False):
-            self.doc_tmpl.afterFlowable(fis)
-            self.doc_tmpl.build(fis,canvasmaker=NumberedCanvas)
-        else:
-            self.doc_tmpl.build(fis)
+        try:
+            if self.localcontext and self.localcontext.get('internal_header',False):
+                self.doc_tmpl.afterFlowable(fis)
+                self.doc_tmpl.build(fis,canvasmaker=NumberedCanvas)
+            else:
+                self.doc_tmpl.build(fis)
+        except platypus.doctemplate.LayoutError, e:
+            e.name = 'Print Error'
+            e.value = 'The document you are trying to print contains a table row that does not fit on one page. Please try to split it in smaller rows or contact your administrator.'
+            raise
 
 def parseNode(rml, localcontext=None, fout=None, images=None, path='.', title=None):
     node = etree.XML(rml)

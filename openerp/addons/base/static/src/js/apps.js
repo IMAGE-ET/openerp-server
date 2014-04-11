@@ -44,7 +44,7 @@ openerp.base = function(instance) {
                             } else {
                                 sessionStorage.removeItem('apps.login');
                                 sessionStorage.removeItem('apps.access_token');
-                                client.bind_crendentials(client.dbname, 'anonymous', 'anonymous');
+                                client.bind_credentials(client.dbname, 'anonymous', 'anonymous');
                                 client.authenticate().then(
                                    function() {     /* done */
                                     d.resolve(client);
@@ -56,14 +56,15 @@ openerp.base = function(instance) {
                     });
 
                 };
-                i.src = _.str.sprintf('%s/web/static/src/img/sep-a.gif', client.origin);
+                var ts = new Date().getTime();
+                i.src = _.str.sprintf('%s/web/static/src/img/sep-a.gif?%s', client.origin, ts);
                 return d.promise();
             };
             if (instance.base.apps_client) {
                 return check_client_available(instance.base.apps_client);
             } else {
-                var ICP = new instance.web.Model('ir.config_parameter');
-                return ICP.call('get_param', ['apps.server', 'https://apps.openerp.com/apps']).then(function(u) {
+                var Mod = new instance.web.Model('ir.module.module');
+                return Mod.call('get_apps_server').then(function(u) {
                     var link = $(_.str.sprintf('<a href="%s"></a>', u))[0];
                     var host = _.str.sprintf('%s//%s', link.protocol, link.host);
                     var dbname = link.pathname;
@@ -96,7 +97,7 @@ openerp.base = function(instance) {
                     client.replace(self.$el).
                         done(function() {
                             client.$el.removeClass('openerp');
-                            client.do_action(self.remote_action_id);
+                            client.do_action(self.remote_action_id, {hide_breadcrumb: true});
                         });
                 }).
                 fail(function(client) {

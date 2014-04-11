@@ -3,7 +3,7 @@
 #
 #    OpenERP, Open Source Management Solution
 #    Copyright (C) 2004-2009 Tiny SPRL (<http://tiny.be>).
-#    Copyright (C) 2010-2011 OpenERP s.a. (<http://openerp.com>).
+#    Copyright (C) 2010-2013 OpenERP s.a. (<http://openerp.com>).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -41,7 +41,6 @@ import psycopg2.extensions
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT, ISOLATION_LEVEL_READ_COMMITTED, ISOLATION_LEVEL_REPEATABLE_READ
 from psycopg2.pool import PoolError
 from psycopg2.psycopg1 import cursor as psycopg1cursor
-from threading import currentThread
 
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
 
@@ -173,7 +172,7 @@ class Cursor(object):
         self.sql_log_count = 0
         self.__closed = True    # avoid the call of close() (by __del__) if an exception
                                 # is raised by any of the following initialisations
-        self._pool = pool
+        self.__pool = pool
         self.dbname = dbname
 
         # Whether to enable snapshot isolation level for this cursor.
@@ -319,7 +318,7 @@ class Cursor(object):
             chosen_template = tools.config['db_template']
             templates_list = tuple(set(['template0', 'template1', 'postgres', chosen_template]))
             keep_in_pool = self.dbname not in templates_list
-            self._pool.give_back(self._cnx, keep_in_pool=keep_in_pool)
+            self.__pool.give_back(self._cnx, keep_in_pool=keep_in_pool)
 
     @check
     def autocommit(self, on):
@@ -398,7 +397,7 @@ class ConnectionPool(object):
     def borrow(self, dsn):
         self._debug('Borrow connection to %r', dsn)
 
-        # free leaked connections
+        # free dead and leaked connections
         for i, (cnx, _) in tools.reverse_enumerate(self._connections):
             if cnx.closed:
                 self._connections.pop(i)
@@ -412,6 +411,14 @@ class ConnectionPool(object):
 
         for i, (cnx, used) in enumerate(self._connections):
             if not used and dsn_are_equals(cnx.dsn, dsn):
+                try:
+                    cnx.reset()
+                except psycopg2.OperationalError:
+                    self._debug('Cannot reset connection at index %d: %r', i, cnx.dsn)
+                    # psycopg2 2.4.4 and earlier do not allow closing a closed connection
+                    if not cnx.closed:
+                        cnx.close()
+                    continue
                 self._connections.pop(i)
                 self._connections.append((cnx, True))
                 self._debug('Existing connection found at index %d', i)
@@ -469,12 +476,12 @@ class Connection(object):
 
     def __init__(self, pool, dbname):
         self.dbname = dbname
-        self._pool = pool
+        self.__pool = pool
 
     def cursor(self, serialized=True):
         cursor_type = serialized and 'serialized ' or ''
         _logger.debug('create %scursor to %r', cursor_type, self.dbname)
-        return Cursor(self._pool, self.dbname, serialized=serialized)
+        return Cursor(self.__pool, self.dbname, serialized=serialized)
 
     # serialized_cursor is deprecated - cursors are serialized by default
     serialized_cursor = cursor
@@ -512,7 +519,6 @@ def db_connect(db_name):
     global _Pool
     if _Pool is None:
         _Pool = ConnectionPool(int(tools.config['db_maxconn']))
-    currentThread().dbname = db_name
     return Connection(_Pool, db_name)
 
 def close_db(db_name):
@@ -520,9 +526,6 @@ def close_db(db_name):
     global _Pool
     if _Pool:
         _Pool.close_all(dsn(db_name))
-    ct = currentThread()
-    if hasattr(ct, 'dbname'):
-        delattr(ct, 'dbname')
 
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

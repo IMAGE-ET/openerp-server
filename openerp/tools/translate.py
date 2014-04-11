@@ -172,7 +172,7 @@ class GettextAlias(object):
             cr = getattr(s, 'cr', None)
         if not cr and allow_create:
             db = self._get_db()
-            if db:
+            if db is not None:
                 cr = db.cursor()
                 is_new_cr = True
         return cr, is_new_cr
@@ -465,7 +465,7 @@ def trans_export(lang, modules, buffer, format, cr):
                 row.setdefault('tnrs', []).append((type, name, res_id))
                 row.setdefault('comments', set()).update(comments)
 
-            for src, row in grouped_rows.items():
+            for src, row in sorted(grouped_rows.items()):
                 if not lang:
                     # translation template, so no translation value
                     row['translation'] = ''
@@ -557,6 +557,8 @@ def trans_parse_view(de):
         res.append(de.get('sum').encode("utf8"))
     if de.get("confirm"):
         res.append(de.get('confirm').encode("utf8"))
+    if de.get("placeholder"):
+        res.append(de.get('placeholder').encode("utf8"))
     for n in de:
         res.extend(trans_parse_view(n))
     return res
@@ -783,6 +785,11 @@ def trans_generate(lang, modules, cr):
                 except (IOError, etree.XMLSyntaxError):
                     _logger.exception("couldn't export translation for report %s %s %s", name, report_type, fname)
 
+        elif model == 'ir.model':
+            model_pool = pool.get(obj.model)
+            if model_pool:
+                push_translation(module, 'code', '_description', 0, model_pool._description)
+
         for field_name,field_def in obj._table._columns.items():
             if field_def.translate:
                 name = model + "," + field_name
@@ -879,8 +886,11 @@ def trans_generate(lang, modules, cr):
         if module:
             src_file = open(fabsolutepath, 'r')
             try:
-                for lineno, message, comments in extract.extract(extract_method, src_file,
-                                                                 keywords=extract_keywords):
+                for extracted in extract.extract(extract_method, src_file,
+                                                 keywords=extract_keywords):
+                    # Babel 0.9.6 yields lineno, message, comments
+                    # Babel 1.3 yields lineno, message, comments, context
+                    lineno, message, comments = extracted[:3] 
                     push_translation(module, trans_type, display_path, lineno,
                                      encode(message), comments + extra_comments)
             except Exception:

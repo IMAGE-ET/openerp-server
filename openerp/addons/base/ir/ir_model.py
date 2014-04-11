@@ -25,6 +25,7 @@ import time
 import types
 
 import openerp
+import openerp.modules.registry
 from openerp import SUPERUSER_ID
 from openerp import netsvc, pooler, tools
 from openerp.osv import fields,osv
@@ -32,7 +33,7 @@ from openerp.osv.orm import Model
 from openerp.tools.safe_eval import safe_eval as eval
 from openerp.tools import config
 from openerp.tools.translate import _
-from openerp.osv.orm import except_orm, browse_record
+from openerp.osv.orm import except_orm, browse_record, MAGIC_COLUMNS
 
 _logger = logging.getLogger(__name__)
 
@@ -81,7 +82,7 @@ class ir_model(osv.osv):
             return []
         __, operator, value = domain[0]
         if operator not in ['=', '!=']:
-            raise osv.except_osv(_('Invalid search criterions'), _('The osv_memory field can only be compared with = and != operator.'))
+            raise osv.except_osv(_("Invalid Search Criteria"), _('The osv_memory field can only be compared with = and != operator.'))
         value = bool(value) if operator == '=' else not bool(value)
         all_model_ids = self.search(cr, uid, [], context=context)
         is_osv_mem = self._is_osv_memory(cr, uid, all_model_ids, 'osv_memory', arg=None, context=context)
@@ -168,7 +169,9 @@ class ir_model(osv.osv):
         if not context.get(MODULE_UNINSTALL_FLAG):
             # only reload pool for normal unlink. For module uninstall the
             # reload is done independently in openerp.modules.loading
+            cr.commit() # must be committed before reloading registry in new cursor
             pooler.restart_pool(cr.dbname)
+            openerp.modules.registry.RegistryManager.signal_registry_change(cr.dbname)
 
         return res
 
@@ -192,9 +195,11 @@ class ir_model(osv.osv):
             ctx = dict(context,
                 field_name=vals['name'],
                 field_state='manual',
-                select=vals.get('select_level', '0'))
+                select=vals.get('select_level', '0'),
+                update_custom_fields=True)
             self.pool.get(vals['model'])._auto_init(cr, ctx)
-            #pooler.restart_pool(cr.dbname)
+            self.pool.get(vals['model'])._auto_end(cr, ctx) # actually create FKs!
+            openerp.modules.registry.RegistryManager.signal_registry_change(cr.dbname)
         return res
 
     def instanciate(self, cr, user, model, context=None):
@@ -260,7 +265,6 @@ class ir_model_fields(osv.osv):
         'state': lambda self,cr,uid,ctx=None: (ctx and ctx.get('manual',False)) and 'manual' or 'base',
         'on_delete': 'set null',
         'select_level': '0',
-        'size': 64,
         'field_description': '',
         'selectable': 1,
     }
@@ -290,14 +294,16 @@ class ir_model_fields(osv.osv):
         return True
 
     def _size_gt_zero_msg(self, cr, user, ids, context=None):
-        return _('Size of the field can never be less than 1 !')
+        return _('Size of the field can never be less than 0 !')
 
     _sql_constraints = [
-        ('size_gt_zero', 'CHECK (size>0)',_size_gt_zero_msg ),
+        ('size_gt_zero', 'CHECK (size>=0)',_size_gt_zero_msg ),
     ]
 
     def _drop_column(self, cr, uid, ids, context=None):
         for field in self.browse(cr, uid, ids, context):
+            if field.name in MAGIC_COLUMNS:
+                continue
             model = self.pool.get(field.model)
             cr.execute('select relkind from pg_class where relname=%s', (model._table,))
             result = cr.fetchone()
@@ -319,6 +325,9 @@ class ir_model_fields(osv.osv):
 
         self._drop_column(cr, user, ids, context)
         res = super(ir_model_fields, self).unlink(cr, user, ids, context)
+        if not context.get(MODULE_UNINSTALL_FLAG):
+            cr.commit()
+            openerp.modules.registry.RegistryManager.signal_registry_change(cr.dbname)
         return res
 
     def create(self, cr, user, vals, context=None):
@@ -350,6 +359,8 @@ class ir_model_fields(osv.osv):
                     select=vals.get('select_level', '0'),
                     update_custom_fields=True)
                 self.pool.get(vals['model'])._auto_init(cr, ctx)
+                self.pool.get(vals['model'])._auto_end(cr, ctx) # actually create FKs!
+                openerp.modules.registry.RegistryManager.signal_registry_change(cr.dbname)
 
         return res
 
@@ -374,7 +385,7 @@ class ir_model_fields(osv.osv):
 
         # static table of properties
         model_props = [ # (our-name, fields.prop, set_fn)
-            ('field_description', 'string', str),
+            ('field_description', 'string', unicode),
             ('required', 'required', bool),
             ('readonly', 'readonly', bool),
             ('domain', '_domain', eval),
@@ -466,6 +477,8 @@ class ir_model_fields(osv.osv):
                 for col_name, col_prop, val in patch_struct[1]:
                     setattr(obj._columns[col_name], col_prop, val)
                 obj._auto_init(cr, ctx)
+                obj._auto_end(cr, ctx) # actually create FKs!
+            openerp.modules.registry.RegistryManager.signal_registry_change(cr.dbname)
         return res
 
 class ir_model_constraint(Model):
@@ -1062,9 +1075,13 @@ class ir_model_data(osv.osv):
                     continue
                 _logger.info('Deleting %s@%s', res_id, model)
                 try:
+                    cr.execute('SAVEPOINT record_unlink_save')
                     self.pool.get(model).unlink(cr, uid, [res_id], context=context)
                 except Exception:
                     _logger.info('Unable to delete %s@%s', res_id, model, exc_info=True)
+                    cr.execute('ROLLBACK TO SAVEPOINT record_unlink_save')
+                else:
+                    cr.execute('RELEASE SAVEPOINT record_unlink_save')
 
         # Remove non-model records first, then model fields, and finish with models
         unlink_if_refcount((model, res_id) for model, res_id in to_unlink
@@ -1097,7 +1114,8 @@ class ir_model_data(osv.osv):
             return True
         to_unlink = []
         cr.execute("""SELECT id,name,model,res_id,module FROM ir_model_data
-                      WHERE module IN %s AND res_id IS NOT NULL AND noupdate=%s""",
+                      WHERE module IN %s AND res_id IS NOT NULL AND noupdate=%s
+                      ORDER BY id DESC""",
                       (tuple(modules), False))
         for (id, name, model, res_id, module) in cr.fetchall():
             if (module,name) not in self.loads:

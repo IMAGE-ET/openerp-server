@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
@@ -106,8 +105,15 @@ def run_test_file(dbname, test_file):
         db, registry = openerp.pooler.get_db_and_pool(dbname, update_module=config['init'] or config['update'])
         cr = db.cursor()
         _logger.info('loading test file %s', test_file)
-        openerp.tools.convert_yaml_import(cr, 'base', file(test_file), 'test', {}, 'test', True)
-        cr.rollback()
+        openerp.tools.convert_yaml_import(cr, 'base', file(test_file), 'test', {}, 'init')
+
+        if config['test_commit']:
+            _logger.info('test %s has been commited', test_file)
+            cr.commit()
+        else:
+            _logger.info('test %s has been rollbacked', test_file)
+            cr.rollback()
+
         cr.close()
     except Exception:
         _logger.exception('Failed to initialize database `%s` and run test file `%s`.', dbname, test_file)
@@ -218,15 +224,7 @@ def quit_on_signals():
         os.unlink(config['pidfile'])
     sys.exit(0)
 
-def configure_babel_localedata_path():
-    # Workaround: py2exe and babel.
-    if hasattr(sys, 'frozen'):
-        import babel
-        babel.localedata._dirname = os.path.join(os.path.dirname(sys.executable), 'localedata')
-
 def main(args):
-    os.environ["TZ"] = "UTC"
-
     check_root_user()
     openerp.tools.config.parse_config(args)
 
@@ -235,8 +233,6 @@ def main(args):
     report_configuration()
 
     config = openerp.tools.config
-
-    configure_babel_localedata_path()
 
     setup_signal_handlers()
 

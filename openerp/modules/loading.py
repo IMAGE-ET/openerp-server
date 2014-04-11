@@ -34,6 +34,7 @@ import openerp
 import openerp.modules.db
 import openerp.modules.graph
 import openerp.modules.migration
+import openerp.modules.registry
 import openerp.osv as osv
 import openerp.pooler as pooler
 import openerp.tools as tools
@@ -102,10 +103,7 @@ def load_module_graph(cr, graph, status=None, perform_checks=True, skip_modules=
 
         """
         for filename in package.data[kind]:
-            if kind == 'test':
-                _logger.log(logging.TEST, "module %s: loading %s", module_name, filename)
-            else:
-                _logger.info("module %s: loading %s", module_name, filename)
+            _logger.info("module %s: loading %s", module_name, filename)
             _, ext = os.path.splitext(filename)
             pathname = os.path.join(module_name, filename)
             fp = tools.file_open(pathname)
@@ -138,7 +136,7 @@ def load_module_graph(cr, graph, status=None, perform_checks=True, skip_modules=
     loaded_modules = []
     pool = pooler.get_pool(cr.dbname)
     migrations = openerp.modules.migration.MigrationManager(cr, graph)
-    _logger.debug('loading %d packages...', len(graph))
+    _logger.info('loading %d modules...', len(graph))
 
     # Query manual fields for all models at once and save them on the registry
     # so the initialization code for each model does not have to do it
@@ -156,7 +154,7 @@ def load_module_graph(cr, graph, status=None, perform_checks=True, skip_modules=
         if skip_modules and module_name in skip_modules:
             continue
 
-        _logger.info('module %s: loading objects', package.name)
+        _logger.debug('module %s: loading objects', package.name)
         migrations.migrate_module(package, 'pre')
         load_openerp_module(package.name)
 
@@ -199,13 +197,21 @@ def load_module_graph(cr, graph, status=None, perform_checks=True, skip_modules=
                 # 'data' section, but should probably not alter the data,
                 # as there is no rollback.
                 if tools.config.options['test_enable']:
-                    report.record_result(load_test(module_name, idref, mode))
-
+                    report.record_result(load_test(module_name, idref, mode),
+                                         details=(dict(module=module_name,
+                                                       msg="Exception during load of legacy "
+                                                       "data-based tests (yml...)")))
                     # Run the `fast_suite` and `checks` tests given by the module.
                     if module_name == 'base':
                         # Also run the core tests after the database is created.
-                        report.record_result(openerp.modules.module.run_unit_tests('openerp'))
-                    report.record_result(openerp.modules.module.run_unit_tests(module_name))
+                        report.record_result(openerp.modules.module.run_unit_tests('openerp'),
+                                             details=dict(module='openerp',
+                                                          msg="Failure or error in server core "
+                                                          "unit tests"))
+                    report.record_result(openerp.modules.module.run_unit_tests(module_name),
+                                         details=dict(module=module_name,
+                                                      msg="Failure or error in unit tests, "
+                                                      "check logs for more details"))
 
             processed_modules.append(package.name)
 
@@ -339,13 +345,21 @@ def load_modules(db, force_demo=False, status=None, update_module=False):
         #            they are part of the "currently installed" modules. They will
         #            be dropped in STEP 6 later, before restarting the loading
         #            process.
-        states_to_load = ['installed', 'to upgrade', 'to remove']
-        processed = load_marked_modules(cr, graph, states_to_load, force, status, report, loaded_modules, update_module)
-        processed_modules.extend(processed)
-        if update_module:
-            states_to_load = ['to install']
-            processed = load_marked_modules(cr, graph, states_to_load, force, status, report, loaded_modules, update_module)
-            processed_modules.extend(processed)
+        # IMPORTANT 2: We have to loop here until all relevant modules have been
+        #              processed, because in some rare cases the dependencies have
+        #              changed, and modules that depend on an uninstalled module
+        #              will not be processed on the first pass.
+        #              It's especially useful for migrations.
+        previously_processed = -1
+        while previously_processed < len(processed_modules):
+            previously_processed = len(processed_modules)
+            processed_modules += load_marked_modules(cr, graph,
+                ['installed', 'to upgrade', 'to remove'],
+                force, status, report, loaded_modules, update_module)
+            if update_module:
+                processed_modules += load_marked_modules(cr, graph,
+                    ['to install'], force, status, report,
+                    loaded_modules, update_module)
 
         # load custom models
         cr.execute('select model from ir_model where state=%s', ('manual',))
@@ -357,7 +371,7 @@ def load_modules(db, force_demo=False, status=None, update_module=False):
             cr.execute("""select model,name from ir_model where id NOT IN (select distinct model_id from ir_model_access)""")
             for (model, name) in cr.fetchall():
                 model_obj = pool.get(model)
-                if model_obj and not model_obj.is_transient():
+                if model_obj and not model_obj.is_transient() and not isinstance(model_obj, openerp.osv.orm.AbstractModel):
                     _logger.warning('The model %s has no access rules, consider adding one. E.g. access_%s,access_%s,model_%s,,1,1,1,1',
                         model, model.replace('.', '_'), model.replace('.', '_'), model.replace('.', '_'))
 

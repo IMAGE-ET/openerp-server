@@ -108,7 +108,7 @@ class _date_format(str, _format):
         if self.val:
             if getattr(self,'name', None):
                 date = datetime.strptime(self.name[:get_date_length()], DEFAULT_SERVER_DATE_FORMAT)
-                return date.strftime(str(self.lang_obj.date_format))
+                return date.strftime(self.lang_obj.date_format.encode('utf-8'))
         return self.val
 
 class _dttime_format(str, _format):
@@ -119,8 +119,8 @@ class _dttime_format(str, _format):
     def __str__(self):
         if self.val and getattr(self,'name', None):
             return datetime.strptime(self.name, DEFAULT_SERVER_DATETIME_FORMAT)\
-                   .strftime("%s %s"%(str(self.lang_obj.date_format),
-                                      str(self.lang_obj.time_format)))
+                   .strftime("%s %s"%((self.lang_obj.date_format).encode('utf-8'),
+                                      (self.lang_obj.time_format).encode('utf-8')))
         return self.val
 
 
@@ -189,6 +189,8 @@ class rml_parse(object):
         return newtag, attrs
 
     def _ellipsis(self, char, size=100, truncation_str='...'):
+        if not char:
+            return ''
         if len(char) <= size:
             return char
         return char[:size-len(truncation_str)] + truncation_str
@@ -251,9 +253,7 @@ class rml_parse(object):
         d = DEFAULT_DIGITS = 2
         if dp:
             decimal_precision_obj = self.pool.get('decimal.precision')
-            ids = decimal_precision_obj.search(self.cr, self.uid, [('name', '=', dp)])
-            if ids:
-                d = decimal_precision_obj.browse(self.cr, self.uid, ids)[0].digits
+            d = decimal_precision_obj.precision_get(self.cr, self.uid, dp)
         elif obj and f:
             res_digits = getattr(obj._columns[f], 'digits', lambda x: ((16, DEFAULT_DIGITS)))
             if isinstance(res_digits, tuple):
@@ -310,7 +310,7 @@ class rml_parse(object):
                 date = datetime_field.context_timestamp(self.cr, self.uid,
                                                         timestamp=date,
                                                         context=self.localcontext)
-            return date.strftime(date_format)
+            return date.strftime(date_format.encode('utf-8'))
 
         res = self.lang_dict['lang_obj'].format('%.' + str(digits) + 'f', value, grouping=grouping, monetary=monetary)
         if currency_obj:
@@ -320,8 +320,8 @@ class rml_parse(object):
                 res='%s %s'%(currency_obj.symbol, res)
         return res
 
-    def display_address(self, address_browse_record):
-        return self.pool.get('res.partner')._display_address(self.cr, self.uid, address_browse_record)
+    def display_address(self, address_browse_record, without_company=False):
+        return self.pool.get('res.partner')._display_address(self.cr, self.uid, address_browse_record, without_company=without_company)
 
     def repeatIn(self, lst, name,nodes_parent=False):
         ret_lst = []

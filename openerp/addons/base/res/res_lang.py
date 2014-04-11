@@ -148,7 +148,7 @@ class lang(osv.osv):
         'direction': 'ltr',
         'date_format':_get_default_date_format,
         'time_format':_get_default_time_format,
-        'grouping': '[]',
+        'grouping': '[3, 0]',
         'decimal_point': '.',
         'thousands_sep': ',',
     }
@@ -182,11 +182,11 @@ class lang(osv.osv):
         for language in languages:
             ctx_lang = context.get('lang')
             if language['code']=='en_US':
-                raise osv.except_osv(_('User Error'), _("Base Language 'en_US' can not be deleted !"))
+                raise osv.except_osv(_('User Error'), _("Base Language 'en_US' can not be deleted!"))
             if ctx_lang and (language['code']==ctx_lang):
-                raise osv.except_osv(_('User Error'), _("You cannot delete the language which is User's Preferred Language !"))
+                raise osv.except_osv(_('User Error'), _("You cannot delete the language which is User's Preferred Language!"))
             if language['active']:
-                raise osv.except_osv(_('User Error'), _("You cannot delete the language which is Active !\nPlease de-activate the language first."))
+                raise osv.except_osv(_('User Error'), _("You cannot delete the language which is Active!\nPlease de-activate the language first."))
             trans_obj = self.pool.get('ir.translation')
             trans_ids = trans_obj.search(cr, uid, [('lang','=',language['code'])], context=context)
             trans_obj.unlink(cr, uid, trans_ids, context=context)

@@ -97,7 +97,7 @@ class res_company(osv.osv):
             address_data = part_obj.address_get(cr, uid, [company.partner_id.id], adr_pref=['default'])
             address = address_data['default']
             if address:
-                part_obj.write(cr, uid, [address], {name: value or False})
+                part_obj.write(cr, uid, [address], {name: value or False}, context=context)
             else:
                 part_obj.create(cr, uid, {name: value or False, 'parent_id': company.partner_id.id}, context=context)
         return True
@@ -253,7 +253,7 @@ class res_company(osv.osv):
         vals.update({'partner_id': partner_id})
         self.cache_restart(cr)
         company_id = super(res_company, self).create(cr, uid, vals, context=context)
-        obj_partner.write(cr, uid, partner_id, {'company_id': company_id}, context=context)
+        obj_partner.write(cr, uid, [partner_id], {'company_id': company_id}, context=context)
         return company_id
 
     def write(self, cr, uid, ids, values, context=None):
@@ -272,6 +272,10 @@ class res_company(osv.osv):
 <header>
 <pageTemplate>
     <frame id="first" x1="28.0" y1="28.0" width="%s" height="%s"/>
+    <stylesheet>
+       <!-- Set here the default font to use for all <para> tags -->
+       <paraStyle name='Normal' fontName="DejaVu Sans"/>
+    </stylesheet>
     <pageGraphics>
         <fill color="black"/>
         <stroke color="black"/>
@@ -281,6 +285,9 @@ class res_company(osv.osv):
         <drawCentredString x="%s" y="%s">[[ company.partner_id.name ]]</drawCentredString>
         <stroke color="#000000"/>
         <lines>%s</lines>
+        <!-- Set here the default font to use for all <drawString> tags -->
+        <!-- don't forget to change the 2 other occurence of <setFont> above if needed --> 
+        <setFont name="DejaVu Sans" size="8"/>
     </pageGraphics>
 </pageTemplate>
 </header>"""
@@ -304,13 +311,16 @@ class res_company(osv.osv):
     <pageTemplate>
         <frame id="first" x1="1.3cm" y1="3.0cm" height="%s" width="19.0cm"/>
          <stylesheet>
-            <paraStyle name="main_footer"  fontName="DejaVu Sans" fontSize="8.0" alignment="CENTER"/>
-            <paraStyle name="main_header"  fontName="DejaVu Sans" fontSize="8.0" leading="10" alignment="LEFT" spaceBefore="0.0" spaceAfter="0.0"/>            
+            <!-- Set here the default font to use for all <para> tags -->
+            <paraStyle name='Normal' fontName="DejaVu Sans"/>
+            <paraStyle name="main_footer" fontSize="8.0" alignment="CENTER"/>
+            <paraStyle name="main_header" fontSize="8.0" leading="10" alignment="LEFT" spaceBefore="0.0" spaceAfter="0.0"/>
          </stylesheet>
         <pageGraphics>
+            <!-- Set here the default font to use for all <drawString> tags -->
+            <setFont name="DejaVu Sans" size="8"/>
             <!-- You Logo - Change X,Y,Width and Height -->
             <image x="1.3cm" y="%s" height="40.0" >[[ company.logo or removeParentNode('image') ]]</image>
-            <setFont name="DejaVu Sans" size="8"/>
             <fill color="black"/>
             <stroke color="black"/>
 
@@ -318,7 +328,7 @@ class res_company(osv.osv):
             <lines>1.3cm %s 20cm %s</lines>
             <drawRightString x="20cm" y="%s">[[ company.rml_header1 ]]</drawRightString>
             <drawString x="1.3cm" y="%s">[[ company.partner_id.name ]]</drawString>
-            <place x="1.3cm" y="%s" height="1.55cm" width="15.0cm">
+            <place x="1.3cm" y="%s" height="1.8cm" width="15.0cm">
                 <para style="main_header">[[ display_address(company.partner_id) or  '' ]]</para>
             </place>
             <drawString x="1.3cm" y="%s">Phone:</drawString>
@@ -344,8 +354,8 @@ class res_company(osv.osv):
     </pageTemplate>
 </header>"""
 
-    _header_a4 = _header_main % ('23.0cm', '27.6cm', '27.7cm', '27.7cm', '27.8cm', '27.4cm', '25.8cm', '26.0cm', '26.0cm', '25.6cm', '25.6cm', '25.5cm', '25.5cm')
-    _header_letter = _header_main % ('21.3cm', '25.9cm', '26.0cm', '26.0cm', '26.1cm', '25.7cm', '24.1cm', '24.3cm', '24.3cm', '23.9cm', '23.9cm', '23.8cm', '23.8cm')
+    _header_a4 = _header_main % ('21.7cm', '27.7cm', '27.7cm', '27.7cm', '27.8cm', '27.3cm', '25.3cm', '25.0cm', '25.0cm', '24.6cm', '24.6cm', '24.5cm', '24.5cm')
+    _header_letter = _header_main % ('20cm', '26.0cm', '26.0cm', '26.0cm', '26.1cm', '25.6cm', '23.6cm', '23.3cm', '23.3cm', '22.9cm', '22.9cm', '22.8cm', '22.8cm')
 
     def onchange_paper_format(self, cr, uid, ids, paper_format, context=None):
         if paper_format == 'us_letter':

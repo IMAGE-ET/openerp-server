@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
@@ -154,8 +153,8 @@ DOMAIN_OPERATORS = (NOT_OPERATOR, OR_OPERATOR, AND_OPERATOR)
 # for consistency. This list doesn't contain '<>' as it is simpified to '!='
 # by the normalize_operator() function (so later part of the code deals with
 # only one representation).
-# An internal (i.e. not available to the user) 'inselect' operator is also
-# used. In this case its right operand has the form (subselect, params).
+# Internals (i.e. not available to the user) 'inselect' and 'not inselect'
+# operators are also used. In this case its right operand has the form (subselect, params).
 TERM_OPERATORS = ('=', '!=', '<=', '<', '>', '>=', '=?', '=like', '=ilike',
                   'like', 'not like', 'ilike', 'not ilike', 'in', 'not in',
                   'child_of')
@@ -199,7 +198,7 @@ def normalize_domain(domain):
             expected -= 1
         else:
             expected += op_arity.get(token, 0) - 1
-    assert expected == 0
+    assert expected == 0, 'This domain is syntactically not correct: %s' % (domain)
     return result
 
 
@@ -397,10 +396,12 @@ def is_leaf(element, internal=False):
     """
     INTERNAL_OPS = TERM_OPERATORS + ('<>',)
     if internal:
-        INTERNAL_OPS += ('inselect',)
+        INTERNAL_OPS += ('inselect', 'not inselect')
     return (isinstance(element, tuple) or isinstance(element, list)) \
         and len(element) == 3 \
-        and element[1] in INTERNAL_OPS
+        and element[1] in INTERNAL_OPS \
+        and ((isinstance(element[0], basestring) and element[0])
+             or element in (TRUE_LEAF, FALSE_LEAF))
 
 
 # --------------------------------------------------
@@ -429,6 +430,10 @@ def select_distinct_from_where_not_null(cr, select_field, from_table):
     cr.execute('SELECT distinct("%s") FROM "%s" where "%s" is not null' % (select_field, from_table, select_field))
     return [r[0] for r in cr.fetchall()]
 
+def get_unaccent_wrapper(cr):
+    if openerp.modules.registry.RegistryManager.get(cr.dbname).has_unaccent:
+        return lambda x: "unaccent(%s)" % (x,)
+    return lambda x: x
 
 # --------------------------------------------------
 # ExtendedLeaf class for managing leafs and contexts
@@ -598,6 +603,15 @@ class ExtendedLeaf(object):
         self.leaf = normalize_leaf(self.leaf)
         return True
 
+def create_substitution_leaf(leaf, new_elements, new_model=None):
+    """ From a leaf, create a new leaf (based on the new_elements tuple
+        and new_model), that will have the same join context. Used to
+        insert equivalent leafs in the processing stack. """
+    if new_model is None:
+        new_model = leaf.model
+    new_join_context = [tuple(context) for context in leaf.join_context]
+    new_leaf = ExtendedLeaf(new_elements, new_model, join_context=new_join_context)
+    return new_leaf
 
 class expression(object):
     """ Parse a domain expression
@@ -621,7 +635,7 @@ class expression(object):
             :attr list expression: the domain expression, that will be normalized
                 and prepared
         """
-        self.has_unaccent = openerp.modules.registry.RegistryManager.get(cr.dbname).has_unaccent
+        self._unaccent = get_unaccent_wrapper(cr)
         self.joins = []
         self.root_model = table
 
@@ -715,16 +729,6 @@ class expression(object):
                     return ids + recursive_children(ids2, model, parent_field)
                 return [(left, 'in', recursive_children(ids, left_model, parent or left_model._parent_name))]
 
-        def create_substitution_leaf(leaf, new_elements, new_model=None):
-            """ From a leaf, create a new leaf (based on the new_elements tuple
-                and new_model), that will have the same join context. Used to
-                insert equivalent leafs in the processing stack. """
-            if new_model is None:
-                new_model = leaf.model
-            new_join_context = [tuple(context) for context in leaf.join_context]
-            new_leaf = ExtendedLeaf(new_elements, new_model, join_context=new_join_context)
-            return new_leaf
-
         def pop():
             """ Pop a leaf to process. """
             return self.stack.pop()
@@ -792,7 +796,7 @@ class expression(object):
                 leaf.add_join_context(next_model, working_model._inherits[next_model._name], 'id', working_model._inherits[next_model._name])
                 push(leaf)
 
-            elif not field and left == 'id' and operator == 'child_of':
+            elif left == 'id' and operator == 'child_of':
                 ids2 = to_ids(right, working_model, context)
                 dom = child_of_domain(left, ids2, working_model)
                 for dom_leaf in reversed(dom):
@@ -1019,40 +1023,50 @@ class expression(object):
                         right += ' 23:59:59'
                     push(create_substitution_leaf(leaf, (left, operator, right), working_model))
 
-                elif field.translate:
+                elif field.translate and right:
                     need_wildcard = operator in ('like', 'ilike', 'not like', 'not ilike')
                     sql_operator = {'=like': 'like', '=ilike': 'ilike'}.get(operator, operator)
                     if need_wildcard:
                         right = '%%%s%%' % right
 
-                    subselect = '( SELECT res_id'          \
-                             '    FROM ir_translation'  \
-                             '   WHERE name = %s'       \
-                             '     AND lang = %s'       \
-                             '     AND type = %s'
-                    instr = ' %s'
-                    #Covering in,not in operators with operands (%s,%s) ,etc.
-                    if sql_operator in ['in', 'not in']:
-                        instr = ','.join(['%s'] * len(right))
-                        subselect += '     AND value ' + sql_operator + ' ' + " (" + instr + ")"   \
-                             ') UNION ('                \
-                             '  SELECT id'              \
-                             '    FROM "' + working_model._table + '"'       \
-                             '   WHERE "' + left + '" ' + sql_operator + ' ' + " (" + instr + "))"
-                    else:
-                        subselect += '     AND value ' + sql_operator + instr +   \
-                             ') UNION ('                \
-                             '  SELECT id'              \
-                             '    FROM "' + working_model._table + '"'       \
-                             '   WHERE "' + left + '" ' + sql_operator + instr + ")"
+                    inselect_operator = 'inselect'
+                    if sql_operator in NEGATIVE_TERM_OPERATORS:
+                        # negate operator (fix lp:1071710)
+                        sql_operator = sql_operator[4:] if sql_operator[:3] == 'not' else '='
+                        inselect_operator = 'not inselect'
 
-                    params = [working_model._name + ',' + left,
-                              context.get('lang', False) or 'en_US',
-                              'model',
-                              right,
-                              right,
-                             ]
-                    push(create_substitution_leaf(leaf, ('id', 'inselect', (subselect, params)), working_model))
+                    unaccent = self._unaccent if sql_operator.endswith('like') else lambda x: x
+
+                    trans_left = unaccent('value')
+                    quote_left = unaccent(_quote(left))
+                    instr = unaccent('%s')
+
+                    if sql_operator == 'in':
+                        # params will be flatten by to_sql() => expand the placeholders
+                        instr = '(%s)' % ', '.join(['%s'] * len(right))
+
+                    subselect = """(SELECT res_id
+                                      FROM ir_translation
+                                     WHERE name = %s
+                                       AND lang = %s
+                                       AND type = %s
+                                       AND {trans_left} {operator} {right}
+                                   ) UNION (
+                                    SELECT id
+                                      FROM "{table}"
+                                     WHERE {left} {operator} {right}
+                                   )
+                                """.format(trans_left=trans_left, operator=sql_operator,
+                                           right=instr, table=working_model._table, left=quote_left)
+
+                    params = (
+                        working_model._name + ',' + left,
+                        context.get('lang') or 'en_US',
+                        'model',
+                        right,
+                        right,
+                    )
+                    push(create_substitution_leaf(leaf, ('id', inselect_operator, (subselect, params)), working_model))
 
                 else:
                     push_result(leaf)
@@ -1073,7 +1087,7 @@ class expression(object):
         left, operator, right = leaf
 
         # final sanity checks - should never fail
-        assert operator in (TERM_OPERATORS + ('inselect',)), \
+        assert operator in (TERM_OPERATORS + ('inselect', 'not inselect')), \
             "Invalid operator %r in domain term %r" % (operator, leaf)
         assert leaf in (TRUE_LEAF, FALSE_LEAF) or left in model._all_columns \
             or left in MAGIC_COLUMNS, "Invalid field %r in domain term %r" % (left, leaf)
@@ -1090,6 +1104,10 @@ class expression(object):
 
         elif operator == 'inselect':
             query = '(%s."%s" in (%s))' % (table_alias, left, right[0])
+            params = right[1]
+
+        elif operator == 'not inselect':
+            query = '(%s."%s" not in (%s))' % (table_alias, left, right[0])
             params = right[1]
 
         elif operator in ['in', 'not in']:
@@ -1153,7 +1171,8 @@ class expression(object):
                 params = []
             else:
                 # '=?' behaves like '=' in other cases
-                query, params = self.__leaf_to_sql((left, '=', right), model)
+                query, params = self.__leaf_to_sql(
+                    create_substitution_leaf(eleaf, (left, '=', right), model))
 
         elif left == 'id':
             query = '%s.id %s %%s' % (table_alias, operator)
@@ -1162,15 +1181,15 @@ class expression(object):
         else:
             need_wildcard = operator in ('like', 'ilike', 'not like', 'not ilike')
             sql_operator = {'=like': 'like', '=ilike': 'ilike'}.get(operator, operator)
+            cast = '::text' if  sql_operator.endswith('like') else ''
 
             if left in model._columns:
                 format = need_wildcard and '%s' or model._columns[left]._symbol_set[0]
-                if self.has_unaccent and sql_operator in ('ilike', 'not ilike'):
-                    query = '(unaccent(%s."%s") %s unaccent(%s))' % (table_alias, left, sql_operator, format)
-                else:
-                    query = '(%s."%s" %s %s)' % (table_alias, left, sql_operator, format)
+                unaccent = self._unaccent if sql_operator.endswith('like') else lambda x: x
+                column = '%s.%s' % (table_alias, _quote(left))
+                query = '(%s%s %s %s)' % (unaccent(column), cast, sql_operator, unaccent(format))
             elif left in MAGIC_COLUMNS:
-                    query = "(%s.\"%s\" %s %%s)" % (table_alias, left, sql_operator)
+                    query = "(%s.\"%s\"%s %s %%s)" % (table_alias, left, cast, sql_operator)
                     params = right
             else:  # Must not happen
                 raise ValueError("Invalid field %r in domain term %r" % (left, leaf))

@@ -3,7 +3,7 @@
 #
 #    OpenERP, Open Source Management Solution
 #    Copyright (C) 2004-2009 Tiny SPRL (<http://tiny.be>).
-#    Copyright (C) 2010-2012 OpenERP s.a. (<http://openerp.com>).
+#    Copyright (C) 2010-2013 OpenERP s.a. (<http://openerp.com>).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -172,6 +172,10 @@ class res_users(osv.osv):
                 }
         }
 
+    def onchange_state(self, cr, uid, ids, state_id, context=None):
+        partner_ids = [user.partner_id.id for user in self.browse(cr, uid, ids, context=context)]
+        return self.pool.get('res.partner').onchange_state(cr, uid, partner_ids, state_id, context=context)
+
     def onchange_type(self, cr, uid, ids, is_company, context=None):
         """ Wrapper on the user.partner onchange_type, because some calls to the
             partner form view applied to the user may trigger the
@@ -275,6 +279,13 @@ class res_users(osv.osv):
 
         return result
 
+    def create(self, cr, uid, vals, context=None):
+        user_id = super(res_users, self).create(cr, uid, vals, context=context)
+        user = self.browse(cr, uid, user_id, context=context)
+        if user.partner_id.company_id: 
+            user.partner_id.write({'company_id': user.company_id.id})
+        return user_id
+
     def write(self, cr, uid, ids, values, context=None):
         if not hasattr(ids, '__iter__'):
             ids = [ids]
@@ -289,7 +300,11 @@ class res_users(osv.osv):
                 uid = 1 # safe fields only, so we write as super-user to bypass access rights
 
         res = super(res_users, self).write(cr, uid, ids, values, context=context)
-
+        if 'company_id' in values:
+            for user in self.browse(cr, uid, ids, context=context):
+                # if partner is global we keep it that way
+                if user.partner_id.company_id and user.partner_id.company_id.id != values['company_id']: 
+                    user.partner_id.write({'company_id': user.company_id.id})
         # clear caches linked to the users
         self.pool.get('ir.model.access').call_cache_clearing_methods(cr)
         clear = partial(self.pool.get('ir.rule').clear_cache, cr)
@@ -426,7 +441,9 @@ class res_users(osv.osv):
                 cr = pooler.get_db(db).cursor()
                 try:
                     base = user_agent_env['base_location']
-                    self.pool.get('ir.config_parameter').set_param(cr, uid, 'web.base.url', base)
+                    ICP = self.pool.get('ir.config_parameter')
+                    if not ICP.get_param(cr, uid, 'web.base.url.freeze'):
+                        ICP.set_param(cr, uid, 'web.base.url', base)
                     cr.commit()
                 except Exception:
                     _logger.exception("Failed to update web.base.url configuration parameter")
@@ -791,8 +808,9 @@ class users_view(osv.osv):
         if not 'groups_id' in fields:
             fields.append('groups_id')
         res = super(users_view, self).read(cr, uid, ids, fields, context=context, load=load)
-        for values in (res if isinstance(res, list) else [res]):
-            self._get_reified_groups(group_fields, values)
+        if res:
+            for values in (res if isinstance(res, list) else [res]):
+                self._get_reified_groups(group_fields, values)
         return res
 
     def _get_reified_groups(self, fields, values):
@@ -819,6 +837,8 @@ class users_view(osv.osv):
                     'string': app and app.name or _('Other'),
                     'selection': [(False, '')] + [(g.id, g.name) for g in gs],
                     'help': '\n'.join(tips),
+                    'exportable': False,
+                    'selectable': False,
                 }
             else:
                 # boolean group fields
@@ -827,6 +847,8 @@ class users_view(osv.osv):
                         'type': 'boolean',
                         'string': g.name,
                         'help': g.comment,
+                        'exportable': False,
+                        'selectable': False,
                     }
         return res
 

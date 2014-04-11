@@ -21,11 +21,15 @@
 
 import hashlib
 import itertools
+import logging
 import os
 import re
 
 from openerp import tools
 from openerp.osv import fields,osv
+from openerp import SUPERUSER_ID
+
+_logger = logging.getLogger(__name__)
 
 class ir_attachment(osv.osv):
     """Attachments are used to link binary files or url to any openerp document.
@@ -80,7 +84,7 @@ class ir_attachment(osv.osv):
             if bin_size:
                 r = os.path.getsize(full_path)
             else:
-                r = open(full_path).read().encode('base64')
+                r = open(full_path,'rb').read().encode('base64')
         except IOError:
             _logger.error("_read_file reading %s",full_path)
         return r
@@ -139,9 +143,10 @@ class ir_attachment(osv.osv):
             if attach.store_fname:
                 self._file_delete(cr, uid, location, attach.store_fname)
             fname = self._file_write(cr, uid, location, value)
-            super(ir_attachment, self).write(cr, uid, [id], {'store_fname': fname, 'file_size': file_size}, context=context)
+            # SUPERUSER_ID as probably don't have write access, trigger during create
+            super(ir_attachment, self).write(cr, SUPERUSER_ID, [id], {'store_fname': fname, 'file_size': file_size}, context=context)
         else:
-            super(ir_attachment, self).write(cr, uid, [id], {'db_datas': value, 'file_size': file_size}, context=context)
+            super(ir_attachment, self).write(cr, SUPERUSER_ID, [id], {'db_datas': value, 'file_size': file_size}, context=context)
         return True
 
     _name = 'ir.attachment'
@@ -172,19 +177,18 @@ class ir_attachment(osv.osv):
     }
 
     def _auto_init(self, cr, context=None):
-        super(ir_attachment, self)._auto_init(cr, context)
+        result = super(ir_attachment, self)._auto_init(cr, context)
         cr.execute('SELECT indexname FROM pg_indexes WHERE indexname = %s', ('ir_attachment_res_idx',))
         if not cr.fetchone():
             cr.execute('CREATE INDEX ir_attachment_res_idx ON ir_attachment (res_model, res_id)')
             cr.commit()
+        return result
 
     def check(self, cr, uid, ids, mode, context=None, values=None):
         """Restricts the access to an ir.attachment, according to referred model
         In the 'document' module, it is overriden to relax this hard rule, since
         more complex ones apply there.
         """
-        if not ids:
-            return
         res_ids = {}
         if ids:
             if isinstance(ids, (int, long)):
@@ -195,7 +199,7 @@ class ir_attachment(osv.osv):
                     continue
                 res_ids.setdefault(rmod,set()).add(rid)
         if values:
-            if 'res_model' in values and 'res_id' in values:
+            if values.get('res_model') and values.get('res_id'):
                 res_ids.setdefault(values['res_model'],set()).add(values['res_id'])
 
         ima = self.pool.get('ir.model.access')
@@ -239,6 +243,8 @@ class ir_attachment(osv.osv):
         # performed in batch as much as possible.
         ima = self.pool.get('ir.model.access')
         for model, targets in model_attachments.iteritems():
+            if not self.pool.get(model):
+                continue
             if not ima.check(cr, uid, model, 'read', False):
                 # remove all corresponding attachment ids
                 for attach_id in itertools.chain(*targets.values()):
@@ -258,10 +264,14 @@ class ir_attachment(osv.osv):
         return len(result) if count else list(result)
 
     def read(self, cr, uid, ids, fields_to_read=None, context=None, load='_classic_read'):
+        if isinstance(ids, (int, long)):
+            ids = [ids]
         self.check(cr, uid, ids, 'read', context=context)
         return super(ir_attachment, self).read(cr, uid, ids, fields_to_read, context, load)
 
     def write(self, cr, uid, ids, vals, context=None):
+        if isinstance(ids, (int, long)):
+            ids = [ids]
         self.check(cr, uid, ids, 'write', context=context, values=vals)
         if 'file_size' in vals:
             del vals['file_size']
@@ -272,6 +282,8 @@ class ir_attachment(osv.osv):
         return super(ir_attachment, self).copy(cr, uid, id, default, context)
 
     def unlink(self, cr, uid, ids, context=None):
+        if isinstance(ids, (int, long)):
+            ids = [ids]
         self.check(cr, uid, ids, 'unlink', context=context)
         location = self.pool.get('ir.config_parameter').get_param(cr, uid, 'ir_attachment.location')
         if location:
@@ -281,7 +293,7 @@ class ir_attachment(osv.osv):
         return super(ir_attachment, self).unlink(cr, uid, ids, context)
 
     def create(self, cr, uid, values, context=None):
-        self.check(cr, uid, [], mode='create', context=context, values=values)
+        self.check(cr, uid, [], mode='write', context=context, values=values)
         if 'file_size' in values:
             del values['file_size']
         return super(ir_attachment, self).create(cr, uid, values, context)

@@ -21,7 +21,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #####################################################################################
 
 !include 'MUI2.nsh'
@@ -291,9 +291,10 @@ Function .onInit
     !insertmacro MUI_LANGDLL_DISPLAY
 
     ClearErrors
-    EnumRegKey $0 HKLM "SOFTWARE\PostgreSQL" 0
+    EnumRegKey $0 HKLM "SOFTWARE\PostgreSQL\Installations" 0
     IfErrors DoInstallPostgreSQL 0
-        StrCpy $HasPostgreSQL 1
+    StrCmp $0 "" DoInstallPostgreSQL
+    StrCpy $HasPostgreSQL 1
 
     DoInstallPostgreSQL:
 FunctionEnd
