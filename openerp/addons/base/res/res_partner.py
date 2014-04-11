@@ -28,7 +28,7 @@ import re
 import openerp
 from openerp import SUPERUSER_ID
 from openerp import pooler, tools
-from openerp.osv import osv, fields
+from openerp.osv import osv, fields, orm
 from openerp.tools.translate import _
 from openerp.tools.yaml_import import is_comment
 
@@ -690,7 +690,7 @@ class res_partner(osv.osv, format_address):
             adr_pref.add('default')
         result = {}
         visited = set()
-        partner = None
+        partner = orm.browse_null()
         for partner in self.browse(cr, uid, filter(None, ids), context=context):
             current_partner = partner
             while current_partner:
@@ -713,7 +713,7 @@ class res_partner(osv.osv, format_address):
                 current_partner = current_partner.parent_id
 
         # default to type 'default' or the partner itself
-        default = result.get('default', partner.id if partner is not None else False)
+        default = result.get('default', partner.id)
         for adr_type in adr_pref:
             result[adr_type] = result.get(adr_type) or default 
         return result
