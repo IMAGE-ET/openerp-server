@@ -2,7 +2,7 @@
 import openerp
 from openerp.tools.translate import _
 
-class m(openerp.osv.osv.Model):
+class m(openerp.osv.orm.TransientModel):
     """ A model to provide source strings.
     """
     _name = 'test.translation.import'
