@@ -18,4 +18,3 @@ class m(openerp.osv.orm.TransientModel):
     # With the name label above, this source string should be generated twice.
     _('1XBUO5PUYH2RYZSA1FTLRYS8SPCNU1UYXMEYMM25ASV7JC2KTJZQESZYRV9L8CGB')
 
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

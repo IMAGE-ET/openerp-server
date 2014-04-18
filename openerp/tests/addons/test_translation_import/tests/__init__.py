@@ -7,4 +7,3 @@ suite = [
     test_term_count
     ]
 
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
