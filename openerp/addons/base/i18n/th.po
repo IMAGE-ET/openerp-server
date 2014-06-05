@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: openobject-addons\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-21 17:04+0000\n"
-"PO-Revision-Date: 2009-11-30 09:01+0000\n"
-"Last-Translator: Fabien (Open ERP) <fp@tinyerp.com>\n"
+"PO-Revision-Date: 2014-06-05 04:57+0000\n"
+"Last-Translator: Sumonchai ( เหลา ) <sumonchai@gmail.com>\n"
 "Language-Team: Thai <th@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-05-17 06:37+0000\n"
-"X-Generator: Launchpad (build 17007)\n"
+"X-Launchpad-Export-Date: 2014-06-05 05:31+0000\n"
+"X-Generator: Launchpad (build 17031)\n"
 
 #. module: base
 #: model:ir.module.module,description:base.module_account_check_writing
@@ -269,7 +269,7 @@ msgstr "โครงสร้างบริษัท"
 #. module: base
 #: selection:base.language.install,lang:0
 msgid "Inuktitut / ᐃᓄᒃᑎᑐᑦ"
-msgstr ""
+msgstr "เอสกิโม / ᐃᓄᒃᑎᑐᑦ"
 
 #. module: base
 #: model:res.groups,name:base.group_multi_currency
@@ -417,7 +417,7 @@ msgstr "วันที่ปรับปรุง"
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_base_action_rule
 msgid "Automated Action Rules"
-msgstr ""
+msgstr "กฎการดำเนินการโดยอัตโนมัติ"
 
 #. module: base
 #: view:ir.attachment:0
@@ -518,6 +518,8 @@ msgid ""
 "You can not remove the admin user as it is used internally for resources "
 "created by OpenERP (updates, module installation, ...)"
 msgstr ""
+"คุณไม่สามารถลบผู้ใช้ผู้ดูแลระบบที่มีการใช้ทรัพยากรภายในที่สร้างขึ้นโดย "
+"OpenERP (การปรับปรุงการติดตั้งโมดูล, ... )"
 
 #. module: base
 #: view:workflow.transition:0
@@ -647,6 +649,8 @@ msgid ""
 "The ISO country code in two chars.\n"
 "You can use this field for quick search."
 msgstr ""
+"รหัสประเทศ ISO ในสองตัวอักษร\n"
+"คุณสามารถใช้ข้อมูลนี้เพื่อค้นหาอย่างรวดเร็ว"
 
 #. module: base
 #: model:res.country,name:base.pw
@@ -699,7 +703,7 @@ msgstr ""
 #. module: base
 #: sql_constraint:ir.config_parameter:0
 msgid "Key must be unique."
-msgstr ""
+msgstr "Key สำคัญต้องไม่ซ้ำกัน"
 
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_plugin_outlook
@@ -737,6 +741,31 @@ msgid ""
 "module named account_voucher.\n"
 "    "
 msgstr ""
+"\n"
+"การบัญชีและการจัดการการเงิน\n"
+"==================================== \n"
+"ทางการเงินและโมดูลการบัญชีที่ครอบคลุม: \n"
+"- ------------------------------------------\n"
+"\n"
+"    * บัญชี\n"
+"    * ต้นทุน / การบัญชีการวิเคราะห์\n"
+"    * บัญชีของบุคคลที่สาม\n"
+"    * การจัดการภาษี\n"
+"    * งบประมาณ\n"
+"    * ลูกค้าและผู้จัดจำหน่ายใบแจ้งหนี้\n"
+"    * งบธนาคาร\n"
+"    * กระบวนการสมานฉันท์โดยพันธมิตร\n"
+"สร้างแผงควบคุมสำหรับบัญชีที่มี: \n"
+"------------------------------------- -------------\n"
+"\n"
+"    * รายการใบแจ้งหนี้ของลูกค้าที่จะอนุมัติ\n"
+"    * การวิเคราะห์ บริษัท\n"
+"    * กราฟการคลัง\n"
+"กระบวนการเช่นการบำรุงรักษาของบัญชีแยกประเภททั่วไปจะกระทำผ่านวารสารทางการเงินท"
+"ี่กำหนดไว้ (สายย้ายรายการ orgrouping จะยังคงผ่านวารสาร)\n"
+" \n"
+"สำหรับปีการเงินเฉพาะและในการจัดทำบัตรมีโมดูลชื่อ account_voucher\n"
+"    "
 
 #. module: base
 #: view:ir.model:0
@@ -754,6 +783,11 @@ msgid ""
 "Contains the installer for marketing-related modules.\n"
 "    "
 msgstr ""
+"\n"
+"เมนูการตลาด\n"
+"=================== \n"
+"มีการติดตั้งสำหรับโมดูลที่เกี่ยวข้องกับการตลาด\n"
+"    "
 
 #. module: base
 #: model:ir.module.module,description:base.module_web_linkedin
@@ -764,6 +798,11 @@ msgid ""
 "This module provides the Integration of the LinkedIn with OpenERP.\n"
 "        "
 msgstr ""
+"\n"
+"โมดูล OpenERP เว็บ LinkedIn \n"
+"============================ \n"
+"โมดูลนี้จะให้บูรณาการของ LinkedIn กับ OpenERP\n"
+"        "
 
 #. module: base
 #: help:ir.actions.act_window,src_model:0
@@ -809,7 +848,7 @@ msgstr "ชื่อ บริษัท ต้องไม่ซ้ำกัน!
 #. module: base
 #: model:ir.ui.menu,name:base.menu_base_action_rule_admin
 msgid "Automated Actions"
-msgstr ""
+msgstr "การกระทำอัตโนมัติ"
 
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_l10n_ro
@@ -916,7 +955,7 @@ msgstr "Albanian / Shqip"
 #. module: base
 #: model:ir.ui.menu,name:base.menu_crm_config_opportunity
 msgid "Opportunities"
-msgstr ""
+msgstr "โอกาส"
 
 #. module: base
 #: model:ir.model,name:base.model_base_language_export
@@ -931,7 +970,7 @@ msgstr "ปาปัวนิวกินี"
 #. module: base
 #: help:ir.actions.report.xml,report_type:0
 msgid "Report Type, e.g. pdf, html, raw, sxw, odt, html2html, mako2html, ..."
-msgstr ""
+msgstr "ประเภทรายงานเช่น PDF, HTML, raw, sxw, odt, html2html, mako2html ..."
 
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_document_webdav
@@ -952,7 +991,7 @@ msgstr ""
 #. module: base
 #: view:res.partner:0
 msgid "My Partners"
-msgstr ""
+msgstr "พาร์ทเนอร์ของฉัน"
 
 #. module: base
 #: model:res.country,name:base.zw
@@ -989,7 +1028,7 @@ msgstr "อัพเกรดโมดูล"
 #. module: base
 #: selection:base.language.install,lang:0
 msgid "Spanish (UY) / Español (UY)"
-msgstr ""
+msgstr "สเปน (UY) / Español (UY)"
 
 #. module: base
 #: field:res.partner,mobile:0
@@ -1058,7 +1097,7 @@ msgstr "ร้องขอประเภทอ้างอิง"
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_google_base_account
 msgid "Google Users"
-msgstr ""
+msgstr "ผู้ใช้ Google"
 
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_fleet
@@ -1226,6 +1265,8 @@ msgid ""
 "Language with code \"%s\" is not defined in your system !\n"
 "Define it through the Administration menu."
 msgstr ""
+"ภาษาที่มีรหัส \"% s\" ไม่ได้กำหนดไว้ในระบบของคุณ\n"
+"กำหนดมันผ่านเมนูการบริหาร"
 
 #. module: base
 #: model:res.country,name:base.gu
@@ -1235,7 +1276,7 @@ msgstr ""
 #. module: base
 #: sql_constraint:res.country:0
 msgid "The name of the country must be unique !"
-msgstr ""
+msgstr "ชื่อของประเทศจะต้องไม่ซ้ำกัน"
 
 #. module: base
 #: field:ir.module.module,installed_version:0
@@ -1251,7 +1292,7 @@ msgstr ""
 #: code:addons/base/ir/ir_mail_server.py:214
 #, python-format
 msgid "Connection test failed!"
-msgstr ""
+msgstr "การทดสอบการเชื่อมต่อล้มเหลว"
 
 #. module: base
 #: selection:ir.actions.server,state:0
@@ -1262,7 +1303,7 @@ msgstr "ตัวจำลอง"
 #. module: base
 #: constraint:ir.ui.view:0
 msgid "Invalid XML for View Architecture!"
-msgstr ""
+msgstr "XML ที่ไม่ถูกต้องสำหรับดูสถาปัตยกรรม!"
 
 #. module: base
 #: model:res.country,name:base.ky
@@ -1272,7 +1313,7 @@ msgstr "หมู่เกาะเคย์แมน"
 #. module: base
 #: view:ir.rule:0
 msgid "Record Rule"
-msgstr ""
+msgstr "กฎบันทึก"
 
 #. module: base
 #: model:res.country,name:base.kr
@@ -1288,7 +1329,7 @@ msgstr ""
 #: code:addons/orm.py:4920
 #, python-format
 msgid "Record #%d of %s not found, cannot copy!"
-msgstr ""
+msgstr "บันทึก #% d ของ% s ไม่พบไม่สามารถคัดลอก!"
 
 #. module: base
 #: field:ir.module.module,contributors:0
@@ -1373,6 +1414,8 @@ msgid ""
 "                                for uploading to OpenERP's translation "
 "platform,"
 msgstr ""
+"รูปแบบ TGZ: นี้เป็นที่เก็บบีบอัดไฟล์ที่มี PO เหมาะโดยตรง\n"
+"                                สำหรับการอัปโหลดไปยังแพลตฟอร์มแปล OpenERP ของ"
 
 #. module: base
 #: view:res.lang:0
@@ -1381,6 +1424,8 @@ msgid ""
 "decimal number [00,53]. All days in a new year preceding the first Monday "
 "are considered to be in week 0."
 msgstr ""
+"% W - จำนวนสัปดาห์ของปี (วันจันทร์เป็นวันแรกของสัปดาห์) เป็นตัวเลขทศนิยม "
+"[00,53] ในวันปีใหม่ก่อนวันจันทร์แรกได้รับการพิจารณาที่จะอยู่ในสัปดาห์ 0"
 
 #. module: base
 #: code:addons/base/module/wizard/base_language_install.py:53
@@ -1450,6 +1495,9 @@ msgid ""
 "reference it\n"
 "- creation/update: a mandatory field is not correctly set"
 msgstr ""
+"การดำเนินการไม่สามารถดำเนินการอาจจะมีสาเหตุต่อไปนี้: \n"
+"- ลบ: คุณอาจจะพยายามที่จะลบระเบียนในขณะที่ข้อมูลอื่น ๆ ยังคงอ้างอิงได้\n"
+"- การสร้าง / ปรับปรุง: สนามบังคับไม่ได้ตั้งค่าอย่างถูกต้อง"
 
 #. module: base
 #: field:ir.module.category,parent_id:0
@@ -1467,7 +1515,7 @@ msgstr ""
 #: code:addons/base/res/res_users.py:131
 #, python-format
 msgid "Operation Canceled"
-msgstr ""
+msgstr "การดำเนินงานที่ยกเลิก"
 
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_document
@@ -1557,6 +1605,12 @@ msgid ""
 "=============\n"
 "    "
 msgstr ""
+"\n"
+"โมดูลนี้จะเพิ่มเมนูเรียกร้องและคุณสมบัติพอร์ทัลของคุณถ้าเรียกร้องและมีการติดต"
+"ั้งพอร์ทัล\n"
+"================================= "
+"================================================== =======\n"
+"    "
 
 #. module: base
 #: model:ir.actions.act_window,help:base.action_res_partner_bank_account_form
@@ -1613,7 +1667,7 @@ msgstr ""
 #: model:ir.module.category,name:base.module_category_social_network
 #: model:ir.module.module,shortdesc:base.module_mail
 msgid "Social Network"
-msgstr ""
+msgstr "เครือข่ายทางสังคม"
 
 #. module: base
 #: view:res.lang:0
@@ -2047,7 +2101,7 @@ msgstr "สูตร"
 #: code:addons/base/res/res_users.py:311
 #, python-format
 msgid "Can not remove root user!"
-msgstr ""
+msgstr "ไม่สามารถลบผู้ใช้ root !"
 
 #. module: base
 #: model:res.country,name:base.mw
@@ -2128,6 +2182,9 @@ msgid ""
 "decimal number [00,53]. All days in a new year preceding the first Sunday "
 "are considered to be in week 0."
 msgstr ""
+"% U - จำนวนสัปดาห์ของปี (วันอาทิตย์เป็นวันแรกของสัปดาห์) เป็นตัวเลขทศนิยม "
+"[00,53] "
+"ในวันปีใหม่ก่อนหน้านี้ในวันอาทิตย์แรกที่มีการพิจารณาที่จะอยู่ในสัปดาห์ 0"
 
 #. module: base
 #: view:base.language.export:0
@@ -2553,7 +2610,7 @@ msgstr ""
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_auth_oauth_signup
 msgid "Signup with OAuth2 Authentication"
-msgstr ""
+msgstr "สมัครด้วย OAuth2 Authentication"
 
 #. module: base
 #: selection:ir.model,state:0
@@ -2575,7 +2632,7 @@ msgstr "อัตราแลกเปลี่ยนปัจจุบัน"
 #. module: base
 #: selection:base.language.install,lang:0
 msgid "Greek / Ελληνικά"
-msgstr ""
+msgstr "กรีก / Ελληνικά"
 
 #. module: base
 #: field:res.company,custom_footer:0
@@ -2748,7 +2805,7 @@ msgstr ""
 #. module: base
 #: selection:base.language.install,lang:0
 msgid "French (BE) / Français (BE)"
-msgstr ""
+msgstr "ฝรั่งเศส (BE) / Français (BE)"
 
 #. module: base
 #: model:ir.module.module,description:base.module_l10n_pe
@@ -2823,7 +2880,7 @@ msgstr "ผู้จัดการ"
 #: code:addons/base/ir/ir_model.py:726
 #, python-format
 msgid "Sorry, you are not allowed to access this document."
-msgstr ""
+msgstr "ขออภัย ท่านไม่มีสิทธิเข้าถึงเอกสารนี้"
 
 #. module: base
 #: model:res.country,name:base.py
@@ -2838,7 +2895,7 @@ msgstr "ฟิจิ"
 #. module: base
 #: view:ir.actions.report.xml:0
 msgid "Report Xml"
-msgstr ""
+msgstr "รายงาน Xml"
 
 #. module: base
 #: model:ir.module.module,description:base.module_purchase
@@ -2951,7 +3008,7 @@ msgstr ""
 #. module: base
 #: view:res.lang:0
 msgid "%y - Year without century [00,99]."
-msgstr ""
+msgstr "%y - ปี แบบสั้น [00,99]."
 
 #. module: base
 #: model:ir.module.module,description:base.module_account_anglo_saxon
@@ -3032,7 +3089,7 @@ msgstr ""
 #. module: base
 #: view:res.lang:0
 msgid "%p - Equivalent of either AM or PM."
-msgstr ""
+msgstr "% พี - เทียบเท่าของ AM PM หรือ"
 
 #. module: base
 #: view:ir.actions.server:0
@@ -3054,14 +3111,14 @@ msgstr ""
 #. module: base
 #: model:res.country,name:base.nz
 msgid "New Zealand"
-msgstr ""
+msgstr "นิวซีแลนด์"
 
 #. module: base
 #: field:ir.exports.line,name:0
 #: view:ir.model.fields:0
 #: field:res.partner.bank.type.field,name:0
 msgid "Field Name"
-msgstr ""
+msgstr "ชื่อ ฟิลด์"
 
 #. module: base
 #: model:ir.actions.act_window,help:base.action_country
@@ -3160,7 +3217,7 @@ msgstr ""
 #: code:addons/base/module/module.py:525
 #, python-format
 msgid "Can not upgrade module '%s'. It is not installed."
-msgstr ""
+msgstr "ไม่สามารถอัพเกรดโมดูล '% s' มันไม่ได้ติดตั้ง"
 
 #. module: base
 #: model:res.country,name:base.cu
@@ -3171,12 +3228,12 @@ msgstr "คิวบา"
 #: code:addons/report_sxw.py:443
 #, python-format
 msgid "Unknown report type: %s"
-msgstr ""
+msgstr "ประเภทรายงานที่ไม่รู้จัก:% s"
 
 #. module: base
 #: model:ir.module.module,summary:base.module_hr_expense
 msgid "Expenses Validation, Invoicing"
-msgstr ""
+msgstr "การตรวจสอบค่าใช้จ่ายใบแจ้งหนี้"
 
 #. module: base
 #: model:ir.module.module,description:base.module_l10n_be_hr_payroll_account
@@ -3249,7 +3306,7 @@ msgstr ""
 #: code:addons/orm.py:3871
 #, python-format
 msgid "Missing document(s)"
-msgstr ""
+msgstr "เอกสารหายไป (s)"
 
 #. module: base
 #: model:ir.model,name:base.model_res_partner_bank_type
@@ -3438,7 +3495,7 @@ msgstr "การสำรวจ"
 #. module: base
 #: selection:base.language.install,lang:0
 msgid "Spanish (DO) / Español (DO)"
-msgstr ""
+msgstr "สเปน (DO) / Español (DO)"
 
 #. module: base
 #: model:ir.model,name:base.model_workflow_activity
@@ -3519,7 +3576,7 @@ msgstr ""
 #. module: base
 #: view:ir.filters:0
 msgid "Personal"
-msgstr ""
+msgstr "ส่วนบุคคล"
 
 #. module: base
 #: field:base.language.export,modules:0
@@ -3710,7 +3767,7 @@ msgstr "ตัวกรอง"
 #: view:ir.cron:0
 #: model:ir.ui.menu,name:base.menu_ir_cron_act
 msgid "Scheduled Actions"
-msgstr ""
+msgstr "การกระทำที่กำหนดไว้"
 
 #. module: base
 #: model:ir.module.category,name:base.module_category_reporting
@@ -3921,7 +3978,7 @@ msgstr "แท็ก"
 #. module: base
 #: view:res.lang:0
 msgid "%d - Day of the month [01,31]."
-msgstr ""
+msgstr "% d - วันของเดือน [01,31]"
 
 #. module: base
 #: model:res.country,name:base.tj
@@ -3931,7 +3988,7 @@ msgstr "ทาจิกิสถาน"
 #. module: base
 #: selection:ir.module.module,license:0
 msgid "GPL-2 or later version"
-msgstr ""
+msgstr "GPL-2 or later version"
 
 #. module: base
 #: selection:workflow.activity,kind:0
@@ -4004,7 +4061,7 @@ msgstr "มอนเตเนโกร"
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_fetchmail
 msgid "Email Gateway"
-msgstr ""
+msgstr "อีเมล์เกตเวย์"
 
 #. module: base
 #: code:addons/base/ir/ir_mail_server.py:470
@@ -4013,6 +4070,8 @@ msgid ""
 "Mail delivery failed via SMTP server '%s'.\n"
 "%s: %s"
 msgstr ""
+"ล้มเหลวในการส่งอีเมลผ่านเซิร์ฟเวอร์ '% s' \n"
+"% s:% s"
 
 #. module: base
 #: model:res.country,name:base.tk
@@ -4023,7 +4082,7 @@ msgstr "โตเกเลา"
 #: view:ir.cron:0
 #: view:ir.module.module:0
 msgid "Technical Data"
-msgstr ""
+msgstr "ข้อมูลทางเทคนิค"
 
 #. module: base
 #: model:ir.module.module,description:base.module_l10n_co
@@ -4365,7 +4424,7 @@ msgstr ""
 #. module: base
 #: field:res.partner,parent_id:0
 msgid "Related Company"
-msgstr ""
+msgstr "บริษัท ที่เกี่ยวข้อง"
 
 #. module: base
 #: help:ir.actions.act_url,help:0
@@ -4404,7 +4463,7 @@ msgstr ""
 #. module: base
 #: sql_constraint:ir.sequence.type:0
 msgid "`code` must be unique."
-msgstr ""
+msgstr "`code`  ต้องไม่ซ้ำกัน"
 
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_knowledge
@@ -4607,6 +4666,8 @@ msgid ""
 "The selected language has been successfully installed. You must change the "
 "preferences of the user and open a new menu to view the changes."
 msgstr ""
+"ภาษาที่เลือกได้รับการติดตั้งเรียบร้อยแล้ว "
+"คุณต้องเปลี่ยนการตั้งค่าของผู้ใช้และเปิดเมนูใหม่เพื่อดูการเปลี่ยนแปลง"
 
 #. module: base
 #: field:ir.actions.act_window.view,view_id:0
@@ -4644,7 +4705,7 @@ msgstr ""
 #. module: base
 #: view:ir.actions.act_window:0
 msgid "Open a Window"
-msgstr ""
+msgstr "เปิดหน้าต่าง"
 
 #. module: base
 #: model:res.country,name:base.gq
@@ -4726,7 +4787,7 @@ msgstr "ผู้สร้าง"
 #. module: base
 #: view:ir.actions.todo:0
 msgid "Set as Todo"
-msgstr ""
+msgstr "ตั้งเป็นสิ่งที่ต้องทำ"
 
 #. module: base
 #: view:res.lang:0
@@ -4750,7 +4811,7 @@ msgstr ""
 #. module: base
 #: selection:base.language.install,lang:0
 msgid "Hebrew / עִבְרִי"
-msgstr ""
+msgstr "ภาษาฮิบ​​รู / עִבְרִי"
 
 #. module: base
 #: model:res.country,name:base.bo
@@ -4797,17 +4858,17 @@ msgstr "เซิร์ฟเวอร์ SMTP"
 #: code:addons/base/module/module.py:320
 #, python-format
 msgid "You try to remove a module that is installed or will be installed"
-msgstr ""
+msgstr "คุณพยายามที่จะลบโมดูลที่มีการติดตั้งหรือจะถูกติดตั้ง"
 
 #. module: base
 #: view:base.module.upgrade:0
 msgid "The selected modules have been updated / installed !"
-msgstr ""
+msgstr "โมดูลที่เลือกได้รับการปรับปรุง / ติดตั้ง"
 
 #. module: base
 #: selection:base.language.install,lang:0
 msgid "Spanish (PR) / Español (PR)"
-msgstr ""
+msgstr "สเปน (PR) / Español (PR)"
 
 #. module: base
 #: model:ir.module.module,description:base.module_crm_profiling
@@ -5180,7 +5241,7 @@ msgstr "บราซิล"
 #. module: base
 #: view:res.lang:0
 msgid "%M - Minute [00,59]."
-msgstr ""
+msgstr "M% - นาที [00,59]"
 
 #. module: base
 #: selection:ir.module.module,license:0
@@ -5201,7 +5262,7 @@ msgstr ""
 #. module: base
 #: selection:base.language.install,lang:0
 msgid "Spanish (PA) / Español (PA)"
-msgstr ""
+msgstr "สเปน (PA) / Español (PA)"
 
 #. module: base
 #: view:res.currency:0
@@ -5399,7 +5460,7 @@ msgstr ""
 #: code:addons/base/module/module.py:306
 #, python-format
 msgid "The name of the module must be unique !"
-msgstr ""
+msgstr "ชื่อของโมดูลจะต้องไม่ซ้ำกัน"
 
 #. module: base
 #: model:res.country,name:base.bv
@@ -5569,12 +5630,12 @@ msgstr ""
 #: field:ir.attachment,res_name:0
 #: field:ir.ui.view_sc,resource:0
 msgid "Resource Name"
-msgstr ""
+msgstr "ทรัพยากรชื่อ"
 
 #. module: base
 #: model:ir.ui.menu,name:base.menu_ir_filters
 msgid "User-defined Filters"
-msgstr ""
+msgstr "ตัวกรองที่ผู้ใช้กำหนด"
 
 #. module: base
 #: field:ir.actions.act_window_close,name:0
@@ -5668,7 +5729,7 @@ msgstr "ภาษาอังกฤษ (สหราชอาณาจักร)
 #. module: base
 #: selection:base.language.install,lang:0
 msgid "Japanese / 日本語"
-msgstr ""
+msgstr "ญี่ปุ่น / 日本语"
 
 #. module: base
 #: model:ir.model,name:base.model_base_language_import
@@ -6698,7 +6759,7 @@ msgstr ""
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_project_gtd
 msgid "Todo Lists"
-msgstr ""
+msgstr "รายการสิ่งที่ต้องทำ"
 
 #. module: base
 #: view:ir.actions.report.xml:0
@@ -6727,7 +6788,7 @@ msgstr ""
 #: view:res.bank:0
 #: field:res.partner,bank_ids:0
 msgid "Banks"
-msgstr ""
+msgstr "ธนาคาร"
 
 #. module: base
 #: model:ir.module.module,description:base.module_web
@@ -6924,7 +6985,7 @@ msgstr ""
 #. module: base
 #: view:res.lang:0
 msgid "%S - Seconds [00,61]."
-msgstr ""
+msgstr "% S - วินาที [00,61]"
 
 #. module: base
 #: help:base.language.import,overwrite:0
@@ -7222,7 +7283,7 @@ msgstr "หรือ"
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_account_accountant
 msgid "Accounting and Finance"
-msgstr ""
+msgstr "บัญชีและการเงิน"
 
 #. module: base
 #: view:ir.module.module:0
@@ -7249,7 +7310,7 @@ msgstr ""
 #. module: base
 #: field:res.partner,function:0
 msgid "Job Position"
-msgstr ""
+msgstr "ตำแหน่งงาน"
 
 #. module: base
 #: view:res.partner:0
@@ -7376,12 +7437,12 @@ msgstr ""
 #. module: base
 #: model:ir.model,name:base.model_wizard_ir_model_menu_create
 msgid "wizard.ir.model.menu.create"
-msgstr ""
+msgstr "wizard.ir.model.menu.create"
 
 #. module: base
 #: view:workflow.transition:0
 msgid "Transition"
-msgstr ""
+msgstr "การเปลี่ยนแปลง"
 
 #. module: base
 #: field:ir.cron,active:0
@@ -7457,7 +7518,7 @@ msgstr ""
 #. module: base
 #: selection:ir.ui.view,type:0
 msgid "mdx"
-msgstr ""
+msgstr "MDX"
 
 #. module: base
 #: view:ir.cron:0
@@ -7480,7 +7541,7 @@ msgstr "ปิด"
 #. module: base
 #: selection:base.language.install,lang:0
 msgid "Spanish (MX) / Español (MX)"
-msgstr ""
+msgstr "สเปน (MX) / Español (MX)"
 
 #. module: base
 #: view:ir.actions.todo:0
@@ -7653,7 +7714,7 @@ msgstr ""
 #. module: base
 #: view:ir.mail_server:0
 msgid "Test Connection"
-msgstr ""
+msgstr "ทดสอบการเชื่อมต่อ"
 
 #. module: base
 #: model:res.country,name:base.mm
@@ -7765,7 +7826,7 @@ msgstr "แคนาดา"
 #. module: base
 #: view:base.language.export:0
 msgid "Launchpad"
-msgstr ""
+msgstr "Launchpad"
 
 #. module: base
 #: help:res.currency.rate,currency_rate_type_id:0
@@ -7992,7 +8053,7 @@ msgstr ""
 #. module: base
 #: model:res.partner.category,name:base.res_partner_category_13
 msgid "Distributor"
-msgstr ""
+msgstr "ผู้จัดจำหน่าย"
 
 #. module: base
 #: help:ir.actions.server,subject:0
@@ -8008,6 +8069,7 @@ msgid ""
 "This field holds the image used as avatar for this contact, limited to "
 "1024x1024px"
 msgstr ""
+"สนามนี้ถือเป็นภาพที่ใช้เป็นสัญลักษณ์สำหรับการติดต่อนี้ จำกัด 1024x1024px"
 
 #. module: base
 #: model:res.country,name:base.to
@@ -8111,6 +8173,8 @@ msgid ""
 "You try to upgrade a module that depends on the module: %s.\n"
 "But this module is not available in your system."
 msgstr ""
+"คุณพยายามที่จะอัพเกรดโมดูลที่ขึ้นอยู่กับโมดูล% s "
+"แต่โมดูลนี้ไม่สามารถใช้ได้ในระบบของคุณ"
 
 #. module: base
 #: field:workflow.transition,act_to:0
@@ -8142,7 +8206,7 @@ msgstr ""
 #. module: base
 #: field:res.partner.category,parent_id:0
 msgid "Parent Category"
-msgstr ""
+msgstr "ประเภทสินค้าหลัก"
 
 #. module: base
 #: model:res.country,name:base.fi
@@ -8152,7 +8216,7 @@ msgstr "ฟินแลนด์"
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_web_shortcuts
 msgid "Web Shortcuts"
-msgstr ""
+msgstr "Web Shortcuts"
 
 #. module: base
 #: view:res.partner:0
@@ -8429,7 +8493,7 @@ msgstr ""
 #. module: base
 #: view:ir.ui.menu:0
 msgid "Submenus"
-msgstr ""
+msgstr "เมนูย่อย"
 
 #. module: base
 #: report:ir.module.reference:0
@@ -8439,7 +8503,7 @@ msgstr ""
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_web_analytics
 msgid "Google Analytics"
-msgstr ""
+msgstr "Google Analytics"
 
 #. module: base
 #: model:ir.module.module,description:base.module_note
@@ -8642,7 +8706,7 @@ msgstr ""
 #. module: base
 #: selection:base.language.install,lang:0
 msgid "Slovenian / slovenščina"
-msgstr ""
+msgstr "สโลวีเนีย / slovenščina"
 
 #. module: base
 #: field:res.currency,position:0
@@ -8848,7 +8912,7 @@ msgstr ""
 #: code:addons/orm.py:4347
 #, python-format
 msgid "UserError"
-msgstr ""
+msgstr "UserError"
 
 #. module: base
 #: model:ir.module.module,summary:base.module_project_issue
@@ -9210,7 +9274,7 @@ msgstr ""
 #. module: base
 #: selection:base.language.install,lang:0
 msgid "Vietnamese / Tiếng Việt"
-msgstr ""
+msgstr "เวียดนาม / TiếngViệt"
 
 #. module: base
 #: field:ir.cron,interval_number:0
@@ -9584,7 +9648,7 @@ msgstr "การบริหารการจัดซื้อ"
 #. module: base
 #: field:ir.module.module,published_version:0
 msgid "Published Version"
-msgstr ""
+msgstr "เวอร์ชันเผยแพร่"
 
 #. module: base
 #: model:res.country,name:base.is
@@ -15199,13 +15263,13 @@ msgstr ""
 #. module: base
 #: view:res.partner:0
 msgid "Internal Notes"
-msgstr ""
+msgstr "บันทึกภายใน"
 
 #. module: base
 #: model:res.partner.title,name:base.res_partner_title_pvt_ltd
 #: model:res.partner.title,shortcut:base.res_partner_title_pvt_ltd
 msgid "Corp."
-msgstr ""
+msgstr "คอร์ป"
 
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_purchase_requisition
@@ -15253,7 +15317,7 @@ msgstr "เกาหลีเหนือ"
 #. module: base
 #: selection:ir.actions.server,state:0
 msgid "Create Object"
-msgstr ""
+msgstr "สร้าง Object"
 
 #. module: base
 #: model:res.country,name:base.ss
@@ -15263,12 +15327,12 @@ msgstr ""
 #. module: base
 #: field:ir.filters,context:0
 msgid "Context"
-msgstr ""
+msgstr "คอนเท็กซ์"
 
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_sale_mrp
 msgid "Sales and MRP Management"
-msgstr ""
+msgstr "การขายและการบริหารจัดการ MRP"
 
 #. module: base
 #: model:ir.actions.act_window,help:base.action_partner_form
