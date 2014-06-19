@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: openobject-addons\n"
 "Report-Msgid-Bugs-To: support@openerp.com\n"
 "POT-Creation-Date: 2012-12-21 17:04+0000\n"
-"PO-Revision-Date: 2012-08-20 15:37+0000\n"
-"Last-Translator: OpenERP Administrators <Unknown>\n"
+"PO-Revision-Date: 2014-06-19 05:40+0000\n"
+"Last-Translator: Viet Duc enterprise <vuong.vd@forexco.vn>\n"
 "Language-Team: Vietnamese <vi@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-05-17 06:38+0000\n"
-"X-Generator: Launchpad (build 17007)\n"
+"X-Launchpad-Export-Date: 2014-06-19 06:08+0000\n"
+"X-Generator: Launchpad (build 17048)\n"
 
 #. module: base
 #: model:ir.module.module,description:base.module_account_check_writing
@@ -74,7 +74,7 @@ msgstr ""
 #. module: base
 #: selection:base.language.install,lang:0
 msgid "Hungarian / Magyar"
-msgstr "Tiếng Hungari"
+msgstr "Tiếng Hungari / Magyar"
 
 #. module: base
 #: selection:base.language.install,lang:0
@@ -126,6 +126,17 @@ msgid ""
 "    * Product Attributes\n"
 "    "
 msgstr ""
+"\n"
+"Chức năng thêm nhà các sản xuất và các thuộc tính của sản phẩm\n"
+"====================================================================\n"
+"\n"
+"Bạn có thể thêm các thông tin sau cho sản phẩm:\n"
+"-----------------------------------------------\n"
+"    * Nhà sản xuất\n"
+"    * Tên sản phẩm (Nhà sản xuất)\n"
+"    * Mã sản phẩm (Nhà sản xuất)\n"
+"    * Các thuộc tính sản phẩm\n"
+"    "
 
 #. module: base
 #: field:ir.actions.client,params:0
@@ -198,6 +209,14 @@ msgid ""
 "revenue\n"
 "reports."
 msgstr ""
+"\n"
+"Tạo hóa đơn từ Chi phí, Bảng chấm công\n"
+"========================================================\n"
+"\n"
+"Chức năng tạo hóa đơn dựa trên chi phí (nhân lực, chi phí, ...).\n"
+"\n"
+"Bạn có thể định nghĩa bảng giá trong tài khoản phân tích, tạo báo cáo \n"
+"doanh thu lý thuyết."
 
 #. module: base
 #: code:addons/base/ir/ir_sequence.py:134
@@ -305,6 +324,7 @@ msgid ""
 "The internal user that is in charge of communicating with this contact if "
 "any."
 msgstr ""
+"Người sử dụng nội bộ có trách nhiệm giao tiếp với các đối tác này nếu có."
 
 #. module: base
 #: view:res.partner:0
@@ -343,6 +363,12 @@ msgid ""
 "  - tree_but_open\n"
 "For defaults, an optional condition"
 msgstr ""
+"Những tác vụ sau được phép: \n"
+"  - client_action_multi\n"
+"  - client_print_multi\n"
+"  - client_action_relate\n"
+"  - tree_but_open\n"
+"Mặc định, một tùy chọn sẽ bắt buộc"
 
 #. module: base
 #: sql_constraint:res.lang:0
@@ -397,6 +423,8 @@ msgid ""
 "There is already a shared filter set as default for %(model)s, delete or "
 "change it before setting a new default"
 msgstr ""
+"Đã tồn tại giá trị lọc mặc định cho %(model)s, xóa hoặc sửa nó trước khi tạo "
+"mới giá trị mặc định"
 
 #. module: base
 #: code:addons/orm.py:2649
@@ -424,7 +452,7 @@ msgstr "Ngày cập nhật"
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_base_action_rule
 msgid "Automated Action Rules"
-msgstr ""
+msgstr "Quy định Hành động Tự động"
 
 #. module: base
 #: view:ir.attachment:0
@@ -465,6 +493,8 @@ msgid ""
 "Invalid date/time format directive specified. Please refer to the list of "
 "allowed directives, displayed when you edit a language."
 msgstr ""
+"Định dạng date/time không hợp lệ theo quy định. Vui lòng tham khảo danh sách "
+"các chỉ thị cho phép, trong phần chỉnh sửa ngôn ngữ."
 
 #. module: base
 #: code:addons/orm.py:4153
@@ -483,6 +513,9 @@ msgid ""
 "and reference view. The result is returned as an ordered list of pairs "
 "(view_id,view_mode)."
 msgstr ""
+"Trường tính toán này thể hiện danh sách đơn hàng mà sẽ hiển thị khi có kết "
+"quả trả về từ một tác vụ, chế độ xem liên tục, xem và tham khảo. Kết quả trả "
+"về là một danh sách có thứ tự các cặp (view_id, view_mode)."
 
 #. module: base
 #: field:ir.model.relation,name:0
@@ -502,7 +535,7 @@ msgstr "Tuvalu"
 #. module: base
 #: field:ir.actions.configuration.wizard,note:0
 msgid "Next Wizard"
-msgstr ""
+msgstr "Hướng dẫn tiếp theo"
 
 #. module: base
 #: field:res.lang,date_format:0
@@ -512,7 +545,7 @@ msgstr "Định dạng ngày"
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_base_report_designer
 msgid "OpenOffice Report Designer"
-msgstr ""
+msgstr "Trình thiết kế báo cáo OpenOffice"
 
 #. module: base
 #: model:res.country,name:base.an
@@ -542,7 +575,7 @@ msgstr "Tiếng Pháp/Guyana"
 #. module: base
 #: model:ir.module.module,summary:base.module_hr
 msgid "Jobs, Departments, Employees Details"
-msgstr ""
+msgstr "Chi tiết Công việc, Phòng ban, Nhân viên"
 
 #. module: base
 #: model:ir.module.module,description:base.module_analytic
@@ -15628,7 +15661,7 @@ msgstr "Tạo đối tượng"
 #. module: base
 #: model:res.country,name:base.ss
 msgid "South Sudan"
-msgstr "South Sudan"
+msgstr "Nam Su đăng"
 
 #. module: base
 #: field:ir.filters,context:0
@@ -15638,7 +15671,7 @@ msgstr "Ngữ cảnh"
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_sale_mrp
 msgid "Sales and MRP Management"
-msgstr ""
+msgstr "Quản lý Kế hoạch Sản xuất và Bán hàng"
 
 #. module: base
 #: model:ir.actions.act_window,help:base.action_partner_form
@@ -15710,7 +15743,7 @@ msgstr "Sri Lanka"
 #. module: base
 #: field:ir.actions.act_window,search_view:0
 msgid "Search View"
-msgstr ""
+msgstr "Khung tìm kiếm"
 
 #. module: base
 #: selection:base.language.install,lang:0
