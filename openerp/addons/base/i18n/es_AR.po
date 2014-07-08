@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: openobject-server\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-21 17:04+0000\n"
-"PO-Revision-Date: 2014-07-01 15:16+0000\n"
+"PO-Revision-Date: 2014-07-07 17:22+0000\n"
 "Last-Translator: Juan José Scarafía (ADHOC) <Unknown>\n"
 "Language-Team: Spanish (Argentina) <es_AR@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-07-02 05:44+0000\n"
-"X-Generator: Launchpad (build 17082)\n"
+"X-Launchpad-Export-Date: 2014-07-08 05:59+0000\n"
+"X-Generator: Launchpad (build 17086)\n"
 
 #. module: base
 #: model:ir.module.module,description:base.module_account_check_writing
@@ -1970,7 +1970,7 @@ msgstr "Red Social"
 #. module: base
 #: view:res.lang:0
 msgid "%Y - Year with century."
-msgstr ""
+msgstr "%Y - Año con siglo."
 
 #. module: base
 #: view:res.company:0
@@ -2177,7 +2177,7 @@ msgstr "Información del asistente"
 #: model:ir.actions.act_window,name:base.action_wizard_lang_export
 #: model:ir.ui.menu,name:base.menu_wizard_lang_export
 msgid "Export Translation"
-msgstr ""
+msgstr "Exportar Traducción"
 
 #. module: base
 #: model:ir.actions.act_window,name:base.action_server_action
@@ -2594,7 +2594,7 @@ msgstr "Ruta Completa"
 #. module: base
 #: view:base.language.export:0
 msgid "The next step depends on the file format:"
-msgstr ""
+msgstr "El siguiente paso depende del formato del archivo:"
 
 #. module: base
 #: view:res.lang:0
@@ -3968,7 +3968,7 @@ msgstr "Tipo de informe desconocido: %s"
 #. module: base
 #: model:ir.module.module,summary:base.module_hr_expense
 msgid "Expenses Validation, Invoicing"
-msgstr ""
+msgstr "Validación de Gastos, Facturación"
 
 #. module: base
 #: model:ir.module.module,description:base.module_l10n_be_hr_payroll_account
@@ -3993,12 +3993,12 @@ msgstr ""
 #: model:ir.actions.act_window,name:base.ir_property_form
 #: model:ir.ui.menu,name:base.menu_ir_property_form_all
 msgid "Configuration Parameters"
-msgstr ""
+msgstr "Parámetros de Configuración"
 
 #. module: base
 #: constraint:ir.cron:0
 msgid "Invalid arguments"
-msgstr ""
+msgstr "Argumentos Inválidos"
 
 #. module: base
 #: model:res.country,name:base.se
@@ -4008,7 +4008,7 @@ msgstr "Suecia"
 #. module: base
 #: field:ir.actions.report.xml,report_file:0
 msgid "Report File"
-msgstr ""
+msgstr "Archivo de Informe"
 
 #. module: base
 #: selection:ir.actions.act_window.view,view_mode:0
@@ -4036,12 +4036,28 @@ msgid ""
 "    - Yearly Salary by Head and Yearly Salary by Employee Report\n"
 "    "
 msgstr ""
+"\n"
+"Reglas salariales indias.\n"
+"============================\n"
+"\n"
+"    - Configuración de hr_payroll para la localización india.\n"
+"    - Todas las principales contribuciones para la nómina india.\n"
+"    * Nuevo informe de nómina\n"
+"    * Contratos de empleado\n"
+"    * Permite configurar salario base / bruto / neto\n"
+"    * Nómina de empleado\n"
+"    * Complementos / Deducciones\n"
+"    * Integrado con el gestor de vacaciones\n"
+"    * Contribución médica, de viajes, por niños...\n"
+"    - Notificaciones de pagos e informe\n"
+"    - Informes de salarios anuales por responsable y empleado\n"
+"    "
 
 #. module: base
 #: code:addons/orm.py:3871
 #, python-format
 msgid "Missing document(s)"
-msgstr ""
+msgstr "Documento(s) Faltante(s)"
 
 #. module: base
 #: model:ir.model,name:base.model_res_partner_bank_type
@@ -4077,6 +4093,28 @@ msgid ""
 "customers' expenses if your work by project.\n"
 "    "
 msgstr ""
+"\n"
+"Gestionar gastos por empleados\n"
+"============================\n"
+"\n"
+"Esta aplicación permite gestionar los gastos diarios de los empleados. Le da "
+"acceso a las notas de las tarifas de los empleados y la posibilidad de "
+"completarlas y validarlas o rehusar las notas. Después de la validación, "
+"crea una factura para el empleado. El empleado puede codificar sus propios "
+"gastos y el flujo de validación lo coloca en la contabilidad después de la "
+"aprobación de los responsables.\n"
+"\n"
+"El flujo completo se implementa de esta forma:\n"
+"----------------------------------------------------------------\n"
+"* Gasto borrador\n"
+"* Confirmación del parte por el empleado\n"
+"* Validación del responsable\n"
+"* Validación por el contable y creación del recibo\n"
+"\n"
+"Este módlo también usa contabilidad analítica y es compatible con el módulo "
+"de facturación sobre partes de horas, de tal forma que se puede refacturar "
+"automáticamente al cliente los gastos si trabaja por proyecto.\n"
+"    "
 
 #. module: base
 #: view:base.language.export:0
@@ -4084,11 +4122,13 @@ msgid ""
 "For more details about translating OpenERP in your language, please refer to "
 "the"
 msgstr ""
+"Para más información acerca de la traducción de OpenERP a su idioma, por "
+"favor contacta con"
 
 #. module: base
 #: field:res.partner,image:0
 msgid "Image"
-msgstr ""
+msgstr "Imagen"
 
 #. module: base
 #: model:res.country,name:base.at
@@ -4106,7 +4146,7 @@ msgstr "Calendario"
 #. module: base
 #: model:ir.module.category,name:base.module_category_knowledge_management
 msgid "Knowledge"
-msgstr ""
+msgstr "Conocimiento"
 
 #. module: base
 #: field:workflow.activity,signal_send:0
@@ -4121,6 +4161,9 @@ msgid ""
 "separated list of valid field names (optionally followed by asc/desc for the "
 "direction)"
 msgstr ""
+"Se ha indicado un \"order\" no válido. Una especificación de \"orden\" "
+"válida es una lista separada por comas de nombres de campos válidos "
+"(opcionalmente seguidos por asc/desc para indicar la dirección)"
 
 #. module: base
 #: model:ir.model,name:base.model_ir_module_module_dependency
@@ -4139,6 +4182,9 @@ msgid ""
 "way you want to print them in letters and other documents. Some example: "
 "Mr., Mrs. "
 msgstr ""
+"Gestione los títulos de contacto que quiere tener disponibles en su sistema "
+"y la forma en la que quiere que aparezcan impresos en cartas y otros "
+"documentos. Por ejemplo: Sr., Sra. "
 
 #. module: base
 #: view:ir.model.access:0
@@ -4154,11 +4200,13 @@ msgid ""
 "The Selection Options expression is not a valid Pythonic expression.Please "
 "provide an expression in the [('key','Label'), ...] format."
 msgstr ""
+"La expresión de opciones de selección no es una expresión Pythonica válida. "
+"Proporcione una expresión en el formato [('clave', 'Etiqueta'), ...]."
 
 #. module: base
 #: model:res.groups,name:base.group_survey_user
 msgid "Survey / User"
-msgstr ""
+msgstr "Encuesta / Usuario"
 
 #. module: base
 #: view:ir.module.module:0
@@ -4174,17 +4222,17 @@ msgstr "Empresa principal"
 #. module: base
 #: field:ir.ui.menu,web_icon_hover:0
 msgid "Web Icon File (hover)"
-msgstr ""
+msgstr "Archivo de Icono Web (hover)"
 
 #. module: base
 #: help:res.currency,name:0
 msgid "Currency Code (ISO 4217)"
-msgstr ""
+msgstr "Código de moneda (ISO 4217)"
 
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_hr_contract
 msgid "Employee Contracts"
-msgstr ""
+msgstr "Contratos de Empleados"
 
 #. module: base
 #: view:ir.actions.server:0
@@ -4214,24 +4262,24 @@ msgstr "Títulos de contacto"
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_product_manufacturer
 msgid "Products Manufacturers"
-msgstr ""
+msgstr "Fabricantes de Productos"
 
 #. module: base
 #: code:addons/base/ir/ir_mail_server.py:240
 #, python-format
 msgid "SMTP-over-SSL mode unavailable"
-msgstr ""
+msgstr "Modo SMTP sobre SSL no disponible"
 
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_survey
 #: model:ir.ui.menu,name:base.next_id_10
 msgid "Survey"
-msgstr ""
+msgstr "Encuesta"
 
 #. module: base
 #: selection:base.language.install,lang:0
 msgid "Spanish (DO) / Español (DO)"
-msgstr ""
+msgstr "Spanish (DO) / Español (DO)"
 
 #. module: base
 #: model:ir.model,name:base.model_workflow_activity
@@ -4241,7 +4289,7 @@ msgstr "workflow.activity"
 #. module: base
 #: view:base.language.export:0
 msgid "Export Complete"
-msgstr ""
+msgstr "Exportación Completada"
 
 #. module: base
 #: help:ir.ui.view_sc,res_id:0
@@ -4249,6 +4297,8 @@ msgid ""
 "Reference of the target resource, whose model/table depends on the 'Resource "
 "Name' field."
 msgstr ""
+"Referencia al recurso destino, cuyo modelo/tabla dependa del campo 'Nombre "
+"recurso'."
 
 #. module: base
 #: field:ir.model.fields,select_level:0
@@ -4263,12 +4313,12 @@ msgstr "Uruguay"
 #. module: base
 #: selection:base.language.install,lang:0
 msgid "Finnish / Suomi"
-msgstr ""
+msgstr "Finlandés / Suomi"
 
 #. module: base
 #: view:ir.config_parameter:0
 msgid "System Properties"
-msgstr ""
+msgstr "Propiedades de Sistema"
 
 #. module: base
 #: field:ir.sequence,prefix:0
@@ -4303,21 +4353,29 @@ msgid ""
 "Canadian accounting charts and localizations.\n"
 "    "
 msgstr ""
+"\n"
+"Módulo para administrar el plan de cuentas inglés y francés para Canada en "
+"OpenERP.\n"
+"============================================================================="
+"==============\n"
+"\n"
+"Planes de cuentas y localización canadienses.\n"
+"    "
 
 #. module: base
 #: view:base.module.import:0
 msgid "Select module package to import (.zip file):"
-msgstr ""
+msgstr "Seleccione el archivo del módulo que quiere importar (archivo .zip):"
 
 #. module: base
 #: view:ir.filters:0
 msgid "Personal"
-msgstr ""
+msgstr "Personal"
 
 #. module: base
 #: field:base.language.export,modules:0
 msgid "Modules To Export"
-msgstr ""
+msgstr "Módulos a Exportar"
 
 #. module: base
 #: model:res.country,name:base.mt
@@ -4330,6 +4388,7 @@ msgstr "Malta"
 msgid ""
 "Only users with the following access level are currently allowed to do that"
 msgstr ""
+"Sólo usuarios con los siguientes permisos están autorizados a hacer esto"
 
 #. module: base
 #: field:ir.actions.server,fields_lines:0
@@ -4377,6 +4436,39 @@ msgid ""
 "* Work Order Analysis\n"
 "    "
 msgstr ""
+"\n"
+"Gestiona el proceso de fabricación en OpenERP\n"
+"===========================================\n"
+"\n"
+"El módulo de fabricación permite cubrir la planificación, órdenes, stock y "
+"la fabricación o ensamblaje de productos desde las materias primas y "
+"componentes. Gestiona el consumo y la fabricación de productos de acuerdo a "
+"una lista de materiales y las operaciones necesarias en maquinaria, "
+"herramientas o recursos humanos de acuerdo con las rutas de fabricación.\n"
+"\n"
+"Soporta integración completa y planificación de bienes almacenables, "
+"consumibles o servicios. Los servicios se integran con el resto de software. "
+"Por ejemplo, puede establecer un servicio de sub-contratación en una lista "
+"de materiales para comprar automáticamente en la orden de fabricación el "
+"ensamblaje.\n"
+"\n"
+"Características clave\n"
+"----------------------------------\n"
+"* Generar para stock/Generar bajo pedido\n"
+"* Listas de materiales multi-nivel, sin límite\n"
+"* Rutas de producción multi-nivel, sin límite\n"
+"* Rutas de producción y centros de trabajo integrados con la contabilidad "
+"analítica\n"
+"* Cálculo periódico planificado\n"
+"* Permite examinar listas de materiales en una estructura completa que "
+"incluye listas de materiales hijas y fantasmas\n"
+"\n"
+"El tablero / los informes para el MRP incluye:\n"
+"-------------------------------------------------------------------------\n"
+"* Abastecimientos en excepción (Gráfico)\n"
+"* Variación de la valoración del stock (Gráfico)\n"
+"* Análisis del orden de trabajo\n"
+"    "
 
 #. module: base
 #: view:ir.attachment:0
@@ -4406,11 +4498,18 @@ msgid ""
 "easily\n"
 "keep track and order all your purchase orders.\n"
 msgstr ""
+"\n"
+"Este módulo permite gestionar las solicitudes de compra.\n"
+"===========================================================\n"
+"\n"
+"Cuando se crea un pedido de compra, tiene la oportunidad de guardar la "
+"solicitud relacionada. Este nuevo objeto se reagrupará y permitirá rastrear "
+"y ordenar fácilmente todos sus pedidos de compra.\n"
 
 #. module: base
 #: help:ir.mail_server,smtp_host:0
 msgid "Hostname or IP of SMTP server"
-msgstr ""
+msgstr "Nombre de host o dirección IP del servidor SMTP"
 
 #. module: base
 #: model:res.country,name:base.aq
@@ -4420,12 +4519,12 @@ msgstr "Antártida"
 #. module: base
 #: view:res.partner:0
 msgid "Persons"
-msgstr ""
+msgstr "Personas"
 
 #. module: base
 #: view:base.language.import:0
 msgid "_Import"
-msgstr ""
+msgstr "_Importar"
 
 #. module: base
 #: field:res.users,action_id:0
@@ -5179,7 +5278,7 @@ msgstr ""
 #. module: base
 #: model:res.country,name:base.va
 msgid "Holy See (Vatican City State)"
-msgstr "Santa Sede (Ciudad Estado del Vaticano)"
+msgstr "Santa Sede (Ciudad del Estado Vaticano)"
 
 #. module: base
 #: field:base.module.import,module_file:0
@@ -8353,6 +8452,8 @@ msgid ""
 "federal states you are working on from here. Each state is attached to one "
 "country."
 msgstr ""
+"Por ejemplo puede gestionar las provincias de los Estados Unidos desde aquí. "
+"Cada estado federal o provincia está asociado a un país."
 
 #. module: base
 #: view:workflow.workitem:0
@@ -9101,7 +9202,7 @@ msgstr "Siempre puede ser buscado"
 #. module: base
 #: help:res.country.state,code:0
 msgid "The state code in max. three chars."
-msgstr ""
+msgstr "El código de provincia en tres caracteres como máximo."
 
 #. module: base
 #: model:res.country,name:base.hk
@@ -9870,7 +9971,7 @@ msgstr ""
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_base_status
 msgid "State/Stage Management"
-msgstr ""
+msgstr "Gestión de estados/etapas"
 
 #. module: base
 #: model:ir.module.category,name:base.module_category_warehouse_management
@@ -9973,6 +10074,16 @@ msgid ""
 "Thank you in advance for your cooperation.\n"
 "Best Regards,"
 msgstr ""
+"Estimado/a señor/señora,\n"
+"\n"
+"Nuestros registros indican que algunos pagos en nuestra cuenta están aún "
+"pendientes. Puede encontrar los detalles a continuación.\n"
+"Si la cantidad ya ha sido pagada, por favor, descarte esta notificación. En "
+"otro caso, por favor remítanos el importe total abajo indicado.\n"
+"Si tiene alguna pregunta con respecto a su cuenta, por favor contáctenos.\n"
+"\n"
+"Gracias de antemano por su colaboración.\n"
+"Saludos Cordiales,"
 
 #. module: base
 #: view:ir.module.category:0
@@ -9982,7 +10093,7 @@ msgstr "Categoría del módulo"
 #. module: base
 #: model:res.country,name:base.us
 msgid "United States"
-msgstr "Estados Unidos"
+msgstr "Estados Unidos de América"
 
 #. module: base
 #: view:ir.ui.view:0
@@ -10248,7 +10359,7 @@ msgstr ""
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_l10n_us
 msgid "United States - Chart of accounts"
-msgstr ""
+msgstr "Estados Unidos - Plan de cuentas"
 
 #. module: base
 #: view:base.language.export:0
@@ -11111,7 +11222,7 @@ msgstr "Otras acciones"
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_l10n_be_coda
 msgid "Belgium - Import Bank CODA Statements"
-msgstr ""
+msgstr "Bélgica - Importar extractos bancarios CODA"
 
 #. module: base
 #: selection:ir.actions.todo,state:0
@@ -11384,7 +11495,7 @@ msgstr "Valor predeterminado"
 #. module: base
 #: model:ir.model,name:base.model_res_country_state
 msgid "Country state"
-msgstr "Provincia"
+msgstr "Provincia de País"
 
 #. module: base
 #: model:ir.ui.menu,name:base.next_id_5
@@ -12398,7 +12509,7 @@ msgstr ""
 #: model:ir.actions.act_window,name:base.action_country_state
 #: model:ir.ui.menu,name:base.menu_country_state_partner
 msgid "Fed. States"
-msgstr ""
+msgstr "Provincias"
 
 #. module: base
 #: view:ir.model:0
@@ -12674,7 +12785,7 @@ msgstr "Tipo de informe"
 #: view:res.partner.bank:0
 #: view:res.users:0
 msgid "State"
-msgstr "Estado"
+msgstr "Provincia"
 
 #. module: base
 #: selection:base.language.install,lang:0
@@ -13919,7 +14030,7 @@ msgstr ""
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_account_bank_statement_extensions
 msgid "Bank Statement Extensions to Support e-banking"
-msgstr ""
+msgstr "Extensiones de extracto bancario para soportar e-banking"
 
 #. module: base
 #: field:ir.model.fields,field_description:0
@@ -14951,6 +15062,16 @@ msgid ""
 "    - Regional State listings\n"
 "    "
 msgstr ""
+"\n"
+"Módulo base para la localización etíope.\n"
+"======================================\n"
+"\n"
+"Ésta es la última localización de OpenERP para Etiopía y consiste en:\n"
+"    - Plan de cuentas\n"
+"    - Estructura de impuestos\n"
+"    - Estructura de retenciones\n"
+"    - Listado de regiones\n"
+"    "
 
 #. module: base
 #: view:res.users:0
@@ -15123,6 +15244,28 @@ msgid ""
 "have a new option to import payment orders as bank statement lines.\n"
 "    "
 msgstr ""
+"\n"
+"Módulo para gestionar el pago de las facturas de proveedor.\n"
+"=======================================================\n"
+"\n"
+"Este módulo permite crear y gestionar sus órdenes de pago, con los "
+"siguientes propósitos:\n"
+"-----------------------------------------------------------------------------"
+"---- \n"
+"    * servir como base para un conector para múltiples mecanismos de pago "
+"automáticos.\n"
+"    * proveer una forma más eficiente de gestionar el pago de facturas.\n"
+"\n"
+"Advertencia:\n"
+"~~~~~~~~\n"
+"La confirmación de una orden de pago no crea asientos contable, sólo "
+"registra el hecho de que ha dado la orden de pago al banco. El registro de "
+"la orden debe codificarse como habitualmente a través del extracto bancario. "
+"De hecho, sólo cuando se recibe la confirmación del banco que la orden ha "
+"sido aceptada cuando tiene que registrarlo en su contabilidad. Para ayudar "
+"con esta operación, tiene una nueva opción para importar las órdenes de pago "
+"con líneas de extractos bancarios.\n"
+"    "
 
 #. module: base
 #: field:ir.model,access_ids:0
@@ -15920,6 +16063,8 @@ msgid ""
 "Tax Identification Number. Check the box if this contact is subjected to "
 "taxes. Used by the some of the legal statements."
 msgstr ""
+"Número de identificación fiscal. Marque la casilla si el contacto está "
+"sujeto a impuestos. Usado por algunos documentos legales."
 
 #. module: base
 #: field:res.partner.bank,partner_id:0
