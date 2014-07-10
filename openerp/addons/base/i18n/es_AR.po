@@ -8,14 +8,29 @@ msgstr ""
 "Project-Id-Version: openobject-server\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-21 17:04+0000\n"
-"PO-Revision-Date: 2014-07-07 17:22+0000\n"
-"Last-Translator: Juan José Scarafía (ADHOC) <Unknown>\n"
+"PO-Revision-Date: 2014-07-09 08:22+0000\n"
+"Last-Translator: Luis Panozzo <luis.panozzo@elmatica.com>\n"
 "Language-Team: Spanish (Argentina) <es_AR@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-07-08 05:59+0000\n"
-"X-Generator: Launchpad (build 17086)\n"
+"X-Launchpad-Export-Date: 2014-07-10 05:44+0000\n"
+"X-Generator: Launchpad (build 17100)\n"
+
+#. module: base
+#: code:addons/fields.py:652
+#, python-format
+msgid ""
+"The second argument of the many2many field %s must be a SQL table !You used "
+"%s, which is not a valid SQL table name."
+msgstr ""
+"¡El segundo argumento del campo many2many %s debe ser una tabla SQL! Has "
+"utilizado %s, que no es un nombre válido de tabla SQL."
+
+#. module: base
+#: model:res.partner.category,name:base.res_partner_category_2
+msgid "Prospect"
+msgstr "Candidato"
 
 #. module: base
 #: model:ir.module.module,description:base.module_account_check_writing
@@ -44,16 +59,6 @@ msgstr "Otra configuración"
 #: selection:ir.property,type:0
 msgid "DateTime"
 msgstr "Fecha y hora"
-
-#. module: base
-#: code:addons/fields.py:652
-#, python-format
-msgid ""
-"The second argument of the many2many field %s must be a SQL table !You used "
-"%s, which is not a valid SQL table name."
-msgstr ""
-"¡El segundo argumento del campo many2many %s debe ser una tabla SQL! Has "
-"utilizado %s, que no es un nombre de tabla SQL válido."
 
 #. module: base
 #: field:ir.ui.view,arch:0
@@ -15101,7 +15106,7 @@ msgstr "Aplicar actualizaciones programadas"
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_sale_journal
 msgid "Invoicing Journals"
-msgstr ""
+msgstr "Diarios de facturación"
 
 #. module: base
 #: help:ir.ui.view,groups_id:0
@@ -15109,32 +15114,34 @@ msgid ""
 "If this field is empty, the view applies to all users. Otherwise, the view "
 "applies to the users of those groups only."
 msgstr ""
+"Si este campo está vacío, la vista se aplica a todos los usuarios. En caso "
+"contrario, la vista se aplica sólo a los usuarios de esos grupos."
 
 #. module: base
 #: selection:base.language.install,lang:0
 msgid "Persian / فارس"
-msgstr ""
+msgstr "Persa / فارس"
 
 #. module: base
 #: view:base.language.export:0
 msgid "Export Settings"
-msgstr ""
+msgstr "Configuración de exportación"
 
 #. module: base
 #: field:ir.actions.act_window,src_model:0
 msgid "Source Model"
-msgstr ""
+msgstr "Modelo origen"
 
 #. module: base
 #: view:ir.sequence:0
 msgid "Day of the Week (0:Monday): %(weekday)s"
-msgstr ""
+msgstr "Día de la semana (0: lunes): %(weekday)s"
 
 #. module: base
 #: code:addons/base/module/wizard/base_module_upgrade.py:84
 #, python-format
 msgid "Unmet dependency !"
-msgstr ""
+msgstr "¡Dependencia no resuelta!"
 
 #. module: base
 #: code:addons/base/ir/ir_model.py:509
@@ -15142,7 +15149,7 @@ msgstr ""
 #: code:addons/base/ir/ir_model.py:1031
 #, python-format
 msgid "Administrator access is required to uninstall a module"
-msgstr ""
+msgstr "Se requiere acceso como administrador para desinstalar un módulo"
 
 #. module: base
 #: model:ir.model,name:base.model_base_module_configuration
@@ -15177,6 +15184,30 @@ msgid ""
 "* Refund previous sales\n"
 "    "
 msgstr ""
+"\n"
+"Proceso de venta rápido y sencillo\n"
+"===========================\n"
+"\n"
+"Este módulo permite gestionar las ventas de su tienda fácilmente con una "
+"interfaz táctil totalmente basado en la web.\n"
+"Es compatible con todos los tablets PC y con el iPad, ofreciendo varios "
+"métodos de pago.\n"
+"\n"
+"La selección del producto se puede hacer de varias formas: \n"
+"\n"
+"* Usando un lector de código de barras\n"
+"* Examinando categorías de productos o vía búsqueda de texto.\n"
+"\n"
+"Características principales\n"
+"------------------------------------\n"
+"* Carga rápida de la venta\n"
+"* Elija una forma de pago (modo rápido) o divida el pago entre varias formas "
+"de pago\n"
+"* Calculo del monto a devolver\n"
+"* Cree y confirme el listado de compra automáticamente\n"
+"* Permite al usuario crear una factura automáticamente\n"
+"* Reembolsa ventas previas\n"
+"    "
 
 #. module: base
 #: code:addons/orm.py:3568
@@ -15188,6 +15219,10 @@ msgid ""
 "\n"
 "(Document type: %s, Operation: %s)"
 msgstr ""
+"La operación no ha podido ser completada por restricciones de seguridad. Por "
+"favor contacte con su administrador de sistema.\n"
+"\n"
+"(Tipo de documento: %s, Operación: %s)"
 
 #. module: base
 #: model:ir.module.module,description:base.module_idea
@@ -15204,6 +15239,21 @@ msgid ""
 "The managers can obtain an easy view of best ideas from all the users.\n"
 "Once installed, check the menu 'Ideas' in the 'Tools' main menu."
 msgstr ""
+"\n"
+"Este módulo permite al usuario participar fácil y eficientemente en la "
+"innovación de la empresa.\n"
+"============================================================================="
+"==========\n"
+"\n"
+"Permite a todo el mundo expresar ideas sobre diferentes asuntos. Entonces, "
+"los usuarios pueden comentar sobre esas ideas y votar algunas. Cada idea "
+"tiene una puntuación basada en los diferentes votos.\n"
+"\n"
+"Los responsables puede obtener una visión rápida de las mejores ideas para "
+"todos los usuarios.\n"
+"\n"
+"Una vez instalado, compruebe el menú 'Ideas' en el menú principal "
+"'Herramientas'."
 
 #. module: base
 #: code:addons/orm.py:5322
@@ -16223,12 +16273,12 @@ msgstr ""
 #. module: base
 #: field:ir.filters,context:0
 msgid "Context"
-msgstr ""
+msgstr "Contexto"
 
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_sale_mrp
 msgid "Sales and MRP Management"
-msgstr ""
+msgstr "Gestión de ventas y MRP"
 
 #. module: base
 #: model:ir.actions.act_window,help:base.action_partner_form
@@ -16242,16 +16292,19 @@ msgid ""
 "              </p>\n"
 "            "
 msgstr ""
-
-#. module: base
-#: model:res.partner.category,name:base.res_partner_category_2
-msgid "Prospect"
-msgstr "Prospect"
+"<p class=\"oe_view_nocontent_create\">\n"
+"Pulse para añadir un contacto en la libreta de direcciones.\n"
+"</p><p>\n"
+"OpenERP le ayuda a gestionar todas las actividades relacionadas con los "
+"clientes: conversaciones, historial de oportunidades de negocio, documentos, "
+"etc.\n"
+"</p>\n"
+"            "
 
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_stock_invoice_directly
 msgid "Invoice Picking Directly"
-msgstr ""
+msgstr "Facturar directamente desde remito"
 
 #. module: base
 #: selection:base.language.install,lang:0
@@ -16261,7 +16314,7 @@ msgstr "﻿Polaco / Język polski"
 #. module: base
 #: field:ir.exports,name:0
 msgid "Export Name"
-msgstr "Nombre de export"
+msgstr "Nombre exportación"
 
 #. module: base
 #: help:res.partner,type:0
@@ -16284,6 +16337,15 @@ msgid ""
 "on a supplier purchase order into several accounts and analytic plans.\n"
 "    "
 msgstr ""
+"\n"
+"El módulo base para gestionar distribuciones analíticas y pedidos de "
+"compra.\n"
+"====================================================================\n"
+"\n"
+"Permite al usuario mantener varios planes analíticos. Esto permite dividir "
+"una línea en un pedido de compra de proveedor en varias cuentas y planes "
+"analíticos.\n"
+"    "
 
 #. module: base
 #: model:res.country,name:base.lk
@@ -16293,7 +16355,7 @@ msgstr "Sri Lanka"
 #. module: base
 #: field:ir.actions.act_window,search_view:0
 msgid "Search View"
-msgstr ""
+msgstr "Vista de búsqueda"
 
 #. module: base
 #: selection:base.language.install,lang:0
@@ -16303,7 +16365,7 @@ msgstr "Ruso / русский язык"
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_auth_signup
 msgid "Signup"
-msgstr ""
+msgstr "Registrarse"
 
 #~ msgid "SMS - Gateway: clickatell"
 #~ msgstr "Plataforma SMS: clickatell"
