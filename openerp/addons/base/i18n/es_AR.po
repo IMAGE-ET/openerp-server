@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: openobject-server\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-21 17:04+0000\n"
-"PO-Revision-Date: 2014-07-09 08:22+0000\n"
+"PO-Revision-Date: 2014-07-11 11:32+0000\n"
 "Last-Translator: Luis Panozzo <luis.panozzo@elmatica.com>\n"
 "Language-Team: Spanish (Argentina) <es_AR@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-07-10 05:44+0000\n"
-"X-Generator: Launchpad (build 17100)\n"
+"X-Launchpad-Export-Date: 2014-07-12 06:32+0000\n"
+"X-Generator: Launchpad (build 17111)\n"
 
 #. module: base
 #: code:addons/fields.py:652
@@ -16021,12 +16021,12 @@ msgstr ""
 #. module: base
 #: field:ir.attachment,file_size:0
 msgid "File Size"
-msgstr ""
+msgstr "Tamaño del archivo"
 
 #. module: base
 #: help:ir.sequence,prefix:0
 msgid "Prefix value of the record for the sequence"
-msgstr ""
+msgstr "Valor del prefijo del registro para la secuencia"
 
 #. module: base
 #: model:res.country,name:base.sc
@@ -16036,7 +16036,7 @@ msgstr "Seychelles"
 #. module: base
 #: model:res.partner.category,name:base.res_partner_category_4
 msgid "Gold"
-msgstr ""
+msgstr "Oro"
 
 #. module: base
 #: code:addons/base/res/res_company.py:173
@@ -16048,7 +16048,7 @@ msgstr ""
 #: view:res.partner.bank:0
 #, python-format
 msgid "Bank Accounts"
-msgstr "Cuentas Bancarias"
+msgstr "Cuentas bancarias"
 
 #. module: base
 #: model:res.country,name:base.sl
@@ -16063,12 +16063,12 @@ msgstr "Información general"
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_l10n_pt
 msgid "Portugal - Chart of Accounts"
-msgstr ""
+msgstr "Portugal - Plan de cuentas"
 
 #. module: base
 #: field:ir.model.data,complete_name:0
 msgid "Complete ID"
-msgstr ""
+msgstr "Id. completa"
 
 #. module: base
 #: model:ir.module.module,description:base.module_stock
@@ -16106,6 +16106,38 @@ msgid ""
 "* Moves Analysis\n"
 "    "
 msgstr ""
+"\n"
+"Manejar múltiples almacenes con múltiples ubicaciones de stock\n"
+"==============================================================\n"
+"\n"
+"La administración de almacenes e inventarios está basada en un estructura "
+"jerárquica de ubicaciones, desde depósitos hasta contenedores individuales.\n"
+"El sistema de inventario de doble entrada le permite stocks de clientes, "
+"proveedores y de fabricación.\n"
+"\n"
+"OpenERP tiene la posibilidad de administrar lotes y números de serie "
+"asegurando adherencia a los requerimientos de trazabilidad que se requieren "
+"en la mayoría de las industrias.\n"
+"\n"
+"Principales características:\n"
+"------------\n"
+"* Planificación e historia de movimientos,\n"
+"* Valoración de stock (precio estándar o promedio,  ...)\n"
+"* Manejo de diferencias de inventario\n"
+"* Reglas automáticas de reordenamiento\n"
+"* Soporte de códigos de barras\n"
+"* Detección rápida de errores merced al sistema de doble entrada\n"
+"* Trazabilidad (Hacia arriba y hacia abajo, por números de serie, ...)\n"
+"\n"
+"Paneles de control / Reportes para administración de almacenes incluirá:\n"
+"----------------------------------------------------------\n"
+"* Productos entrantes (gráfico)\n"
+"* Productos salientes (gráfico)\n"
+"* Compra / obtención por excepción\n"
+"* Análisis de inventarios\n"
+"* Inventarios de últimos productos\n"
+"* Análisis de movimientos\n"
+"    "
 
 #. module: base
 #: help:res.partner,vat:0
@@ -16141,18 +16173,37 @@ msgid ""
 "depending on the product's configuration.\n"
 "    "
 msgstr ""
+"\n"
+"Éste es el módulo para calcular abastecimientos.\n"
+"==============================================\n"
+"\n"
+"En el proceso de reaprovisionamiento (MRP), los pedidos de abastecimiento se "
+"crean para lanzar órdenes de fabricación, pedidos de compra o asignaciones "
+"de existencias. Los pedidos de abastecimientos se generan de forma "
+"automática por el sistema y, a menos que haya un problema, el usuario no "
+"será notificado. En caso de problemas, el sistema lanzará excepciones de "
+"abastecimiento para informar al usuario acerca de los problemas bloqueantes "
+"que necesitan ser resueltos manualmente (como por ejemplo, listas de "
+"materiales (LdM) ausentes o proveedores no existentes).\n"
+"\n"
+"El pedido de abastecimiento planificará una propuesta para un abastecimiento "
+"automático para el producto que requiere reposición. Este abastecimiento "
+"comenzará una tarea, ya sea un formulario de pedido de compra para el "
+"proveedor, o  una orden de fabricación, dependiendo de la configuración del "
+"producto.\n"
+"    "
 
 #. module: base
 #: model:ir.actions.act_window,name:base.open_module_tree
 #: model:ir.ui.menu,name:base.menu_module_tree
 msgid "Installed Modules"
-msgstr ""
+msgstr "Módulos instalados"
 
 #. module: base
 #: code:addons/base/res/res_users.py:170
 #, python-format
 msgid "Company Switch Warning"
-msgstr ""
+msgstr "Advertencia de cambio de compañia."
 
 #. module: base
 #: model:ir.module.category,description:base.module_category_manufacturing
@@ -16160,11 +16211,14 @@ msgid ""
 "Helps you manage your manufacturing processes and generate reports on those "
 "processes."
 msgstr ""
+"Le ayuda a manejar sus procesos de fabricación y generar informes sobre "
+"estos procesos."
 
 #. module: base
 #: help:ir.sequence,number_increment:0
 msgid "The next number of the sequence will be incremented by this number"
 msgstr ""
+"El número siguiente de esta secuencia será incrementado por este número."
 
 #. module: base
 #: selection:workflow.activity,kind:0
@@ -16182,6 +16236,8 @@ msgid ""
 "Manage relations with prospects and customers using leads, opportunities, "
 "requests or issues."
 msgstr ""
+"Manejo de relaciones con los prospectos y clientes usando iniciativas, "
+"oportunidades, pedidos o incidencias."
 
 #. module: base
 #: model:ir.module.module,description:base.module_project
@@ -16205,6 +16261,24 @@ msgid ""
 "* Cumulative Flow\n"
 "    "
 msgstr ""
+"\n"
+"Gestiona proyectos multi-nivel, tareas, y trabajo realizado en las tareas\n"
+"=====================================================\n"
+"\n"
+"Esta aplicación permite un sistema operacional de gestión de proyectos para "
+"organizar sus actividades en tareas y planificar el trabajo necesario para "
+"que las mismas se completen.\n"
+"\n"
+"Los diagramas de Gantt darán una visión gráfica de los planes del proyecto, "
+"así como la disponibilidad de recursos y la carga de trabajo.\n"
+"\n"
+"El tablero de control / los informes para la gestión de proyectos incluyen:\n"
+"------------------------------------------------------------------\n"
+"* Mis tareas\n"
+"* Tareas abiertas\n"
+"* Análisis de tareas\n"
+"* Flujo consolidado\n"
+"    "
 
 #. module: base
 #: view:res.partner:0
