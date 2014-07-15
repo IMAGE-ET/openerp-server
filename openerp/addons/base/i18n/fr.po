@@ -7,14 +7,14 @@ msgstr ""
 "Project-Id-Version: OpenERP Server 5.0.4\n"
 "Report-Msgid-Bugs-To: support@openerp.com\n"
 "POT-Creation-Date: 2012-12-21 17:04+0000\n"
-"PO-Revision-Date: 2012-12-06 10:07+0000\n"
-"Last-Translator: Quentin THEURET @TeMPO Consulting <Unknown>\n"
+"PO-Revision-Date: 2014-07-14 16:49+0000\n"
+"Last-Translator: Florian Hatat <Unknown>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-05-17 06:28+0000\n"
-"X-Generator: Launchpad (build 17007)\n"
+"X-Launchpad-Export-Date: 2014-07-15 04:51+0000\n"
+"X-Generator: Launchpad (build 17111)\n"
 
 #. module: base
 #: model:ir.module.module,description:base.module_account_check_writing
@@ -295,7 +295,7 @@ msgstr "Inuktitut / ᐃᓄᒃᑎᑐᑦ"
 #. module: base
 #: model:res.groups,name:base.group_multi_currency
 msgid "Multi Currencies"
-msgstr "Multi Devises"
+msgstr "Multi devises"
 
 #. module: base
 #: model:ir.module.module,description:base.module_l10n_cl
@@ -7573,7 +7573,7 @@ msgstr "Sans catégorie"
 #. module: base
 #: view:res.partner:0
 msgid "Phone:"
-msgstr "Téléphone:"
+msgstr "Téléphone :"
 
 #. module: base
 #: field:res.partner,is_company:0
@@ -8314,7 +8314,7 @@ msgstr "En-tête RML interne pour les rapports au format paysage"
 #. module: base
 #: model:res.groups,name:base.group_partner_manager
 msgid "Contact Creation"
-msgstr "Création du contact"
+msgstr "Création de contact"
 
 #. module: base
 #: view:ir.module.module:0
@@ -8923,7 +8923,7 @@ msgstr ""
 #. module: base
 #: field:res.partner,function:0
 msgid "Job Position"
-msgstr ""
+msgstr "Poste occupé"
 
 #. module: base
 #: view:res.partner:0
@@ -9126,6 +9126,11 @@ msgid ""
 "use the same timezone that is otherwise used to pick and render date and "
 "time values: your computer's timezone."
 msgstr ""
+"Le fuseau horaire du partenaire, utilisé pour les valeurs de sortie de date "
+"et d'heure correcte à l'intérieur de rapports imprimés. Il est important de "
+"définir une valeur pour ce champ. Vous devez utiliser le même fuseau horaire "
+"qui est par ailleurs utilisé pour sélectionner et afficher les  valeurs date "
+"et heure: le fuseau horaire de votre ordinateur."
 
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_account_analytic_default
@@ -9180,6 +9185,10 @@ msgid ""
 "=============\n"
 "    "
 msgstr ""
+"\n"
+"Ce module ajoute un menu événement et les caractéristiques de votre portail "
+"si \"event\" et \"portal\" sont installés.\n"
+"    "
 
 #. module: base
 #: help:ir.sequence,number_next:0
@@ -9266,7 +9275,7 @@ msgstr "Portail Réclamation"
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_l10n_pe
 msgid "Peru Localization Chart Account"
-msgstr ""
+msgstr "Plan de compte péruvien"
 
 #. module: base
 #: model:ir.module.module,description:base.module_auth_oauth
@@ -9342,6 +9351,9 @@ msgid ""
 "==========================================\n"
 "    "
 msgstr ""
+"\n"
+"Liste de tâches pour les prospects et opportunités\n"
+"    "
 
 #. module: base
 #: view:ir.mail_server:0
@@ -9655,7 +9667,7 @@ msgstr "Assistant"
 #: code:addons/base/ir/ir_fields.py:303
 #, python-format
 msgid "database id"
-msgstr ""
+msgstr "id de base de données"
 
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_base_import
@@ -9872,7 +9884,7 @@ msgstr "base.update.translations"
 #. module: base
 #: view:ir.rule:0
 msgid "Full Access Right"
-msgstr ""
+msgstr "Droits d'accès complet"
 
 #. module: base
 #: field:res.partner.category,parent_id:0
@@ -9935,12 +9947,12 @@ msgstr "ir.model.constraint"
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_web_graph
 msgid "Graph Views"
-msgstr ""
+msgstr "Vue Graphe"
 
 #. module: base
 #: help:ir.model.relation,name:0
 msgid "PostgreSQL table name implementing a many2many relation."
-msgstr ""
+msgstr "Table PostgreSQL implémentant une relation many2many"
 
 #. module: base
 #: model:ir.module.module,description:base.module_base
@@ -10103,6 +10115,8 @@ msgid ""
 "Translation features are unavailable until you install an extra OpenERP "
 "translation."
 msgstr ""
+"Les fonctions de traduction ne sont pas disponibles tant que vous n'avez pas "
+"installé de traduction OpenERP supplémentaire."
 
 #. module: base
 #: model:ir.module.module,description:base.module_l10n_nl
@@ -10243,7 +10257,7 @@ msgstr "Gestion documentaire de pages Web"
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_l10n_ar
 msgid "Argentina Localization Chart Account"
-msgstr ""
+msgstr "Plan de compte argentin"
 
 #. module: base
 #: field:ir.module.module,description_html:0
@@ -12526,6 +12540,21 @@ msgid ""
 "You can define the different phases of interviews and easily rate the "
 "applicant from the kanban view.\n"
 msgstr ""
+"\n"
+"Gestion des postes occupés et des processus de recrutement\n"
+"================================================\n"
+"\n"
+"Cette application permet de facilement garder une trace des postes occupés, "
+"des postes en vacance, des candidatures, des entretiens…\n"
+"\n"
+"Elle est intégrée avec la passerelle de courriel pour automatiquement "
+"récupérer les courriels envoyés à <jobs@yourcompany.com> dans la liste des "
+"candidatures. Elle est également intégrée avec le système de gestion des "
+"documents pour stocker et rechercher dans la base des CV et trouver le "
+"candidat que vous recherchez. Elle est de même intégrée avec le module de "
+"sondage pour vous permettre de définir des entretiens pour différents "
+"postes. Vous pouvez définir différentes phases aux entretiens et facilement "
+"évaluer le candidat depuis la vue kanban.\n"
 
 #. module: base
 #: field:ir.model.fields,model:0
@@ -15024,7 +15053,7 @@ msgstr "ir.sequence.type"
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_l10n_be_hr_payroll_account
 msgid "Belgium - Payroll with Accounting"
-msgstr ""
+msgstr "Belgique - Paie avec comptabilité"
 
 #. module: base
 #: selection:base.language.export,format:0
@@ -16260,6 +16289,10 @@ msgid ""
 "\n"
 "(Document type: %s, Operation: %s)"
 msgstr ""
+"L'opération demandée ne peut pas être effectuée en raison de la politique de "
+"sécurité. Veuillez contacter votre administrateur système.\n"
+"\n"
+"(Type de document : %s, Opération : %s)"
 
 #. module: base
 #: model:ir.module.module,description:base.module_idea
@@ -16646,7 +16679,7 @@ msgstr "Fenêtre courante"
 #: model:ir.module.category,name:base.module_category_hidden
 #: view:res.users:0
 msgid "Technical Settings"
-msgstr ""
+msgstr "Paramètres techniques"
 
 #. module: base
 #: model:ir.module.category,description:base.module_category_accounting_and_finance
