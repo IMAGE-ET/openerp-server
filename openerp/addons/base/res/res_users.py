@@ -174,8 +174,7 @@ class res_users(osv.osv):
                  "a change of password, the user has to login again."),
         'signature': fields.text('Signature'),
         'active': fields.boolean('Active'),
-        'action_id': fields.many2one('ir.actions.actions', 'Home Action', help="If specified, this action will be opened at logon for this user, in addition to the standard menu."),
-        'menu_id': fields.many2one('ir.actions.actions', 'Menu Action', help="If specified, the action will replace the standard menu for this user."),
+        'action_id': fields.many2one('ir.actions.actions', 'Home Action', help="If specified, this action will be opened at log on for this user, in addition to the standard menu."),
         'groups_id': fields.many2many('res.groups', 'res_groups_users_rel', 'uid', 'gid', 'Groups'),
         # Special behavior for this field: res.company.search() will only return the companies
         # available to the current user (should be the user's companies?), when the user_preference
@@ -237,16 +236,6 @@ class res_users(osv.osv):
             return [c]
         return False
 
-    def _get_menu(self,cr, uid, context=None):
-        dataobj = self.pool.get('ir.model.data')
-        try:
-            model, res_id = dataobj.get_object_reference(cr, uid, 'base', 'action_menu_admin')
-            if model != 'ir.actions.act_window':
-                return False
-            return res_id
-        except ValueError:
-            return False
-
     def _get_group(self,cr, uid, context=None):
         dataobj = self.pool.get('ir.model.data')
         result = []
@@ -264,7 +253,6 @@ class res_users(osv.osv):
         'password': '',
         'active': True,
         'customer': False,
-        'menu_id': _get_menu,
         'company_id': _get_company,
         'company_ids': _get_companies,
         'groups_id': _get_group,
@@ -408,7 +396,7 @@ class res_users(osv.osv):
         if not password:
             return False
         user_id = False
-        cr = self.pool.db.cursor()
+        cr = self.pool.cursor()
         try:
             # autocommit: our single update request will be performed atomically.
             # (In this way, there is no opportunity to have two transactions
@@ -459,7 +447,7 @@ class res_users(osv.osv):
             # Successfully logged in as admin!
             # Attempt to guess the web base url...
             if user_agent_env and user_agent_env.get('base_location'):
-                cr = self.pool.db.cursor()
+                cr = self.pool.cursor()
                 try:
                     base = user_agent_env['base_location']
                     ICP = self.pool['ir.config_parameter']
@@ -480,7 +468,7 @@ class res_users(osv.osv):
             raise openerp.exceptions.AccessDenied()
         if self._uid_cache.get(db, {}).get(uid) == passwd:
             return
-        cr = self.pool.db.cursor()
+        cr = self.pool.cursor()
         try:
             self.check_credentials(cr, uid, passwd)
             if self._uid_cache.has_key(db):
@@ -606,7 +594,7 @@ class groups_implied(osv.osv):
         res = super(groups_implied, self).write(cr, uid, ids, values, context)
         if values.get('users') or values.get('implied_ids'):
             # add all implied groups (to all users of each group)
-            for g in self.browse(cr, uid, ids):
+            for g in self.browse(cr, uid, ids, context=context):
                 gids = map(int, g.trans_implied_ids)
                 vals = {'users': [(4, u.id) for u in g.users]}
                 super(groups_implied, self).write(cr, uid, gids, vals, context)

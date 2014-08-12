@@ -104,7 +104,9 @@ class ir_actions_report_xml(osv.osv):
             cr.execute("SELECT * FROM ir_act_report_xml WHERE report_name=%s", (name,))
             r = cr.dictfetchone()
             if r:
-                if r['report_rml'] or r['report_rml_content_data']:
+                if r['report_type'] in ['qweb-pdf', 'qweb-html']:
+                    return r['report_name']
+                elif r['report_rml'] or r['report_rml_content_data']:
                     if r['parser']:
                         kwargs = { 'parser': operator.attrgetter(r['parser'])(openerp.addons) }
                     else:
@@ -127,7 +129,11 @@ class ir_actions_report_xml(osv.osv):
         Look up a report definition and render the report for the provided IDs.
         """
         new_report = self._lookup_report(cr, name)
-        return new_report.create(cr, uid, res_ids, data, context)
+        # in order to use current yml test files with qweb reports
+        if isinstance(new_report, (str, unicode)):
+            return self.pool['report'].get_pdf(cr, uid, res_ids, new_report, data=data, context=context), 'pdf'
+        else:
+            return new_report.create(cr, uid, res_ids, data, context)
 
     _name = 'ir.actions.report.xml'
     _inherit = 'ir.actions.actions'
@@ -135,35 +141,42 @@ class ir_actions_report_xml(osv.osv):
     _sequence = 'ir_actions_id_seq'
     _order = 'name'
     _columns = {
-        'name': fields.char('Name', size=64, required=True, translate=True),
-        'model': fields.char('Object', size=64, required=True),
         'type': fields.char('Action Type', size=32, required=True),
-        'report_name': fields.char('Service Name', size=64, required=True),
-        'usage': fields.char('Action Usage', size=32),
-        'report_type': fields.char('Report Type', size=32, required=True, help="Report Type, e.g. pdf, html, raw, sxw, odt, html2html, mako2html, ..."),
+        'name': fields.char('Name', size=64, required=True, translate=True),
+
+        'model': fields.char('Model', required=True),
+        'report_type': fields.selection([('qweb-pdf', 'PDF'),
+                    ('qweb-html', 'HTML'),
+                    ('controller', 'Controller'),
+                    ('pdf', 'RML pdf (deprecated)'),
+                    ('sxw', 'RML sxw (deprecated)'),
+                    ('webkit', 'Webkit (deprecated)'),
+                    ], 'Report Type', required=True, help="HTML will open the report directly in your browser, PDF will use wkhtmltopdf to render the HTML into a PDF file and let you download it, Controller allows you to define the url of a custom controller outputting any kind of report."),
+        'report_name': fields.char('Template Name', required=True, help="For QWeb reports, name of the template used in the rendering. The method 'render_html' of the model 'report.template_name' will be called (if any) to give the html. For RML reports, this is the LocalService name."),
         'groups_id': fields.many2many('res.groups', 'res_groups_report_rel', 'uid', 'gid', 'Groups'),
+
+        # options
         'multi': fields.boolean('On Multiple Doc.', help="If set to true, the action will not be displayed on the right toolbar of a form view."),
-        'attachment': fields.char('Save as Attachment Prefix', size=128, help='This is the filename of the attachment used to store the printing result. Keep empty to not save the printed reports. You can use a python expression with the object and time variables.'),
         'attachment_use': fields.boolean('Reload from Attachment', help='If you check this, then the second time the user prints with same attachment name, it returns the previous report.'),
+        'attachment': fields.char('Save as Attachment Prefix', size=128, help='This is the filename of the attachment used to store the printing result. Keep empty to not save the printed reports. You can use a python expression with the object and time variables.'),
+
+        # Deprecated rml stuff
+        'usage': fields.char('Action Usage', size=32),
+        'header': fields.boolean('Add RML Header', help="Add or not the corporate RML header"),
+        'parser': fields.char('Parser Class'),
         'auto': fields.boolean('Custom Python Parser'),
 
-        'header': fields.boolean('Add RML Header', help="Add or not the corporate RML header"),
+        'report_xsl': fields.char('XSL Path'),
+        'report_xml': fields.char('XML Path'),
 
-        'report_xsl': fields.char('XSL Path', size=256),
-        'report_xml': fields.char('XML Path', size=256, help=''),
-
-        # Pending deprecation... to be replaced by report_file as this object will become the default report object (not so specific to RML anymore)
-        'report_rml': fields.char('Main Report File Path', size=256, help="The path to the main report file (depending on Report Type) or NULL if the content is in another data field"),
-        # temporary related field as report_rml is pending deprecation - this field will replace report_rml after v6.0
-        'report_file': fields.related('report_rml', type="char", size=256, required=False, readonly=False, string='Report File', help="The path to the main report file (depending on Report Type) or NULL if the content is in another field", store=True),
+        'report_rml': fields.char('Main Report File Path/controller', help="The path to the main report file/controller (depending on Report Type) or NULL if the content is in another data field"),
+        'report_file': fields.related('report_rml', type="char", required=False, readonly=False, string='Report File', help="The path to the main report file (depending on Report Type) or NULL if the content is in another field", store=True),
 
         'report_sxw': fields.function(_report_sxw, type='char', string='SXW Path'),
         'report_sxw_content_data': fields.binary('SXW Content'),
         'report_rml_content_data': fields.binary('RML Content'),
         'report_sxw_content': fields.function(_report_content, fnct_inv=_report_content_inv, type='binary', string='SXW Content',),
         'report_rml_content': fields.function(_report_content, fnct_inv=_report_content_inv, type='binary', string='RML Content'),
-
-        'parser': fields.char('Parser Class'),
     }
     _defaults = {
         'type': 'ir.actions.report.xml',
@@ -552,6 +565,7 @@ class ir_actions_server(osv.osv):
 #  - uid: current user id
 #  - context: current context
 #  - time: Python time module
+#  - workflow: Workflow engine
 # If you plan to return an action, assign: action = {...}""",
         'use_relational_model': 'base',
         'use_create': 'new',
@@ -912,21 +926,22 @@ class ir_actions_server(osv.osv):
         if action.link_new_record and action.link_field_id:
             self.pool[action.model_id.model].write(cr, uid, [context.get('active_id')], {action.link_field_id.name: res_id})
 
-    def _eval_context_for_action(self, cr, uid, action, context=None):
-        if context is None:
-            context = {}
-        model = self.pool[action.model_id.model]
-        active_id = context.get('active_id')
-        active_ids = context.get('active_ids', [active_id] if active_id else [])
-        target_record = None
-        if context.get('active_model') == action.model_id.model and active_id:
-            context = dict(context, active_ids=active_ids, active_id=active_id)
-            target_record = model.browse(cr, uid, active_id, context=context) if active_id else None
-        user = self.pool['res.users'].browse(cr, uid, uid)
-        eval_context = {
-            'self': model,
-            'object': target_record,
-            'obj': target_record,
+    def _get_eval_context(self, cr, uid, action, context=None):
+        """ Prepare the context used when evaluating python code, like the
+        condition or code server actions.
+
+        :param action: the current server action
+        :type action: browse record
+        :returns: dict -- evaluation context given to (safe_)eval """
+        user = self.pool.get('res.users').browse(cr, uid, uid, context=context)
+        obj_pool = self.pool[action.model_id.model]
+        obj = None
+        if context.get('active_model') == action.model_id.model and context.get('active_id'):
+            obj = obj_pool.browse(cr, uid, context['active_id'], context=context)
+        return {
+            'self': obj_pool,
+            'object': obj,
+            'obj': obj,
             'pool': self.pool,
             'time': time,
             'datetime': datetime,
@@ -935,10 +950,9 @@ class ir_actions_server(osv.osv):
             'uid': uid,
             'user': user,
             'context': context,
+            'workflow': workflow,
             'Warning': openerp.exceptions.Warning,
         }
-        return eval_context
-
 
     def run(self, cr, uid, ids, context=None):
         """ Runs the server action. For each server action, the condition is
@@ -963,7 +977,7 @@ class ir_actions_server(osv.osv):
             context = {}
         res = False
         for action in self.browse(cr, uid, ids, context):
-            eval_context = self._eval_context_for_action(cr, uid, action, context)
+            eval_context = self._get_eval_context(cr, uid, action, context=context)
             condition = action.condition
             if condition is False:
                 # Void (aka False) conditions are considered as True
@@ -1042,6 +1056,18 @@ Launch Manually Once: after having been launched manually, it sets automatically
         'type': 'manual',
     }
     _order="sequence,id"
+
+    def name_get(self, cr, uid, ids, context=None):
+        return [(rec.id, rec.action_id.name) for rec in self.browse(cr, uid, ids, context=context)]
+
+    def name_search(self, cr, user, name, args=None, operator='ilike', context=None, limit=100):
+        if args is None:
+            args = []
+        if name:
+            ids = self.search(cr, user, [('action_id', operator, name)] + args, limit=limit)
+            return self.name_get(cr, user, ids, context=context)
+        return super(ir_actions_todo, self).name_search(cr, user, name, args=args, operator=operator, context=context, limit=limit)
+
 
     def action_launch(self, cr, uid, ids, context=None):
         """ Launch Action of Wizard"""

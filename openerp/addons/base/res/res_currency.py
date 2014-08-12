@@ -58,7 +58,8 @@ class res_currency(osv.osv):
             elif not raise_on_no_rate:
                 res[id] = 0
             else:
-                raise osv.except_osv(_('Error!'),_("No currency rate associated for currency %d for the given period" % (id)))
+                currency = self.browse(cr, uid, id, context=context)
+                raise osv.except_osv(_('Error!'),_("No currency rate associated for currency '%s' for the given period" % (currency.name)))
         return res
 
     _name = "res.currency"
@@ -234,16 +235,12 @@ class res_currency(osv.osv):
             else:
                 return from_amount * rate
 
-res_currency()
-
 class res_currency_rate_type(osv.osv):
     _name = "res.currency.rate.type"
     _description = "Currency Rate Type"
     _columns = {
         'name': fields.char('Name', size=64, required=True, translate=True),
     }
-
-res_currency_rate_type()
 
 class res_currency_rate(osv.osv):
     _name = "res.currency.rate"
@@ -259,8 +256,6 @@ class res_currency_rate(osv.osv):
         'name': lambda *a: time.strftime('%Y-%m-%d'),
     }
     _order = "name desc"
-
-res_currency_rate()
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
 

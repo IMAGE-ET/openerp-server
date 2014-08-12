@@ -7,14 +7,14 @@ msgstr ""
 "Project-Id-Version: OpenERP Server 5.0.4\n"
 "Report-Msgid-Bugs-To: support@openerp.com\n"
 "POT-Creation-Date: 2012-12-21 17:04+0000\n"
-"PO-Revision-Date: 2012-12-28 14:33+0000\n"
-"Last-Translator: Wei \"oldrev\" Li <oldrev@gmail.com>\n"
+"PO-Revision-Date: 2014-06-07 04:36+0000\n"
+"Last-Translator: Qian Jin <chian.jin@gmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-01-25 06:02+0000\n"
-"X-Generator: Launchpad (build 16914)\n"
+"X-Launchpad-Export-Date: 2014-06-08 05:31+0000\n"
+"X-Generator: Launchpad (build 17031)\n"
 
 #. module: base
 #: model:ir.module.module,description:base.module_account_check_writing
@@ -1386,7 +1386,7 @@ msgstr "韩国"
 #. module: base
 #: model:ir.module.module,description:base.module_l10n_si
 msgid "Kontni načrt za gospodarske družbe"
-msgstr ""
+msgstr "Kontni načrt za gospodarske družbe"
 
 #. module: base
 #: code:addons/orm.py:4920
@@ -3906,6 +3906,13 @@ msgid ""
 "easily\n"
 "keep track and order all your purchase orders.\n"
 msgstr ""
+"\n"
+"该模块用于管理采购申请。\n"
+"==================================\n"
+"\n"
+"采购订单生成时，可以保存相关申请。\n"
+"新项目将重组，使得跟踪很容易，并\n"
+"可统筹按照所有采购订单。\n"
 
 #. module: base
 #: help:ir.mail_server,smtp_host:0

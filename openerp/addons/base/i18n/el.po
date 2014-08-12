@@ -6,14 +6,14 @@ msgstr ""
 "Project-Id-Version: OpenERP Server 5.0.0\n"
 "Report-Msgid-Bugs-To: support@openerp.com\n"
 "POT-Creation-Date: 2012-12-21 17:04+0000\n"
-"PO-Revision-Date: 2012-08-20 15:34+0000\n"
+"PO-Revision-Date: 2014-06-27 12:32+0000\n"
 "Last-Translator: Dimitris Andavoglou <dimitrisand@gmail.com>\n"
 "Language-Team: nls@hellug.gr <nls@hellug.gr>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-01-25 05:54+0000\n"
-"X-Generator: Launchpad (build 16914)\n"
+"X-Launchpad-Export-Date: 2014-06-28 05:34+0000\n"
+"X-Generator: Launchpad (build 17077)\n"
 "X-Poedit-Country: GREECE\n"
 "X-Poedit-Language: Greek\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -26,6 +26,10 @@ msgid ""
 "================================================\n"
 "    "
 msgstr ""
+"\n"
+"Πρόσθετο για τον Δημιουργία και Εκτύπωση Επιταγών.\n"
+"================================================\n"
+"    "
 
 #. module: base
 #: model:res.country,name:base.sh
@@ -49,6 +53,9 @@ msgid ""
 "The second argument of the many2many field %s must be a SQL table !You used "
 "%s, which is not a valid SQL table name."
 msgstr ""
+"Το δεύτερο όρισμα, του \"πολλά προς πολλά\" πεδίου %s πρέπει να είναι  ένα "
+"\"SQL table\" ! Χρησιμοποιήσατε %s, το οποίο δεν είναι έγκυρο όνομα κάποιου "
+"SQL table."
 
 #. module: base
 #: field:ir.ui.view,arch:0
@@ -59,12 +66,12 @@ msgstr "Προβολή Δομής"
 #. module: base
 #: model:ir.module.module,summary:base.module_sale_stock
 msgid "Quotation, Sale Orders, Delivery & Invoicing Control"
-msgstr ""
+msgstr "Προσφορά, Εντολές παραγγελιών, Έλεγχος Παράδοσης & Τιμολόγησης"
 
 #. module: base
 #: selection:ir.sequence,implementation:0
 msgid "No gap"
-msgstr ""
+msgstr "Χωρίς κενό"
 
 #. module: base
 #: selection:base.language.install,lang:0
@@ -82,6 +89,8 @@ msgid ""
 "Helps you manage your projects and tasks by tracking them, generating "
 "plannings, etc..."
 msgstr ""
+"Βοηθά στην διαχείριση των έργων και εργασιών σας μέσω της παρακολούθησης, "
+"της παραγωγής σχεδιασμών, κλπ..."
 
 #. module: base
 #: model:ir.module.module,summary:base.module_point_of_sale
@@ -132,11 +141,14 @@ msgid ""
 "The module adds google user in res user.\n"
 "========================================\n"
 msgstr ""
+"\n"
+"Το πρόσθετο αυτό προσθέτει έναν χρήστη των υπηρεσιών της google στους "
+"χρήστες συστήματος.\n"
 
 #. module: base
 #: help:res.partner,employee:0
 msgid "Check this box if this contact is an Employee."
-msgstr ""
+msgstr "Τσεκάρετε το κουτί αν αυτή η επαφή αποτελεί εργαζόμενο"
 
 #. module: base
 #: help:ir.model.fields,domain:0
@@ -228,7 +240,7 @@ msgstr "Swaziland"
 #: code:addons/orm.py:4485
 #, python-format
 msgid "created."
-msgstr ""
+msgstr "δημιουργήθηκε."
 
 #. module: base
 #: field:ir.actions.report.xml,report_xsl:0
@@ -238,7 +250,7 @@ msgstr ""
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_l10n_tr
 msgid "Turkey - Accounting"
-msgstr ""
+msgstr "Τουρκία - Λογιστική"
 
 #. module: base
 #: field:ir.sequence,number_increment:0
@@ -275,7 +287,7 @@ msgstr ""
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_sale
 msgid "Sales Management"
-msgstr ""
+msgstr "Διαχείριση Πωλήσεων"
 
 #. module: base
 #: help:res.partner,user_id:0
@@ -353,7 +365,7 @@ msgstr ""
 #. module: base
 #: model:ir.module.category,name:base.module_category_customer_relationship_management
 msgid "Customer Relationship Management"
-msgstr ""
+msgstr "Διαχείριση Πελατειακών Σχέσεων (CRM)"
 
 #. module: base
 #: model:ir.module.module,description:base.module_delivery
@@ -537,7 +549,7 @@ msgstr ""
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_idea
 msgid "Ideas"
-msgstr ""
+msgstr "Ιδέες"
 
 #. module: base
 #: model:ir.module.module,description:base.module_event
@@ -655,7 +667,7 @@ msgstr "Αμετάφραστο"
 #. module: base
 #: view:ir.mail_server:0
 msgid "Outgoing Mail Server"
-msgstr ""
+msgstr "Διακομιστής Εξερχόμενης Αλληλογραφίας"
 
 #. module: base
 #: help:ir.actions.act_window,context:0
@@ -669,7 +681,7 @@ msgstr ""
 #. module: base
 #: field:res.company,logo_web:0
 msgid "Logo Web"
-msgstr ""
+msgstr "Λογότυπο Web"
 
 #. module: base
 #: code:addons/base/ir/ir_model.py:344
@@ -695,7 +707,7 @@ msgstr "Το κλειδί πρέπει να είναι μοναδικό."
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_plugin_outlook
 msgid "Outlook Plug-In"
-msgstr ""
+msgstr "Πρόσθετο Outlook"
 
 #. module: base
 #: model:ir.module.module,description:base.module_account
@@ -797,7 +809,7 @@ msgstr "Eritrea"
 #. module: base
 #: sql_constraint:res.company:0
 msgid "The company name must be unique !"
-msgstr ""
+msgstr "Η επωνυμία της επιχείρησης πρέπει να είναι μοναδικό"
 
 #. module: base
 #: model:ir.ui.menu,name:base.menu_base_action_rule_admin
@@ -807,7 +819,7 @@ msgstr "Αυτοματοποιημένες ενέργειες"
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_l10n_ro
 msgid "Romania - Accounting"
-msgstr ""
+msgstr "Ρουμανία - Λογιστική"
 
 #. module: base
 #: model:ir.model,name:base.model_res_config_settings
@@ -836,12 +848,12 @@ msgstr ""
 #. module: base
 #: view:ir.mail_server:0
 msgid "Security and Authentication"
-msgstr ""
+msgstr "Ασφάλεια και Πιστοποίηση"
 
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_web_calendar
 msgid "Web Calendar"
-msgstr ""
+msgstr "Ημερολόγιο Web"
 
 #. module: base
 #: selection:base.language.install,lang:0
@@ -852,7 +864,7 @@ msgstr "Swedish / svenska"
 #: field:base.language.export,name:0
 #: field:ir.attachment,datas_fname:0
 msgid "File Name"
-msgstr ""
+msgstr "Όνομα Αρχείου"
 
 #. module: base
 #: model:res.country,name:base.rs
@@ -873,7 +885,7 @@ msgstr "Cambodia, Kingdom of (Καμπότζη)"
 #: field:base.language.import,overwrite:0
 #: field:base.language.install,overwrite:0
 msgid "Overwrite Existing Terms"
-msgstr ""
+msgstr "Διαγραφή όρων που υπάρχουν"
 
 #. module: base
 #: model:ir.module.module,description:base.module_hr_holidays
@@ -937,7 +949,7 @@ msgstr ""
 #. module: base
 #: view:res.users:0
 msgid "Email Preferences"
-msgstr ""
+msgstr "Προτιμήσεις Email"
 
 #. module: base
 #: code:addons/base/ir/ir_fields.py:195
@@ -1024,7 +1036,7 @@ msgstr "Niue"
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_membership
 msgid "Membership Management"
-msgstr ""
+msgstr "Διαχείριση Μελών"
 
 #. module: base
 #: selection:ir.module.module,license:0
@@ -1056,12 +1068,12 @@ msgstr "Αίτημα τύπων αναφοράς"
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_google_base_account
 msgid "Google Users"
-msgstr ""
+msgstr "Χρήστες Google"
 
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_fleet
 msgid "Fleet Management"
-msgstr ""
+msgstr "Διαχείριση στόλου οχημάτων"
 
 #. module: base
 #: help:ir.server.object.lines,value:0
@@ -1238,7 +1250,7 @@ msgstr "Το όνομα χώρας πρέπει να είναι μοναδικό
 #. module: base
 #: field:ir.module.module,installed_version:0
 msgid "Latest Version"
-msgstr ""
+msgstr "Τελευταία Έκδοση"
 
 #. module: base
 #: view:ir.rule:0
@@ -1306,7 +1318,7 @@ msgstr "Χαρακτήρας"
 #. module: base
 #: field:ir.module.category,visible:0
 msgid "Visible"
-msgstr ""
+msgstr "Ορατό"
 
 #. module: base
 #: model:ir.actions.client,name:base.action_client_base_menu
@@ -1434,7 +1446,7 @@ msgstr "Haiti"
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_l10n_fr_hr_payroll
 msgid "French Payroll"
-msgstr ""
+msgstr "Μισθοδοσία Γαλλίας"
 
 #. module: base
 #: view:ir.ui.view:0
@@ -1473,7 +1485,7 @@ msgstr ""
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_document
 msgid "Document Management System"
-msgstr ""
+msgstr "Σύστημα Διαχείρισης Εγγράφων"
 
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_crm_claim
@@ -1614,7 +1626,7 @@ msgstr "Δεν υπάρχει γλώσσα με κωδικό \"%s\""
 #: model:ir.module.category,name:base.module_category_social_network
 #: model:ir.module.module,shortdesc:base.module_mail
 msgid "Social Network"
-msgstr ""
+msgstr "Κοινωνικό Δίκτυο"
 
 #. module: base
 #: view:res.lang:0
@@ -1629,7 +1641,7 @@ msgstr ""
 #. module: base
 #: field:ir.translation,comments:0
 msgid "Translation comments"
-msgstr ""
+msgstr "Σχόλια μετάφρασης"
 
 #. module: base
 #: model:ir.module.module,description:base.module_lunch
@@ -1780,7 +1792,7 @@ msgstr ""
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_stock
 msgid "Warehouse Management"
-msgstr ""
+msgstr "Διαχείριση Αποθήκης"
 
 #. module: base
 #: model:ir.model,name:base.model_res_request_link
@@ -1808,7 +1820,7 @@ msgstr "Server Actions"
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_l10n_lu
 msgid "Luxembourg - Accounting"
-msgstr ""
+msgstr "Λουξεμβούργο - Λογιστική"
 
 #. module: base
 #: model:res.country,name:base.tp
@@ -1820,7 +1832,7 @@ msgstr "East Timor"
 #: view:ir.module.module:0
 #, python-format
 msgid "Install"
-msgstr ""
+msgstr "Εγκατάσταση"
 
 #. module: base
 #: field:res.currency,accuracy:0
@@ -2001,7 +2013,7 @@ msgstr ""
 #. module: base
 #: field:res.partner.bank,footer:0
 msgid "Display on Reports"
-msgstr ""
+msgstr "Προβολή στις Εκτυπώσεις"
 
 #. module: base
 #: model:ir.module.module,description:base.module_project_timesheet
@@ -2149,7 +2161,7 @@ msgstr ""
 #: model:ir.ui.menu,name:base.menu_administration
 #: model:res.groups,name:base.group_system
 msgid "Settings"
-msgstr ""
+msgstr "Ρυθμίσεις"
 
 #. module: base
 #: selection:ir.actions.act_window,view_type:0
@@ -2204,7 +2216,7 @@ msgstr "Λογότυπο"
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_l10n_cr
 msgid "Costa Rica - Accounting"
-msgstr ""
+msgstr "Κόστα Ρίκα - Λογιστική"
 
 #. module: base
 #: selection:ir.actions.act_url,target:0
@@ -2235,7 +2247,7 @@ msgstr ""
 #. module: base
 #: model:ir.module.category,name:base.module_category_tools
 msgid "Extra Tools"
-msgstr ""
+msgstr "Επιπλέον Εργαλεία"
 
 #. module: base
 #: view:ir.attachment:0
@@ -2843,7 +2855,7 @@ msgstr ""
 #: code:addons/base/ir/ir_model.py:726
 #, python-format
 msgid "Sorry, you are not allowed to access this document."
-msgstr ""
+msgstr "Συγνώμη , δεν επιτρέπεται η πρόσβαση σε αυτό το έγγραφο"
 
 #. module: base
 #: model:res.country,name:base.py
@@ -2929,7 +2941,7 @@ msgstr ""
 #: code:addons/base/ir/ir_fields.py:146
 #, python-format
 msgid "yes"
-msgstr ""
+msgstr "ναι"
 
 #. module: base
 #: field:ir.model.fields,serialization_field_id:0
@@ -3149,7 +3161,7 @@ msgstr ""
 #: view:res.users:0
 #, python-format
 msgid "Application"
-msgstr ""
+msgstr "Εφαρμογή"
 
 #. module: base
 #: model:res.groups,comment:base.group_hr_manager
@@ -3463,7 +3475,7 @@ msgstr ""
 #: model:ir.module.module,shortdesc:base.module_survey
 #: model:ir.ui.menu,name:base.next_id_10
 msgid "Survey"
-msgstr ""
+msgstr "Έρευνα"
 
 #. module: base
 #: selection:base.language.install,lang:0
@@ -3478,7 +3490,7 @@ msgstr "workflow.activity"
 #. module: base
 #: view:base.language.export:0
 msgid "Export Complete"
-msgstr ""
+msgstr "Η Εξαγωγή Ολοκληρώθηκε"
 
 #. module: base
 #: help:ir.ui.view_sc,res_id:0
@@ -3505,7 +3517,7 @@ msgstr "Φιλανδικά / Suomi"
 #. module: base
 #: view:ir.config_parameter:0
 msgid "System Properties"
-msgstr ""
+msgstr "Ιδιότητες Συστήματος"
 
 #. module: base
 #: field:ir.sequence,prefix:0
@@ -3697,7 +3709,7 @@ msgstr "Mayotte"
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_crm_todo
 msgid "Tasks on CRM"
-msgstr ""
+msgstr "Εργασίες στο CRM"
 
 #. module: base
 #: help:ir.model.fields,relation_field:0
@@ -3986,7 +3998,7 @@ msgstr ""
 #. module: base
 #: model:res.country,name:base.sk
 msgid "Slovakia"
-msgstr ""
+msgstr "Slobak;ia"
 
 #. module: base
 #: model:res.country,name:base.nr
@@ -4245,7 +4257,7 @@ msgstr "Xor"
 #. module: base
 #: model:ir.module.category,name:base.module_category_localization_account_charts
 msgid "Account Charts"
-msgstr ""
+msgstr "Λογιστικά Σχέδια"
 
 #. module: base
 #: model:ir.ui.menu,name:base.menu_event_main
@@ -4443,7 +4455,7 @@ msgstr ""
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_knowledge
 msgid "Knowledge Management System"
-msgstr ""
+msgstr "Σύστημα Διαχείρησης Γνώσης"
 
 #. module: base
 #: view:workflow.activity:0
@@ -4539,12 +4551,12 @@ msgstr "Ινδικά / हिंदी"
 #: model:ir.actions.act_window,name:base.action_view_base_language_install
 #: model:ir.ui.menu,name:base.menu_view_base_language_install
 msgid "Load a Translation"
-msgstr ""
+msgstr "Φόρτωμα Μετάφρασης"
 
 #. module: base
 #: field:ir.module.module,latest_version:0
 msgid "Installed Version"
-msgstr ""
+msgstr "Εγκατεστημένη Έκδοση"
 
 #. module: base
 #: model:ir.module.module,description:base.module_account_test
@@ -4915,7 +4927,7 @@ msgstr ""
 #. module: base
 #: model:res.partner.category,name:base.res_partner_category_7
 msgid "IT Services"
-msgstr ""
+msgstr "Υπηρεσίες Πληροφορικής"
 
 #. module: base
 #: model:ir.module.category,name:base.module_category_specific_industry_applications
@@ -5059,7 +5071,7 @@ msgstr "Set NULL"
 #. module: base
 #: view:res.users:0
 msgid "Save"
-msgstr ""
+msgstr "Αποθήκευση"
 
 #. module: base
 #: field:ir.actions.report.xml,report_xml:0
@@ -5734,7 +5746,7 @@ msgstr ""
 #: model:ir.module.category,name:base.module_category_generic_modules_accounting
 #: view:res.company:0
 msgid "Accounting"
-msgstr ""
+msgstr "Logistik;h"
 
 #. module: base
 #: model:ir.module.module,description:base.module_base_vat
@@ -5831,7 +5843,7 @@ msgstr ""
 #. module: base
 #: view:ir.translation:0
 msgid "Comments"
-msgstr ""
+msgstr "Σχόλια"
 
 #. module: base
 #: model:res.country,name:base.et
@@ -5885,7 +5897,7 @@ msgstr "Εγκατάσταση γλώσσας"
 #. module: base
 #: model:res.partner.category,name:base.res_partner_category_11
 msgid "Services"
-msgstr ""
+msgstr "Υπηρεσίες"
 
 #. module: base
 #: view:ir.translation:0
@@ -5910,7 +5922,7 @@ msgstr "On delete property for many2one fields"
 #. module: base
 #: model:ir.module.category,name:base.module_category_accounting_and_finance
 msgid "Accounting & Finance"
-msgstr ""
+msgstr "Λογιστική και Οικονομικά"
 
 #. module: base
 #: field:ir.actions.server,write_id:0
@@ -6063,7 +6075,7 @@ msgstr "Το όνομα της ομάδας δεν μπορεί να ξεκιν�
 #: view:ir.module.module:0
 #: model:ir.ui.menu,name:base.module_mi
 msgid "Apps"
-msgstr ""
+msgstr "Εφαρμογές"
 
 #. module: base
 #: view:ir.ui.view_sc:0
@@ -6118,12 +6130,12 @@ msgstr ""
 #. module: base
 #: view:res.partner:0
 msgid "Phone:"
-msgstr ""
+msgstr "Τηλέφωνο:"
 
 #. module: base
 #: field:res.partner,is_company:0
 msgid "Is a Company"
-msgstr ""
+msgstr "Είναι Εταιρία"
 
 #. module: base
 #: selection:ir.cron,interval_type:0
@@ -6180,7 +6192,7 @@ msgstr ""
 #. module: base
 #: view:res.partner.bank:0
 msgid "My Banks"
-msgstr ""
+msgstr "Οι τράπεζές μου"
 
 #. module: base
 #: sql_constraint:ir.filters:0
@@ -6200,7 +6212,7 @@ msgstr ""
 #. module: base
 #: field:ir.filters,is_default:0
 msgid "Default filter"
-msgstr ""
+msgstr "Προεπιλεγμένο φίλτρο"
 
 #. module: base
 #: report:ir.module.reference:0
@@ -6334,7 +6346,7 @@ msgstr ""
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_account_cancel
 msgid "Cancel Journal Entries"
-msgstr ""
+msgstr "Εκύρωση Εγγραφών Λογιστικής"
 
 #. module: base
 #: field:res.partner,tz_offset:0
@@ -6480,7 +6492,7 @@ msgstr ""
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_account_budget
 msgid "Budgets Management"
-msgstr ""
+msgstr "Διαχείριση Προϋπολογισμού"
 
 #. module: base
 #: field:workflow.triggers,workitem_id:0
@@ -6735,7 +6747,7 @@ msgstr ""
 #. module: base
 #: model:res.groups,name:base.group_partner_manager
 msgid "Contact Creation"
-msgstr ""
+msgstr "Δημιουργία Επαφής"
 
 #. module: base
 #: view:ir.module.module:0
@@ -7273,12 +7285,12 @@ msgstr ""
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_account_accountant
 msgid "Accounting and Finance"
-msgstr ""
+msgstr "Λογιστική και Οικονομικά"
 
 #. module: base
 #: view:ir.module.module:0
 msgid "Upgrade"
-msgstr ""
+msgstr "Αναβάθμιση"
 
 #. module: base
 #: model:ir.module.module,description:base.module_base_action_rule
@@ -7417,7 +7429,7 @@ msgstr ""
 #. module: base
 #: model:res.partner.category,name:base.res_partner_category_14
 msgid "Manufacturer"
-msgstr ""
+msgstr "Κατασκευαστής"
 
 #. module: base
 #: help:res.users,company_id:0
@@ -7603,7 +7615,7 @@ msgstr ""
 #: model:ir.module.category,name:base.module_category_localization_payroll
 #: model:ir.module.module,shortdesc:base.module_hr_payroll
 msgid "Payroll"
-msgstr ""
+msgstr "Μισθοδοσία"
 
 #. module: base
 #: model:ir.actions.act_window,help:base.action_country_state
@@ -9088,12 +9100,12 @@ msgstr ""
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_mrp_repair
 msgid "Repairs Management"
-msgstr ""
+msgstr "Διαχείριση Επισκευών"
 
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_account_asset
 msgid "Assets Management"
-msgstr ""
+msgstr "Διαχείριση Παγίων"
 
 #. module: base
 #: view:ir.model.access:0
@@ -9141,7 +9153,7 @@ msgstr ""
 #. module: base
 #: model:ir.module.category,name:base.module_category_warehouse_management
 msgid "Warehouse"
-msgstr ""
+msgstr "Αποθήκη"
 
 #. module: base
 #: field:ir.exports,resource:0
@@ -9327,7 +9339,7 @@ msgstr "Παρ. Συνεργάτη"
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_hr_expense
 msgid "Expense Management"
-msgstr ""
+msgstr "Διαχείριση Εξόδων"
 
 #. module: base
 #: field:ir.attachment,create_date:0
@@ -9393,7 +9405,7 @@ msgstr ""
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_plugin
 msgid "CRM Plugins"
-msgstr ""
+msgstr "Πρόσθετα CRM"
 
 #. module: base
 #: model:ir.actions.act_window,name:base.action_model_model
@@ -9642,7 +9654,7 @@ msgstr ""
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_purchase
 msgid "Purchase Management"
-msgstr ""
+msgstr "Διαχείριση Αγορών"
 
 #. module: base
 #: field:ir.module.module,published_version:0
@@ -9798,7 +9810,7 @@ msgstr ""
 #. module: base
 #: field:base.language.import,name:0
 msgid "Language Name"
-msgstr ""
+msgstr "Όνομα Γλώσσας"
 
 #. module: base
 #: selection:ir.property,type:0
@@ -10790,7 +10802,7 @@ msgstr ""
 #. module: base
 #: view:res.partner:0
 msgid "Mobile:"
-msgstr ""
+msgstr "Κινητό:"
 
 #. module: base
 #: code:addons/base/res/res_bank.py:195
@@ -11141,7 +11153,7 @@ msgstr ""
 #. module: base
 #: view:ir.filters:0
 msgid "Shared"
-msgstr ""
+msgstr "Κοινόχρηστο"
 
 #. module: base
 #: code:addons/base/module/module.py:357
@@ -11298,7 +11310,7 @@ msgstr ""
 #. module: base
 #: field:res.users,partner_id:0
 msgid "Related Partner"
-msgstr ""
+msgstr "Σχετικός Συνεργάτης"
 
 #. module: base
 #: code:addons/osv.py:172
@@ -11487,7 +11499,7 @@ msgstr ""
 #. module: base
 #: selection:res.company,paper_format:0
 msgid "A4"
-msgstr ""
+msgstr "Α4"
 
 #. module: base
 #: view:res.config.installer:0
@@ -12005,7 +12017,7 @@ msgstr ""
 #. module: base
 #: model:res.partner.title,name:base.res_partner_title_prof
 msgid "Professor"
-msgstr ""
+msgstr "Καθηγητής"
 
 #. module: base
 #: model:res.country,name:base.hm
@@ -12049,7 +12061,7 @@ msgstr "Επιλογή"
 #: model:ir.actions.act_window,name:base.change_password_wizard_action
 #: view:res.users:0
 msgid "Change Password"
-msgstr ""
+msgstr "Αλλαγή Κωδικού Πρόσβασης"
 
 #. module: base
 #: model:ir.module.module,description:base.module_l10n_es
@@ -12115,7 +12127,7 @@ msgstr ""
 #. module: base
 #: model:res.partner.title,name:base.res_partner_title_doctor
 msgid "Doctor"
-msgstr ""
+msgstr "Γιατρός"
 
 #. module: base
 #: model:ir.module.module,description:base.module_mrp_repair
@@ -12184,7 +12196,7 @@ msgstr "Νομίσματα"
 #. module: base
 #: model:res.partner.category,name:base.res_partner_category_8
 msgid "Consultancy Services"
-msgstr ""
+msgstr "Υπηρεσίες Συμβούλων Επιχειρήσεων"
 
 #. module: base
 #: help:ir.values,value:0
@@ -12299,7 +12311,7 @@ msgstr ""
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_hr_payroll_account
 msgid "Payroll Accounting"
-msgstr ""
+msgstr "Λογιστική Μισθοδοσίας"
 
 #. module: base
 #: view:res.users:0
@@ -12319,7 +12331,7 @@ msgstr ""
 #. module: base
 #: view:ir.attachment:0
 msgid "Creation Month"
-msgstr ""
+msgstr "Μήνας Δημιουργίας"
 
 #. module: base
 #: field:ir.module.module,demo:0
@@ -12470,7 +12482,7 @@ msgstr "Αριθμός Κλήσεων"
 #: code:addons/base/res/res_bank.py:192
 #, python-format
 msgid "BANK"
-msgstr ""
+msgstr "ΤΡΑΠΕΖΑ"
 
 #. module: base
 #: model:ir.module.category,name:base.module_category_point_of_sale
@@ -12556,7 +12568,7 @@ msgstr ""
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_l10n_gr
 msgid "Greece - Accounting"
-msgstr ""
+msgstr "Ελλάδα - Λογιστική"
 
 #. module: base
 #: sql_constraint:res.country:0
@@ -12934,7 +12946,7 @@ msgstr "Western Sahara"
 #. module: base
 #: model:ir.module.category,name:base.module_category_account_voucher
 msgid "Invoicing & Payments"
-msgstr ""
+msgstr "Τιμολόγηση & Πληρωμές"
 
 #. module: base
 #: model:ir.actions.act_window,help:base.action_res_company_form
@@ -13076,7 +13088,7 @@ msgstr "άγνωστο"
 #. module: base
 #: field:res.currency,symbol:0
 msgid "Symbol"
-msgstr ""
+msgstr "Σύμβολο"
 
 #. module: base
 #: help:res.partner,image_medium:0
@@ -13095,7 +13107,7 @@ msgstr "Συγχρονισμός Μετάφρασης"
 #: view:res.partner.bank:0
 #: field:res.partner.bank,bank_name:0
 msgid "Bank Name"
-msgstr ""
+msgstr "Όνομα Τράπεζας"
 
 #. module: base
 #: model:res.country,name:base.ki
@@ -13192,7 +13204,7 @@ msgstr "Dependencies :"
 #. module: base
 #: field:res.company,vat:0
 msgid "Tax ID"
-msgstr ""
+msgstr "Α.Φ.Μ."
 
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_account_bank_statement_extensions
@@ -13355,7 +13367,7 @@ msgstr ""
 #. module: base
 #: view:res.partner:0
 msgid "Fax:"
-msgstr ""
+msgstr "Φαξ:"
 
 #. module: base
 #: selection:ir.ui.view,type:0
@@ -13802,7 +13814,7 @@ msgstr ""
 #. module: base
 #: field:ir.attachment,db_datas:0
 msgid "Database Data"
-msgstr ""
+msgstr "Δεδομένα Βάσης"
 
 #. module: base
 #: model:res.country,name:base.tc
@@ -13874,7 +13886,7 @@ msgstr "Luxembourg"
 #. module: base
 #: model:ir.module.module,summary:base.module_base_calendar
 msgid "Personal & Shared Calendar"
-msgstr ""
+msgstr "Προσωπικό και Κοινόχρηστο Ημερολόγιο"
 
 #. module: base
 #: selection:res.request,priority:0
@@ -13988,7 +14000,7 @@ msgstr ""
 #. module: base
 #: model:ir.module.module,summary:base.module_account_voucher
 msgid "Send Invoices and Track Payments"
-msgstr ""
+msgstr "Αποσοτή Τιμολογίων και Παρακολούθηση Πληρωμών"
 
 #. module: base
 #: model:ir.ui.menu,name:base.menu_crm_config_lead
@@ -14260,7 +14272,7 @@ msgstr "Εφαρμογή Προγραμματισμένων Ενημερώσεω
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_sale_journal
 msgid "Invoicing Journals"
-msgstr ""
+msgstr "Ημερολόγια Τιμολόγιων"
 
 #. module: base
 #: help:ir.ui.view,groups_id:0
@@ -14450,7 +14462,7 @@ msgstr "Bahrain"
 #: field:res.partner,fax:0
 #, python-format
 msgid "Fax"
-msgstr "Fax"
+msgstr "Φαξ"
 
 #. module: base
 #: view:ir.attachment:0
@@ -15019,7 +15031,7 @@ msgstr "Συνθήκη"
 #: model:ir.actions.client,name:base.modules_updates_act_cl
 #: model:ir.ui.menu,name:base.menu_module_updates
 msgid "Updates"
-msgstr ""
+msgstr "Αναβαθμίσεις"
 
 #. module: base
 #: help:res.currency,rate:0
@@ -15293,7 +15305,7 @@ msgstr ""
 #. module: base
 #: view:res.partner:0
 msgid "Internal Notes"
-msgstr ""
+msgstr "Εσωτερικές Σημειώσεις"
 
 #. module: base
 #: model:res.partner.title,name:base.res_partner_title_pvt_ltd

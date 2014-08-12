@@ -22,6 +22,7 @@
             <field name="model">res.country</field>
             <field name="arch" type="xml">
                 <form string="Country" version="7.0">
+                    <field name="image" widget="image" class="oe_avatar"/>
                     <group>
                         <group>
                             <field name="name"/>
@@ -31,6 +32,7 @@
                             <field name="code"/>
                         </group>
                     </group>
+                    <label for="address_format"/>
                     <field name="address_format" groups="base.group_no_one" placeholder="Address format..."/>
                 </form>
             </field>

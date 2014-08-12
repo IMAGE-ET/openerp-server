@@ -68,6 +68,18 @@ class view_custom(osv.osv):
         'arch': fields.text('View Architecture', required=True),
     }
 
+    def name_get(self, cr, uid, ids, context=None):
+        return [(rec.id, rec.user_id.name) for rec in self.browse(cr, uid, ids, context=context)]
+
+    def name_search(self, cr, user, name, args=None, operator='ilike', context=None, limit=100):
+        if args is None:
+            args = []
+        if name:
+            ids = self.search(cr, user, [('user_id', operator, name)] + args, limit=limit)
+            return self.name_get(cr, user, ids, context=context)
+        return super(view_custom, self).name_search(cr, user, name, args=args, operator=operator, context=context, limit=limit)
+
+
     def _auto_init(self, cr, context=None):
         super(view_custom, self)._auto_init(cr, context)
         cr.execute('SELECT indexname FROM pg_indexes WHERE indexname = \'ir_ui_view_custom_user_id_ref_id\'')
@@ -117,6 +129,8 @@ class view(osv.osv):
         'groups_id': fields.many2many('res.groups', 'ir_ui_view_group_rel', 'view_id', 'group_id',
             string='Groups', help="If this field is empty, the view applies to all users. Otherwise, the view applies to the users of those groups only."),
         'model_ids': fields.one2many('ir.model.data', 'res_id', domain=[('model','=','ir.ui.view')], auto_join=True),
+        'create_date': fields.datetime('Create Date', readonly=True),
+        'write_date': fields.datetime('Last Modification Date', readonly=True),
     }
     _defaults = {
         'priority': 16,
@@ -204,13 +218,6 @@ class view(osv.osv):
 
         self.read_template.clear_cache(self)
         ret = super(view, self).write(cr, uid, ids, vals, context)
-
-        # if arch is modified views become noupdatable
-        if 'arch' in vals and not context.get('install_mode', False):
-            # TODO: should be doable in a read and a write
-            for view_ in self.browse(cr, uid, ids, context=context):
-                if view_.model_data_id:
-                    self.pool.get('ir.model.data').write(cr, openerp.SUPERUSER_ID, view_.model_data_id.id, {'noupdate': True})
         return ret
 
     def copy(self, cr, uid, id, default=None, context=None):
@@ -702,6 +709,16 @@ class view(osv.osv):
             for action, operation in (('create', 'create'), ('delete', 'unlink'), ('edit', 'write')):
                 if not node.get(action) and not Model.check_access_rights(cr, user, operation, raise_exception=False):
                     node.set(action, 'false')
+        if node.tag in ('kanban'):
+            group_by_field = node.get('default_group_by')
+            if group_by_field and Model._all_columns.get(group_by_field):
+                group_by_column = Model._all_columns[group_by_field].column
+                if group_by_column._type == 'many2one':
+                    group_by_model = Model.pool.get(group_by_column._obj)
+                    for action, operation in (('group_create', 'create'), ('group_delete', 'unlink'), ('group_edit', 'write')):
+                        if not node.get(action) and not group_by_model.check_access_rights(cr, user, operation, raise_exception=False):
+                            node.set(action, 'false')
+
         arch = etree.tostring(node, encoding="utf-8").replace('\t', '')
         for k in fields.keys():
             if k not in fields_def:
@@ -723,10 +740,13 @@ class view(osv.osv):
     #------------------------------------------------------
     @tools.ormcache_context(accepted_keys=('lang','inherit_branding', 'editable', 'translatable'))
     def read_template(self, cr, uid, xml_id, context=None):
-        if '.' not in xml_id:
-            raise ValueError('Invalid template id: %r' % (xml_id,))
+        if isinstance(xml_id, (int, long)):
+            view_id = xml_id
+        else:
+            if '.' not in xml_id:
+                raise ValueError('Invalid template id: %r' % (xml_id,))
+            view_id = self.pool['ir.model.data'].xmlid_to_res_id(cr, uid, xml_id, raise_if_not_found=True)
 
-        view_id = self.pool['ir.model.data'].xmlid_to_res_id(cr, uid, xml_id, raise_if_not_found=True)
         arch = self.read_combined(cr, uid, view_id, fields=['arch'], context=context)['arch']
         arch_tree = etree.fromstring(arch)
 
@@ -851,9 +871,6 @@ class view(osv.osv):
     def render(self, cr, uid, id_or_xml_id, values=None, engine='ir.qweb', context=None):
         if isinstance(id_or_xml_id, list):
             id_or_xml_id = id_or_xml_id[0]
-        tname = id_or_xml_id
-        if isinstance(tname, (int, long)):
-            tname = self.get_view_xmlid(cr, uid, tname)
 
         if not context:
             context = {}
@@ -862,7 +879,8 @@ class view(osv.osv):
             values = dict()
         qcontext = dict(
             keep_query=keep_query,
-            request=request,
+            request=request, # might be unbound if we're not in an httprequest context
+            debug=request.debug if request else False,
             json=simplejson,
             quote_plus=werkzeug.url_quote_plus,
             time=time,
@@ -871,10 +889,15 @@ class view(osv.osv):
         )
         qcontext.update(values)
 
+        # TODO: remove this as soon as the following branch is merged
+        #       lp:~openerp-dev/openerp-web/trunk-module-closure-style-msh
+        from openerp.addons.web.controllers.main import module_boot
+        qcontext['modules'] = simplejson.dumps(module_boot()) if request else None
+
         def loader(name):
             return self.read_template(cr, uid, name, context=context)
 
-        return self.pool[engine].render(cr, uid, tname, qcontext, loader=loader, context=context)
+        return self.pool[engine].render(cr, uid, id_or_xml_id, qcontext, loader=loader, context=context)
 
     #------------------------------------------------------
     # Misc
@@ -961,5 +984,30 @@ class view(osv.osv):
 
         ids = map(itemgetter(0), cr.fetchall())
         return self._check_xml(cr, uid, ids)
+
+    def _validate_module_views(self, cr, uid, module):
+        """Validate architecture of all the views of a given module"""
+        assert not self.pool._init or module in self.pool._init_modules
+        xmlid_filter = ''
+        params = (module,)
+        if self.pool._init:
+            # only validate the views that are still existing...
+            xmlid_filter = "AND md.name IN %s"
+            names = tuple(name for (xmod, name), (model, res_id) in self.pool.model_data_reference_ids.items() if xmod == module and model == self._name)
+            if not names:
+                # no views for this module, nothing to validate
+                return
+            params += (names,)
+        cr.execute("""SELECT max(v.id)
+                        FROM ir_ui_view v
+                   LEFT JOIN ir_model_data md ON (md.model = 'ir.ui.view' AND md.res_id = v.id)
+                       WHERE md.module = %s
+                         {0}
+                    GROUP BY coalesce(v.inherit_id, v.id)
+                   """.format(xmlid_filter), params)
+
+        for vid, in cr.fetchall():
+            if not self._check_xml(cr, uid, [vid]):
+                self.raise_view_error(cr, uid, "Can't validate view", vid)
 
 # vim:et:

@@ -73,7 +73,7 @@ def report_configuration():
     """
     config = openerp.tools.config
     _logger.info("OpenERP version %s", __version__)
-    for name, value in [('addons paths', config['addons_path']),
+    for name, value in [('addons paths', openerp.modules.module.ad_paths),
                         ('database hostname', config['db_host'] or 'localhost'),
                         ('database port', config['db_port'] or '5432'),
                         ('database user', config['db_user'])]:
@@ -81,8 +81,11 @@ def report_configuration():
 
 def rm_pid_file():
     config = openerp.tools.config
-    if not openerp.evented and os.path.exists(config['pidfile']):
-        os.unlink(config['pidfile'])
+    if not openerp.evented and config['pidfile']:
+        try:
+            os.unlink(config['pidfile'])
+        except OSError:
+            pass
 
 def setup_pid_file():
     """ Create a file with the process id written in it.
@@ -96,35 +99,6 @@ def setup_pid_file():
             fd.write(pidtext)
         atexit.register(rm_pid_file)
 
-def preload_registry(dbname):
-    """ Preload a registry, and start the cron."""
-    try:
-        update_module = True if openerp.tools.config['init'] or openerp.tools.config['update'] else False
-        registry = openerp.modules.registry.RegistryManager.new(dbname, update_module=update_module)
-    except Exception:
-        _logger.exception('Failed to initialize database `%s`.', dbname)
-        return False
-    return registry._assertion_report.failures == 0
-
-def run_test_file(dbname, test_file):
-    """ Preload a registry, possibly run a test file, and start the cron."""
-    try:
-        config = openerp.tools.config
-        registry = openerp.modules.registry.RegistryManager.new(dbname, update_module=config['init'] or config['update'])
-        cr = registry.db.cursor()
-        _logger.info('loading test file %s', test_file)
-        openerp.tools.convert_yaml_import(cr, 'base', file(test_file), 'test', {}, 'init')
-
-        if config['test_commit']:
-            _logger.info('test %s has been commited', test_file)
-            cr.commit()
-        else:
-            _logger.info('test %s has been rollbacked', test_file)
-            cr.rollback()
-
-        cr.close()
-    except Exception:
-        _logger.exception('Failed to initialize database `%s` and run test file `%s`.', dbname, test_file)
 
 def export_translation():
     config = openerp.tools.config
@@ -140,7 +114,7 @@ def export_translation():
     fileformat = os.path.splitext(config["translate_out"])[-1][1:].lower()
     buf = file(config["translate_out"], "w")
     registry = openerp.modules.registry.RegistryManager.new(dbname)
-    cr = registry.db.cursor()
+    cr = registry.cursor()
     openerp.tools.trans_export(config["language"],
         config["translate_modules"] or ["all"], buf, fileformat, cr)
     cr.close()
@@ -154,7 +128,7 @@ def import_translation():
     dbname = config['db_name']
 
     registry = openerp.modules.registry.RegistryManager.new(dbname)
-    cr = registry.db.cursor()
+    cr = registry.cursor()
     openerp.tools.trans_load( cr, config["translate_in"], config["language"],
         context=context)
     cr.commit()
@@ -164,14 +138,12 @@ def main(args):
     check_root_user()
     openerp.tools.config.parse_config(args)
     check_postgres_user()
-    openerp.netsvc.init_logger()
     report_configuration()
 
     config = openerp.tools.config
 
     if config["test_file"]:
-        run_test_file(config['db_name'], config['test_file'])
-        sys.exit(0)
+        config["test_enable"] = True
 
     if config["translate_out"]:
         export_translation()
@@ -186,18 +158,15 @@ def main(args):
     if config['workers']:
         openerp.multi_process = True
 
-    # preload registries, needed for -u --stop_after_init
-    rc = 0
+    preload = []
     if config['db_name']:
-        for dbname in config['db_name'].split(','):
-            if not preload_registry(dbname):
-                rc += 1
+        preload = config['db_name'].split(',')
 
-    if not config["stop_after_init"]:
-        setup_pid_file()
-        openerp.service.server.start()
-    else:
-        sys.exit(rc)
+    stop = config["stop_after_init"]
+
+    setup_pid_file()
+    rc = openerp.service.server.start(preload=preload, stop=stop)
+    sys.exit(rc)
 
 class Server(Command):
     def run(self, args):

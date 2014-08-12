@@ -23,9 +23,6 @@
                     <div>
                         <field name="logo" widget="image"  class="oe_avatar oe_left"/>
                     </div>
-                    <div class="oe_right oe_button_box" name="button_box">
-                        <button name="%(preview_report)d" string="Preview Header/Footer" type="action"/>
-                    </div>
                     <div class="oe_title">
                         <label for="name" class="oe_edit_only"/>
                         <h1>
@@ -75,34 +72,36 @@
                                 <field name="bank_ids" nolabel="1" context="{'default_company_id': active_id, 'footer_hide': False}"
                                     on_change="onchange_footer(custom_footer, phone, fax, email, website, vat, company_registry, bank_ids)"/>
                             </group>
-                            <group string="Report Footer Configuration">
-                                <field name="paper_format" on_change="onchange_paper_format(paper_format)"/>
-                                <field name="custom_footer" on_change="onchange_footer(custom_footer, phone, fax, email, website, vat, company_registry, bank_ids)"/>
-                                <field name="rml_footer" attrs="{'invisible': [('custom_footer','=',False)]}"/>
-                                <field name="rml_footer_readonly" attrs="{'invisible': [('custom_footer','=',True)]}"/>
-                            </group>
-                            <group>
-                                <label for="font" />
-                                <div>
-                                    <div>
-                                        <field name="font" class="oe_inline" colspan="2" on_change="onchange_font_name(font, rml_header, rml_header2, rml_header3)" />
-                                        <button string="(reload fonts)" name="act_discover_fonts" type="object" class="oe_link" colspan="1"/>
-                                    </div>
-                                </div>
-                            </group>
-                        </page>
-                        <page string="Header/Footer" groups="base.group_no_one">
-                            <label for="rml_header"/>
-                            <field name="rml_header"/>
-                            <label for="rml_header2"/>
-                            <field name="rml_header2"/>
-                            <label for="rml_header3"/>
-                            <field name="rml_header3"/>
                         </page>
                         <page string="Configuration">
                             <group>
                                 <group name="account_grp" string="Accounting">
                                     <field name="currency_id"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Report Configuration">
+                            <group string="Configuration">
+                                <field name="custom_footer" on_change="onchange_footer(custom_footer, phone, fax, email, website, vat, company_registry, bank_ids)"/>
+                                <field name="rml_footer" attrs="{'invisible': [('custom_footer','=',False)]}"/>
+                                <field name="rml_footer_readonly" attrs="{'invisible': [('custom_footer','=',True)]}"/>
+                            </group>
+
+                            <group string="Configuration (RML)" col="2" groups="base.group_no_one">
+                                <field name="rml_paper_format" on_change="onchange_rml_paper_format(rml_paper_format)"/>
+
+                                <label for="font" />
+                                <div>
+                                    <field name="font" class="oe_inline" on_change="onchange_font_name(font, rml_header, rml_header2, rml_header3)" />
+                                    <button string="(reload fonts)" name="act_discover_fonts" type="object" class="oe_link" colspan="1"/>
+                                </div>
+                                <div class="oe_right oe_button_box" name="button_box" colspan="2">
+                                    <button name="%(preview_report)d" string="Preview Header/Footer" type="action"/>
+                                </div>
+                                <group col="1" colspan="2">
+                                    <field name="rml_header"/>
+                                    <field name="rml_header2"/>
+                                    <field name="rml_header3"/>
                                 </group>
                             </group>
                         </page>

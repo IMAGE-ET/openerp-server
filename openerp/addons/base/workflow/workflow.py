@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    OpenERP, Open Source Business Applications
-#    Copyright (C) 2004-2012 OpenERP S.A. (<http://openerp.com>).
+#    Copyright (C) 2004-2014 OpenERP S.A. (<http://openerp.com>).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -123,6 +123,19 @@ class wkf_transition(osv.osv):
     _defaults = {
         'condition': lambda *a: 'True',
     }
+
+    def name_get(self, cr, uid, ids, context=None):
+        return [(line.id, (line.act_from.name) + '+' + (line.act_to.name)) if line.signal == False else (line.id, line.signal) for line in self.browse(cr, uid, ids, context=context)]
+
+    def name_search(self, cr, user, name, args=None, operator='ilike', context=None, limit=100):
+        if args is None:
+            args = []
+        if name:
+            ids = self.search(cr, user, ['|',('act_from', operator, name),('act_to', operator, name)] + args, limit=limit)
+            return self.name_get(cr, user, ids, context=context)
+        return super(wkf_transition, self).name_search(cr, user, name, args=args, operator=operator, context=context, limit=limit)
+
+
 wkf_transition()
 
 class wkf_instance(osv.osv):
@@ -131,10 +144,12 @@ class wkf_instance(osv.osv):
     _rec_name = 'res_type'
     _log_access = False
     _columns = {
+        'uid': fields.integer('User'),      # FIXME no constraint??
         'wkf_id': fields.many2one('workflow', 'Workflow', ondelete='cascade', select=True),
         'res_id': fields.integer('Resource ID'),
         'res_type': fields.char('Resource Object', size=64),
         'state': fields.char('Status', size=32),
+        'transition_ids': fields.many2many('workflow.transition', 'wkf_witm_trans', 'inst_id', 'trans_id'),
     }
     def _auto_init(self, cr, context=None):
         super(wkf_instance, self)._auto_init(cr, context)
