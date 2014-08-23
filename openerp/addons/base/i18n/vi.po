@@ -1,21 +1,22 @@
-# Vietnamese translation for openobject-server
-# Copyright (c) 2012 Rosetta Contributors and Canonical Ltd 2012
-# This file is distributed under the same license as the openobject-server package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2012.
+# Vietnamese translation for openobject-addons
+# Copyright (c) 2009 Rosetta Contributors and Canonical Ltd 2009
+# This file is distributed under the same license as the openobject-addons package.
+# Phong Nguyen <phong.nguyen_thanh@yahoo.com>, 2009.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: openobject-server\n"
-"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
+"Project-Id-Version: openobject-addons\n"
+"Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-08-14 00:10+0000\n"
-"PO-Revision-Date: 2014-05-18 08:52+0000\n"
+"PO-Revision-Date: 2014-08-22 09:58+0000\n"
 "Last-Translator: Mai Đăng Thành <Unknown>\n"
 "Language-Team: Vietnamese <vi@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-08-15 06:18+0000\n"
-"X-Generator: Launchpad (build 17156)\n"
+"X-Launchpad-Export-Date: 2014-08-23 07:11+0000\n"
+"X-Generator: Launchpad (build 17163)\n"
+"Language: vi\n"
 
 #. module: base
 #: model:ir.module.module,description:base.module_account_check_writing
@@ -78,12 +79,12 @@ msgstr "Kiến trúc Xem"
 #. module: base
 #: model:ir.module.module,summary:base.module_sale_stock
 msgid "Quotation, Sale Orders, Delivery & Invoicing Control"
-msgstr "Báo giá, Đơn bán hàng, Giao hàng & Kiểm soát hóa đơn"
+msgstr "Báo giá, Đơn bán hàng, Quản lý Giao hàng & Hóa đơn"
 
 #. module: base
 #: selection:ir.sequence,implementation:0
 msgid "No gap"
-msgstr ""
+msgstr "Không khác biệt"
 
 #. module: base
 #: selection:base.language.install,lang:0
@@ -155,7 +156,7 @@ msgstr ""
 #. module: base
 #: field:ir.actions.client,params:0
 msgid "Supplementary arguments"
-msgstr ""
+msgstr "Cung cấp đối số"
 
 #. module: base
 #: model:ir.module.module,description:base.module_google_account
@@ -165,8 +166,7 @@ msgid ""
 "========================================\n"
 msgstr ""
 "\n"
-"Modun thêm người dùng google vào tài nguyên người dùng.\n"
-"========================================\n"
+"Chức năng thêm người dùng google và danh sách người dùng.\n"
 
 #. module: base
 #: help:res.partner,employee:0
@@ -430,6 +430,13 @@ msgid ""
 "invoices from picking, OpenERP is able to add and compute the shipping "
 "line.\n"
 msgstr ""
+"\n"
+"Cho phép thêm hình thức vận chuyển vào đơn hàng bán và phiếu lấy hàng.\n"
+"==============================================================\n"
+"\n"
+"Bạn có thể chỉ định nhà cung cấp riêng và khung giá vận chuyển. Khi tạo hóa "
+"đơn từ phiếu lấy hàng, \n"
+"OpenERP cho phép tính và thêm vào phí vận chuyển.\n"
 
 #. module: base
 #: code:addons/base/ir/ir_filters.py:96
@@ -635,6 +642,19 @@ msgid ""
 "* Use emails to automatically confirm and send acknowledgements for any "
 "event registration\n"
 msgstr ""
+"\n"
+"Tổ chức và quản lý Sự kiện.\n"
+"======================================\n"
+"\n"
+"Chức năng sự kiện cho phép bạn tổ chức có hiệu quả các sự kiện và tất cả các "
+"nhiệm vụ liên quan: lập kế hoạch, theo dõi việc đăng ký,\n"
+"số lượng tham dự, etc.\n"
+"\n"
+"Tính năng chính\n"
+"------------\n"
+"* Quản lý Sự kiện và Đăng ký\n"
+"* Sử dụng email để tự động xác nhận và gởi lời cảm ơn đến những ai đăng ký "
+"tham gia sự kiện\n"
 
 #. module: base
 #: selection:base.language.install,lang:0
