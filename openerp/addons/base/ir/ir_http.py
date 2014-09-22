@@ -77,14 +77,16 @@ class ir_http(osv.AbstractModel):
                 # what if error in security.check()
                 #   -> res_users.check()
                 #   -> res_users.check_credentials()
-            except Exception:
+            except (openerp.exceptions.AccessDenied, openerp.http.SessionExpiredException):
+                # All other exceptions mean undetermined status (e.g. connection pool full),
+                # let them bubble up
                 request.session.logout()
         getattr(self, "_auth_method_%s" % auth_method)()
         return auth_method
 
     def _handle_exception(self, exception):
-        # If handle exception return something different than None, it will be used as a response
-        raise
+        # If handle_exception returns something different than None, it will be used as a response
+        return request._handle_exception(exception)
 
     def _dispatch(self):
         # locate the controller method

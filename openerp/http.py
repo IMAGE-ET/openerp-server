@@ -135,6 +135,10 @@ class WebRequest(object):
         self._cr_cm = None
         self._cr = None
         self.func_request_type = None
+
+        # prevents transaction commit, use when you catch an exception during handling
+        self._failed = None
+
         # set db/uid trackers - they're cleaned up at the WSGI
         # dispatching phase in openerp.service.wsgi_server.application
         if self.db:
@@ -178,8 +182,11 @@ class WebRequest(object):
     def __exit__(self, exc_type, exc_value, traceback):
         _request_stack.pop()
         if self._cr:
-            if exc_type is None:
+            if exc_type is None and not self._failed:
                 self._cr.commit()
+            else:
+                # just to be explicit - happens at close() anyway
+                self._cr.rollback()
             self._cr.close()
         # just to be sure no one tries to re-use the request
         self.disable_db = True
@@ -195,6 +202,13 @@ class WebRequest(object):
         self.func_arguments = arguments
         self.auth_method = auth
 
+
+    def _handle_exception(self, exception):
+        """Called within an except block to allow converting exceptions
+           to abitrary responses. Anything returned (except None) will
+           be used as response.""" 
+        raise 
+
     def _call_function(self, *args, **kwargs):
         request = self
         if self.func_request_type != self._request_type:
@@ -206,20 +220,19 @@ class WebRequest(object):
         # Backward for 7.0
         if getattr(self.func.method, '_first_arg_is_req', False):
             args = (request,) + args
+
         # Correct exception handling and concurency retry
         @service_model.check
-        def checked_call(dbname, *a, **kw):
-            return self.func(*a, **kw)
-
-        # FIXME: code and rollback management could be cleaned
-        try:
-            if self.db:
-                return checked_call(self.db, *args, **kwargs)
-            return self.func(*args, **kwargs)
-        except Exception:
+        def checked_call(___dbname, *a, **kw):
+            # The decorator can call us more than once if there is an database error. In this
+            # case, the request cursor is unusable. Rollback transaction to create a new one.
             if self._cr:
                 self._cr.rollback()
-            raise
+            return self.func(*a, **kw)
+
+        if self.db:
+            return checked_call(self.db, *args, **kwargs)
+        return self.func(*args, **kwargs)
 
     @property
     def debug(self):
@@ -332,35 +345,15 @@ class JsonRequest(WebRequest):
         self.params = dict(self.jsonrequest.get("params", {}))
         self.context = self.params.pop('context', dict(self.session.context))
 
-    def dispatch(self):
-        """ Calls the method asked for by the JSON-RPC2 or JSONP request
-        """
-        if self.jsonp_handler:
-            return self.jsonp_handler()
-        response = {"jsonrpc": "2.0" }
-        error = None
-
-        try:
-            response['id'] = self.jsonrequest.get('id')
-            response["result"] = self._call_function(**self.params)
-        except AuthenticationError, e:
-            _logger.exception("Exception during JSON request handling.")
-            se = serialize_exception(e)
-            error = {
-                'code': 100,
-                'message': "OpenERP Session Invalid",
-                'data': se
-            }
-        except Exception, e:
-            _logger.exception("Exception during JSON request handling.")
-            se = serialize_exception(e)
-            error = {
-                'code': 200,
-                'message': "OpenERP Server Error",
-                'data': se
-            }
-        if error:
-            response["error"] = error
+    def _json_response(self, result=None, error=None):
+        response = {
+            'jsonrpc': '2.0',
+            'id': self.jsonrequest.get('id')
+        }
+        if error is not None:
+            response['error'] = error
+        if result is not None:
+            response['result'] = result
 
         if self.jsonp:
             # If we use jsonp, that's mean we are called from another host
@@ -373,8 +366,36 @@ class JsonRequest(WebRequest):
             mime = 'application/json'
             body = simplejson.dumps(response)
 
-        r = werkzeug.wrappers.Response(body, headers=[('Content-Type', mime), ('Content-Length', len(body))])
-        return r
+        return werkzeug.wrappers.Response(
+                    body, headers=[('Content-Type', mime),
+                                   ('Content-Length', len(body))])
+
+    def _handle_exception(self, exception):
+        """Called within an except block to allow converting exceptions
+           to abitrary responses. Anything returned (except None) will
+           be used as response.""" 
+        _logger.exception("Exception during JSON request handling.")
+        self._failed = exception # prevent tx commit            
+        error = {
+                'code': 200,
+                'message': "OpenERP Server Error",
+                'data': serialize_exception(exception)
+        }
+        if isinstance(exception, AuthenticationError):
+            error['code'] = 100
+            error['message'] = "OpenERP Session Invalid"
+        return self._json_response(error=error)
+
+    def dispatch(self):
+        """ Calls the method asked for by the JSON-RPC2 or JSONP request
+        """
+        if self.jsonp_handler:
+            return self.jsonp_handler()
+        try:
+            result = self._call_function(**self.params)
+            return self._json_response(result)
+        except Exception, e:
+            return self._handle_exception(e)
 
 def serialize_exception(e):
     tmp = {
@@ -441,6 +462,7 @@ class HttpRequest(WebRequest):
             elif request.func.routing.get('methods'):
                 methods = ', '.join(request.func.routing['methods'])
             response.headers.set('Access-Control-Allow-Methods', methods)
+            response.headers.set('Access-Control-Max-Age',60*60*24)
             response.headers.set('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
             return response
 
@@ -691,7 +713,7 @@ class OpenERPSession(werkzeug.contrib.sessions.Session):
         self.setdefault("uid", None)
         self.setdefault("login", None)
         self.setdefault("password", None)
-        self.setdefault("context", {'tz': "UTC", "uid": None})
+        self.setdefault("context", {})
 
     def get_context(self):
         """
@@ -830,6 +852,40 @@ class OpenERPSession(werkzeug.contrib.sessions.Session):
             raise SessionExpiredException("Session expired")
 
         return Model(self, model)
+
+    def save_action(self, action):
+        """
+        This method store an action object in the session and returns an integer
+        identifying that action. The method get_action() can be used to get
+        back the action.
+
+        :param the_action: The action to save in the session.
+        :type the_action: anything
+        :return: A key identifying the saved action.
+        :rtype: integer
+        """
+        saved_actions = self.setdefault('saved_actions', {"next": 1, "actions": {}})
+        # we don't allow more than 10 stored actions
+        if len(saved_actions["actions"]) >= 10:
+            del saved_actions["actions"][min(saved_actions["actions"])]
+        key = saved_actions["next"]
+        saved_actions["actions"][key] = action
+        saved_actions["next"] = key + 1
+        self.modified = True
+        return key
+
+    def get_action(self, key):
+        """
+        Gets back a previously saved action. This method can return None if the action
+        was saved since too much time (this case should be handled in a smart way).
+
+        :param key: The key given by save_action()
+        :type key: integer
+        :return: The saved action or None.
+        :rtype: anything
+        """
+        saved_actions = self.get('saved_actions', {})
+        return saved_actions.get("actions", {}).get(key)
 
 def session_gc(session_store):
     if random.random() < 0.001:
@@ -972,9 +1028,12 @@ class Root(object):
     def setup_db(self, httprequest):
         db = httprequest.session.db
         # Check if session.db is legit
-        if db and db not in db_filter([db], httprequest=httprequest):
-            httprequest.session.logout()
-            db = None
+        if db:
+            if db not in db_filter([db], httprequest=httprequest):
+                _logger.warn("Logged into database '%s', but dbfilter "
+                             "rejects it; logging session out.", db)
+                httprequest.session.logout()
+                db = None
 
         if not db:
             httprequest.session.db = db_monodb(httprequest)

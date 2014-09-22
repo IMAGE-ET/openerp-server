@@ -40,9 +40,10 @@ def dispatch(method, params):
 
 def check(f):
     @wraps(f)
-    def wrapper(dbname, *args, **kwargs):
+    def wrapper(___dbname, *args, **kwargs):
         """ Wraps around OSV functions and normalises a few exceptions
         """
+        dbname = ___dbname      # NOTE: this forbid to use "___dbname" as arguments in http routes
 
         def tr(src, ttype):
             # We try to do the same as the _(), but without the frame
@@ -53,7 +54,8 @@ def check(f):
                 if args and isinstance(args[-1], dict):
                     ctx = args[-1]
             elif isinstance(kwargs, dict):
-                ctx = kwargs.get('context', {})
+                # kwargception because call_kw set its context in kwargs['kwargs']
+                ctx = kwargs.get('context', kwargs.get('kwargs', {}).get('context', {}))
 
             uid = 1
             if args and isinstance(args[0], (long, int)):

@@ -3,7 +3,7 @@
 #
 #    OpenERP, Open Source Management Solution
 #    Copyright (C) 2004-2009 Tiny SPRL (<http://tiny.be>).
-#    Copyright (C) 2010-2013 OpenERP s.a. (<http://openerp.com>).
+#    Copyright (C) 2010-2014 OpenERP s.a. (<http://openerp.com>).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -28,7 +28,7 @@ import openerp
 from openerp import SUPERUSER_ID
 from openerp import tools
 import openerp.exceptions
-from openerp.osv import fields,osv
+from openerp.osv import fields,osv, expression
 from openerp.osv.orm import browse_record
 from openerp.tools.translate import _
 
@@ -56,13 +56,33 @@ class res_groups(osv.osv):
     def _search_group(self, cr, uid, obj, name, args, context=None):
         operand = args[0][2]
         operator = args[0][1]
-        values = operand.split('/')
-        group_name = values[0]
-        where = [('name', operator, group_name)]
-        if len(values) > 1:
-            application_name = values[0]
-            group_name = values[1]
-            where = ['|',('category_id.name', operator, application_name)] + where
+        lst = True
+        if isinstance(operand, bool):
+            domains = [[('name', operator, operand)], [('category_id.name', operator, operand)]]
+            if operator in expression.NEGATIVE_TERM_OPERATORS == (not operand):
+                return expression.AND(domains)
+            else:
+                return expression.OR(domains)
+        if isinstance(operand, basestring):
+            lst = False
+            operand = [operand]
+        where = []
+        for group in operand:
+            values = filter(bool, group.split('/'))
+            group_name = values.pop().strip()
+            category_name = values and '/'.join(values).strip() or group_name
+            group_domain = [('name', operator, lst and [group_name] or group_name)]
+            category_domain = [('category_id.name', operator, lst and [category_name] or category_name)]
+            if operator in expression.NEGATIVE_TERM_OPERATORS and not values:
+                category_domain = expression.OR([category_domain, [('category_id', '=', False)]])
+            if (operator in expression.NEGATIVE_TERM_OPERATORS) == (not values):
+                sub_where = expression.AND([group_domain, category_domain])
+            else:
+                sub_where = expression.OR([group_domain, category_domain])
+            if operator in expression.NEGATIVE_TERM_OPERATORS:
+                where = expression.AND([where, sub_where])
+            else:
+                where = expression.OR([where, sub_where])
         return where
 
     _columns = {
@@ -79,7 +99,7 @@ class res_groups(osv.osv):
     }
 
     _sql_constraints = [
-        ('name_uniq', 'unique (category_id, name)', 'The name of the group must be unique !')
+        ('name_uniq', 'unique (category_id, name)', 'The name of the group must be unique within an application!')
     ]
 
     def search(self, cr, uid, args, offset=0, limit=None, order=None, context=None, count=False):
@@ -169,8 +189,9 @@ class res_users(osv.osv):
     }
 
     def on_change_login(self, cr, uid, ids, login, context=None):
-        v = {'email': login} if tools.single_email_re.match(login) else {}
-        return {'value': v}
+        if login and tools.single_email_re.match(login):
+            return {'value': {'email': login}}
+        return {}
 
     def onchange_state(self, cr, uid, ids, state_id, context=None):
         partner_ids = [user.partner_id.id for user in self.browse(cr, uid, ids, context=context)]
@@ -899,16 +920,22 @@ class change_password_wizard(osv.TransientModel):
             }))
         return {'user_ids': res}
 
-
     def change_password_button(self, cr, uid, id, context=None):
         wizard = self.browse(cr, uid, id, context=context)[0]
-        user_ids = []
-        for user in wizard.user_ids:
-            user_ids.append(user.id)
-        self.pool.get('change.password.user').change_password_button(cr, uid, user_ids, context=context)
-        return {
-            'type': 'ir.actions.act_window_close',
-        }
+        need_reload = any(uid == user.user_id.id for user in wizard.user_ids)
+        line_ids = [user.id for user in wizard.user_ids]
+
+        self.pool.get('change.password.user').change_password_button(cr, uid, line_ids, context=context)
+        # don't keep temporary password copies in the database longer than necessary
+        self.pool.get('change.password.user').write(cr, uid, line_ids, {'new_passwd': False}, context=context)
+
+        if need_reload:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'reload'
+            }
+
+        return {'type': 'ir.actions.act_window_close'}
 
 class change_password_user(osv.TransientModel):
     """

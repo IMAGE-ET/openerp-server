@@ -236,15 +236,24 @@ class char(_column):
 class text(_column):
     _type = 'text'
 
+
 class html(text):
     _type = 'html'
     _symbol_c = '%s'
-    def _symbol_f(x):
-        if x is None or x == False:
+
+    def _symbol_set_html(self, value):
+        if value is None or value is False:
             return None
-        return html_sanitize(x)
-        
-    _symbol_set = (_symbol_c, _symbol_f)
+        if not self._sanitize:
+            return value
+        return html_sanitize(value)
+
+    def __init__(self, string='unknown', sanitize=True, **args):
+        super(html, self).__init__(string=string, **args)
+        self._sanitize = sanitize
+        # symbol_set redefinition because of sanitize specific behavior
+        self._symbol_f = self._symbol_set_html
+        self._symbol_set = (self._symbol_c, self._symbol_f)
 
 import __builtin__
 
@@ -639,7 +648,10 @@ class one2many(_column):
                 else:
                     cr.execute('update '+_table+' set '+self._fields_id+'=null where id=%s', (act[1],))
             elif act[0] == 4:
-                cr.execute("select 1 from {0} where id=%s and {1}=%s".format(_table, self._fields_id), (act[1], id))
+                # table of the field (parent_model in case of inherit)
+                field_model = self._fields_id in obj.pool[self._obj]._columns and self._obj or obj.pool[self._obj]._all_columns[self._fields_id].parent_model
+                field_table = obj.pool[field_model]._table
+                cr.execute("select 1 from {0} where id=%s and {1}=%s".format(field_table, self._fields_id), (act[1], id))
                 if not cr.fetchone():
                     # Must use write() to recompute parent_store structure if needed and check access rules
                     obj.write(cr, user, [act[1]], {self._fields_id:id}, context=context or {})
@@ -1461,11 +1473,9 @@ class property(function):
     def _get_by_id(self, obj, cr, uid, prop_name, ids, context=None):
         prop = obj.pool.get('ir.property')
         vids = [obj._name + ',' + str(oid) for oid in  ids]
-        def_id = self._field_get(cr, uid, obj._name, prop_name[0])
-        company = obj.pool.get('res.company')
-        cid = company._company_default_get(cr, uid, obj._name, def_id, context=context)
-        domain = [('fields_id.model', '=', obj._name), ('fields_id.name', 'in', prop_name), ('company_id', '=', cid)]
-        #domain = prop._get_domain(cr, uid, prop_name, obj._name, context)
+        domain = [('fields_id.model', '=', obj._name), ('fields_id.name', 'in', prop_name)]
+        if context and context.get('company_id'):
+            domain += [('company_id', '=', context.get('company_id'))]
         if vids:
             domain = [('res_id', 'in', vids)] + domain
         return prop.search(cr, uid, domain, context=context)
@@ -1475,7 +1485,12 @@ class property(function):
         if context is None:
             context = {}
 
-        nids = self._get_by_id(obj, cr, uid, [prop_name], [id], context)
+        def_id = self._field_get(cr, uid, obj._name, prop_name)
+        company = obj.pool.get('res.company')
+        cid = company._company_default_get(cr, uid, obj._name, def_id, context=context)
+        # TODO for trunk: add new parameter company_id to _get_by_id method
+        context_company = dict(context, company_id=cid)
+        nids = self._get_by_id(obj, cr, uid, [prop_name], [id], context_company)
         if nids:
             cr.execute('DELETE FROM ir_property WHERE id IN %s', (tuple(nids),))
 
@@ -1489,10 +1504,6 @@ class property(function):
             property_create = True
 
         if property_create:
-            def_id = self._field_get(cr, uid, obj._name, prop_name)
-            company = obj.pool.get('res.company')
-            cid = company._company_default_get(cr, uid, obj._name, def_id,
-                                               context=context)
             propdef = obj.pool.get('ir.model.fields').browse(cr, uid, def_id,
                                                              context=context)
             prop = obj.pool.get('ir.property')
